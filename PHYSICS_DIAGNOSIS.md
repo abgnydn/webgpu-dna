@@ -114,7 +114,47 @@ section + longer tracks (more steps per primary) at lower MFP.
 comparison (write OH-from-excitation events with a distinct species
 marker) would close this. **Pending.**
 
-## 3. CSDA bias 0.988× at 3.59σ (E5, 2026-05-11)
+## 3. Indirect SSB undercounted (ratio 0 vs PARTRAC's 2-3) — E13, 2026-05-11
+
+**Observed.** SSB_ind = 0 vs SSB_dir = 24 at N=4096 × 10 keV.
+Indirect/direct ratio = 0, vs PARTRAC's reported low-LET ratio of 2-3.
+
+**Root cause is three-fold** (each independently contributes to the
+shortfall):
+
+1. **Late-time scoring.** `scoreIndirectSSB` (src/scoring/ssb-dsb.ts L43-121)
+   only sees OH that has survived to t = 1 μs — about 34% of the initial
+   G(OH) = 4.51 → 1.55 at 1 μs per E10. PARTRAC scores
+   OH-backbone *encounters* during the full IRT, capturing the ~66% of
+   OH that's consumed by chemistry before 1 μs. The fix is to move the
+   scoring inside the IRT worker loop or accumulate hits during the
+   schedule. Moderate WGSL refactor.
+
+2. **Damage radius too tight.** `SSB_R_DAMAGE_NM = 0.29 nm` is the
+   Nikjoo/Karamitros pure-reaction radius for OH + backbone. PARTRAC and
+   other operational scorers fold in an effective diffusion-to-encounter
+   radius of ~1 nm. Bumping the constant to 1.0 nm would close most of
+   the geometric gap. One-line change in `src/physics/constants.ts`.
+
+3. **Target geometry.** The 21×21 fiber grid (3.89 Mbp) samples a 3 μm³
+   slab in the track core. PARTRAC simulates a full chromatin cell
+   (8.7 × 10¹² Da spread through the entire cell volume). Most surviving
+   OHs land in the box but FAR from the grid; in a full-cell geometry
+   they'd still have nearby DNA to react with. This is the geometric
+   artifact already documented in E12 — would close cleanly with a
+   chromatin-style target (deferred to E14).
+
+**Concrete fix candidates ordered by effort:**
+- *(a) 1-line tweak:* raise SSB_R_DAMAGE_NM from 0.29 nm to 1.0 nm.
+  Expected to lift SSB_ind from 0 to ~20-50.
+- *(b) Refactor:* move indirect-SSB scoring into `public/irt-worker.js`,
+  accumulate hits during the full IRT timeline rather than only at t=1 μs.
+  Expected to roughly triple SSB_ind.
+- *(c) Target redesign:* swap the 21×21 fiber grid for a uniform-cell
+  DNA distribution. Closes both this gap and E12's target-concentration
+  artifact in one move.
+
+## 4. CSDA bias 0.988× at 3.59σ (E5, 2026-05-11)
 
 Already documented in E5's row note. Compounds finding #2: the
 extra excitations cost slightly more energy per step → shorter

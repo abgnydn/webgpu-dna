@@ -7,6 +7,24 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L5 stage 2: E13 indirect/direct SSB ratio (2026-05-11)
+
+- **E13** compares the indirect/direct SSB ratio at 10 keV to the
+  PARTRAC low-LET reference (Friedland 2011 / Nikjoo 2001 / Semenenko &
+  Stewart 2004 — reported indirect/direct ratio ≈ 2-3).
+- **Result (fail, honest negative):** WGSL SSB_ind / SSB_dir = 0 / 24 = 0.
+  PARTRAC reports ~2-3. The artifact decomposes the deficit into three
+  independent contributing causes and lists concrete fix paths ordered
+  by effort.
+- **PHYSICS_DIAGNOSIS.md §3** adds the full three-cause analysis:
+  (a) `scoreIndirectSSB` only sees OH survivors at t = 1 μs (about 34%
+  of initial OH per E10); (b) damage radius 0.29 nm (Nikjoo reaction
+  radius only) vs PARTRAC effective ~1 nm with diffusion-to-encounter
+  folded in; (c) 21×21 fiber-grid track-core concentration. Fix candidates:
+  one-line constant tweak (raise SSB_R_DAMAGE_NM to 1.0 nm), moderate
+  refactor (move scoring inside IRT worker), or target redesign
+  (uniform-cell DNA, deferred to E14).
+
 ### Added — L2 stage 4: E8 secondary KE spectrum (2026-05-11)
 
 - Extended `src/bench.ts` with a `dumpSecBuf` option that reads back the
