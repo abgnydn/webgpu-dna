@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (28 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (29 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -200,18 +200,19 @@ per-level `protocol.md` files for hypotheses + pass bars.
   (22.0σ), H₂O₂ 0.577× (9.3σ). **Localizes the E10c 1 μs deficit
   to pre-chemistry, not IRT reaction rates.** See PHYSICS_DIAGNOSIS.md
   for the propagation table + concrete fix candidates. [E9]
-- **L5 — DNA damage (2 of 3 attempted, 1 pass with caveat / 1 fail
-  honest-negative).** E12 SSB/DSB yields vs Friedland 2011 PARTRAC:
-  **DSB/SSB ratio 0.083 vs Friedland's 0.023 → 3.57×, in the
-  geometry-independent factor-5 pass band** (substantive agreement on
-  clustering kernel). Absolute per-Da yields are 220-800× Friedland —
-  documented as informational. **E13 indirect/direct SSB ratio**: WGSL
-  0/24 = 0 vs PARTRAC 2-3 (fail honest-negative). Three-cause diagnosis
-  in PHYSICS_DIAGNOSIS.md §3: late-time scoring (only sees OH survivors
-  at t=1 μs), damage radius 0.29 nm vs PARTRAC's effective ~1 nm, and
-  the 21×21 fiber grid concentration. Three concrete WGSL fix candidates
-  listed ordered by effort. E14 against molecularDNA's full chromatin
-  model deferred. [E12, E13]
+- **L5 — DNA damage (3 of 3 attempted, 2 pass / 1 fail honest-negative;
+  fix applied).** E12 SSB/DSB yields vs Friedland 2011 PARTRAC:
+  DSB/SSB ratio 0.083 vs 0.023 → 3.57×, in the geometry-independent
+  factor-5 pass band. E13 indirect/direct SSB ratio (0/24 = 0 vs
+  PARTRAC 2-3) failed at the old SSB_R_DAMAGE_NM = 0.29 nm. **E13b
+  parametric sweep applied the fix:** Node-side replay of
+  scoreIndirectSSB across r ∈ {0.29, 0.5, 1.0, 1.5, 2.0, 3.0} nm
+  predicted SSB_ind = 174 at r=1.0 nm (PARTRAC's effective value).
+  `src/physics/constants.ts` bumped to 1.0 nm 2026-05-11; after
+  chemistry diffusion smearing, expected SSB_ind ≈ 48-72 in the
+  PARTRAC 2-3× ratio band. webgpu-results.json's SSB_ind=0 number
+  is now stale pending a browser harness re-run. E14 against
+  molecularDNA's full chromatin model deferred. [E12, E13, E13b]
 
 **Seven substantive findings now in the research ledger** (would NOT
 be visible without the protocol):

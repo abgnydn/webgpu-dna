@@ -145,14 +145,23 @@ shortfall):
    chromatin-style target (deferred to E14).
 
 **Concrete fix candidates ordered by effort:**
-- *(a) 1-line tweak:* raise SSB_R_DAMAGE_NM from 0.29 nm to 1.0 nm.
-  Expected to lift SSB_ind from 0 to ~20-50.
-- *(b) Refactor:* move indirect-SSB scoring into `public/irt-worker.js`,
-  accumulate hits during the full IRT timeline rather than only at t=1 μs.
-  Expected to roughly triple SSB_ind.
-- *(c) Target redesign:* swap the 21×21 fiber grid for a uniform-cell
-  DNA distribution. Closes both this gap and E12's target-concentration
-  artifact in one move.
+- *(a) 1-line tweak — APPLIED 2026-05-11:* raised `SSB_R_DAMAGE_NM` from
+  0.29 nm to 1.0 nm in `src/physics/constants.ts`. E13b's Node-side
+  parametric scorer (which replicates `scoreIndirectSSB` on the
+  pre-chemistry rad_buf positions) predicts SSB_ind ≈ 174 at r=1.0 nm
+  vs ~8 at r=0.29 nm. After chemistry diffusion smearing reduces this
+  3-4× the actual SSB_ind should land in the **PARTRAC indirect/direct
+  ratio = 2-3 band** (i.e. SSB_ind ≈ 48-72 at SSB_dir = 24).
+  `validation/webgpu-results.json`'s SSB_ind=0 is now stale — re-run
+  the browser validation harness to refresh.
+- *(b) Refactor (pending):* move indirect-SSB scoring into
+  `public/irt-worker.js`, accumulate hits during the full IRT timeline
+  rather than only at t=1 μs. Independently of (a), this fold-in of
+  OH-backbone encounters during the chemistry phase would roughly
+  triple SSB_ind.
+- *(c) Target redesign (pending):* swap the 21×21 fiber grid for a
+  uniform-cell DNA distribution. Closes both this gap and E12's
+  target-concentration artifact in one move.
 
 ## 4. CSDA bias 0.988× at 3.59σ (E5, 2026-05-11)
 

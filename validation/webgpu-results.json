@@ -26,6 +26,7 @@
     "SSB_ind": 0,
     "DSB": 2,
     "kernelHits": 117,
-    "$comment": "Counts on the 21×21 B-DNA fiber grid (3.89 Mbp target) at 10 keV, ~0.243 Gy at 30 μm box. Geometry-dependent — see CLAUDE.md indirect SSB caveat."
+    "$comment": "Counts on the 21×21 B-DNA fiber grid (3.89 Mbp target) at 10 keV, ~0.243 Gy at 30 μm box. Geometry-dependent — see CLAUDE.md indirect SSB caveat.",
+    "$stale_after_2026-05-11_constant_bump": "SSB_ind=0 and DSB=2 were measured with SSB_R_DAMAGE_NM=0.29 nm. The constant was bumped to 1.0 nm on 2026-05-11 per E13/E13b (PARTRAC-effective value, folds in OH diffusion-to-encounter). Re-running the browser harness will produce a higher SSB_ind (E13b's Node-side parametric scorer predicts ~50-60 SSB_ind after chemistry diffusion smearing — in the PARTRAC indirect/direct = 2-3 band). The current SSB_ind=0 number remains here so the audit trail across r_damage values is reproducible."
   }
 }

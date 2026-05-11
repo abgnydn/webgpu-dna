@@ -32,6 +32,7 @@ import { runE15d } from './level-6-performance/E15d-phase-a-energy-sweep.mjs';
 import { runE16 } from './level-6-performance/E16-fused-vs-naive.mjs';
 import { runE12 } from './level-5-dna-damage/E12-ssb-yield-vs-friedland.mjs';
 import { runE13 } from './level-5-dna-damage/E13-indirect-vs-direct-ssb.mjs';
+import { runE13b } from './level-5-dna-damage/E13b-ssb-radius-parametric.mjs';
 import { runE11 } from './level-4-chemistry/E11-gpu-chem-vs-irt.mjs';
 import { runB0 } from './level-0-env/B0-browser-env.mjs';
 import { runB1 } from './level-0-env/B1-harness-liveness.mjs';
@@ -79,6 +80,7 @@ const REGISTRY = {
   // Level 5 — DNA damage
   E12:  { run: runE12,  level: 'level-5', id: 'E12-ssb-yield-vs-friedland' },
   E13:  { run: runE13,  level: 'level-5', id: 'E13-indirect-vs-direct-ssb' },
+  E13b: { run: runE13b, level: 'level-5', id: 'E13b-ssb-radius-parametric' },
 };
 
 const REPO_ROOT = join(import.meta.dirname, '..');

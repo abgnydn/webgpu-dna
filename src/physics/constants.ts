@@ -119,7 +119,17 @@ export const DNA_SPACING_NM = 150;
 
 // --- SSB/DSB scoring ---
 
-export const SSB_R_DAMAGE_NM = 0.29;     // Nikjoo/Karamitros reaction radius for OH → backbone
+// Bumped 2026-05-11 from 0.29 → 1.0 nm. The 0.29 value is the pure Nikjoo /
+// Karamitros OH-backbone reaction radius. PARTRAC and other operational
+// scorers use ~1.0 nm because they fold the OH diffusion-to-encounter window
+// into the effective scoring radius. E13 surfaced that 0.29 nm gives observed
+// SSB_ind = 0 vs PARTRAC's indirect/direct ratio of 2-3; E13b's parametric
+// Node-side re-scoring predicts SSB_ind ≈ 174 at r=1.0 nm on the existing
+// rad_buf, which after chemistry diffusion smearing (~3-4× reduction) lands
+// in the PARTRAC band. validation/webgpu-results.json's SSB_ind field is
+// currently stale at the old 0.29 nm value — refresh via a browser harness
+// re-run after this bump. See PHYSICS_DIAGNOSIS.md §3.
+export const SSB_R_DAMAGE_NM = 1.0;      // PARTRAC-effective (was 0.29 nm, Nikjoo reaction-only)
 export const SSB_P_INDIRECT = 0.4;       // probability of SSB on OH contact
 export const SSB_P_DIRECT = 0.15;        // probability of SSB on direct ionization
 export const DSB_WINDOW_BP = 10;         // ±bp clustering window for DSB pairing

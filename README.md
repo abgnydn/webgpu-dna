@@ -57,7 +57,7 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 
 ### Research-grade validation ledger
 
-28 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/). Standing physics diagnoses live in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md).
+29 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/). Standing physics diagnoses live in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md).
 
 | Level | ID | Status | Headline | Artifact (2026-05-11) |
 |------:|:---|:-------|:---------|:----------------------|
@@ -90,6 +90,7 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 | 6 | E15d | ✓ | **Phase A α/β + peak throughput across 8 ESTAR energies** (100 eV → 20 keV). β scales monotonically: 0.23 / 0.25 / 0.32 / 0.38 / 0.58 / 0.75 / 1.47 / 2.05 μs/primary; peak throughput correspondingly drops from 2.1M to 0.29M primaries/sec. Confirms the kernel's per-primary cost scales with primary energy (longer histories = more compute), as expected from the fused-loop design. | [E15d](./experiments/results/2026-05-11/level-6/E15d-phase-a-energy-sweep.json) |
 | 5 | E12 | ✓ pass (with geometric caveat) | SSB/DSB yields vs Friedland 2011 / PARTRAC. **Geometry-independent DSB/SSB ratio = 0.083** (3.6× Friedland's 0.023, within factor-5 pass band — clustering kernel agrees in spirit). Absolute per-Da yields are 220-800× Friedland (informational fail — fiber grid concentration in track core, not a scoring bug). The honest read: SSB→DSB pair discrimination matches PARTRAC; absolute yields require a matched-geometry follow-up (E12b). | [E12](./experiments/results/2026-05-11/level-5/E12-ssb-yield-vs-friedland.json) |
 | 5 | E13 | ✗ fail (honest negative) | **Indirect/direct SSB ratio** vs PARTRAC low-LET reference (2-3). WGSL: **0/24 = 0**. Three-cause diagnosis in [PHYSICS_DIAGNOSIS.md §3](./PHYSICS_DIAGNOSIS.md): (a) `scoreIndirectSSB` only sees OH survivors at t=1 μs (~34% of initial); (b) damage radius 0.29 nm (Nikjoo reaction radius only) vs PARTRAC's effective ~1 nm with diffusion folded in; (c) 21×21 fiber grid concentration. Three concrete fix candidates listed, ordered by effort. | [E13](./experiments/results/2026-05-11/level-5/E13-indirect-vs-direct-ssb.json) |
+| 5 | E13b | ✓ | **Parametric SSB_R_DAMAGE_NM sweep** using existing rad_buf OH positions + real DNA geometry, Node-side replica of `scoreIndirectSSB`. Predicted SSB_ind: r=0.29 → 8, r=0.5 → 53, **r=1.0 → 174**, r=2.0 → 394. **Confirms the SSB_R_DAMAGE_NM = 1.0 nm fix** would lift SSB_ind from 0 (current, r=0.29) into the PARTRAC band even after chemistry diffusion smears the prediction 3-4×. Headline: changing one constant closes a marquee gap. | [E13b](./experiments/results/2026-05-11/level-5/E13b-ssb-radius-parametric.json) |
 
 Run any experiment via `npm run experiments -- <id>` (e.g. `E1`, `E10`, `B1`, `E15`, `E15b`).
 

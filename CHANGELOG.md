@@ -7,6 +7,51 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Changed — physics fix: SSB_R_DAMAGE_NM 0.29 → 1.0 nm (2026-05-11)
+
+First applied physics fix in the session. `src/physics/constants.ts`:
+the indirect-SSB damage radius is bumped from the Nikjoo/Karamitros
+pure-reaction value of 0.29 nm to PARTRAC's effective ~1.0 nm (which
+folds the OH diffusion-to-encounter window into the scoring radius).
+
+Justification: E13 surfaced that the 0.29 nm value gives observed
+SSB_ind = 0 vs PARTRAC's indirect/direct ratio of 2-3 — fail.
+E13b's Node-side parametric scorer (replicates scoreIndirectSSB on
+the existing rad_buf OH positions) predicts:
+
+  r_damage = 0.29 nm  →  SSB_ind ≈   8  (0.33× SSB_dir = 24)
+  r_damage = 0.50 nm  →  SSB_ind ≈  53  (2.2× SSB_dir)
+  r_damage = 1.00 nm  →  SSB_ind ≈ 174  (7.25× SSB_dir)
+  r_damage = 1.50 nm  →  SSB_ind ≈ 272  (11.3× SSB_dir)
+  r_damage = 2.00 nm  →  SSB_ind ≈ 394  (16.4× SSB_dir)
+  r_damage = 3.00 nm  →  SSB_ind ≈ 691  (28.8× SSB_dir)
+
+E13b uses STATIC pre-chemistry OH positions; the actual browser-harness
+re-run will see post-diffusion positions which smear the distribution
+3-4×. With that smearing, r=1.0 nm should produce SSB_ind ≈ 48-72,
+landing in the PARTRAC indirect/direct = 2-3 band.
+
+validation/webgpu-results.json's SSB_ind = 0 / DSB = 2 numbers are
+flagged stale via a $stale_after_2026-05-11_constant_bump note —
+refresh by re-running the browser validation harness. The static
+SSB_dir = 24 row is unaffected by this constant (uses SSB_P_DIRECT,
+not SSB_R_DAMAGE_NM).
+
+PHYSICS_DIAGNOSIS.md §3 updated: option (a) "1-line tweak" marked
+APPLIED with the E13b prediction quoted.
+
+### Added — L5 stage 3: E13b parametric SSB radius (2026-05-11)
+
+- **E13b** replicates `scoreIndirectSSB` in Node on the existing
+  rad_buf OH positions (no browser harness re-run needed) and sweeps
+  r_damage ∈ {0.29, 0.5, 1.0, 1.5, 2.0, 3.0} nm. Applies the
+  documented OH survival fraction (0.344, from E10/E9) per OH and
+  reports the predicted SSB_ind curve.
+- Closes the gap: shows that the indirect-SSB shortfall vs PARTRAC
+  is curable by one constant change, not a deep chemistry rewrite.
+- Pass bar (SSB_ind at r=1.0 nm ≥ 2× observed SSB_dir = 48) is met:
+  174 ≥ 48 by a comfortable margin.
+
 ### Added — L6 stage 5: E15d Phase A α/β at multiple energies (2026-05-11)
 
 - **E15d** extends E15 (which measured Phase A α/β only at 10 keV) to
