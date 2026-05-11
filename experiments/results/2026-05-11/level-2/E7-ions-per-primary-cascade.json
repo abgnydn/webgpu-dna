@@ -13,9 +13,9 @@
     }
   },
   "env": {
-    "gitSha": "a9a6f401d8657fda6f7599693cde140f0d7ab301",
+    "gitSha": "2bdb13a947d3297e9c3362234181b22186a0a748",
     "gitDirty": true,
-    "timestamp": "2026-05-11T07:44:25.435Z",
+    "timestamp": "2026-05-11T08:21:07.766Z",
     "runner": "node",
     "nodeVersion": "v24.5.0",
     "platform": "darwin",
@@ -25,7 +25,7 @@
     "totalMemBytes": 17179869184
   },
   "status": "fail",
-  "diagnosis": "cascade ions ratio 0.7304 — WGSL undercounts by 27.0% vs Geant4 (|ratio − 1| ≥ 0.15); |Δ|/SEM = 263.08σ (≥ 5σ — statistically significant gap)",
+  "diagnosis": "cascade ions ratio 0.7303 — WGSL undercounts by 27.0% vs Geant4 (|ratio − 1| ≥ 0.15); |Δ|/SEM = 263.21σ (≥ 5σ — statistically significant gap)",
   "summary": {
     "nPrimaries": 4096,
     "primaryEnergyEv": 10000,
@@ -33,10 +33,10 @@
     "binBytes": 84778880,
     "nRecords": 5298680,
     "wgslIonsPerPriMean": 371.8759765625,
-    "g4IonsPerPriMean": 509.13037109375,
-    "ratio": 0.7304140504594326,
-    "sigmaDelta": 263.08171149650286,
-    "headline": "WGSL cascade ions/primary: 371.88 vs Geant4 509.13 → ratio 0.7304 (Δ/SEM = 263.1σ)"
+    "g4IonsPerPriMean": 509.228515625,
+    "ratio": 0.7302732764406942,
+    "sigmaDelta": 263.2050453204034,
+    "headline": "WGSL cascade ions/primary: 371.88 vs Geant4 509.23 → ratio 0.7303 (Δ/SEM = 263.2σ)"
   },
   "rows": [
     {
@@ -47,13 +47,13 @@
       "wgslMedian": 375,
       "wgslMin": 242,
       "wgslMax": 448,
-      "g4Mean": 509.13037109375,
-      "g4Std": 8.379642490151008,
-      "g4Sem": 0.1309319139086095,
-      "ratio": 0.7304140504594326,
-      "delta": -137.25439453125,
-      "seDelta": 0.5217177345794883,
-      "sigmaDelta": 263.08171149650286,
+      "g4Mean": 509.228515625,
+      "g4Std": 8.412330466445008,
+      "g4Sem": 0.13144266353820325,
+      "ratio": 0.7302732764406942,
+      "delta": -137.3525390625,
+      "seDelta": 0.5218461481059328,
+      "sigmaDelta": 263.2050453204034,
       "passBar": "ratio ∈ [0.85, 1.15] AND |Δ|/SEM < 5 (5σ accommodates the documented Emfietzoglou-inflated σ_exc which channels energy away from ionization).",
       "status": "fail"
     },

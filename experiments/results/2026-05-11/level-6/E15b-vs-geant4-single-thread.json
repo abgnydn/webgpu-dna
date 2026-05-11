@@ -7,8 +7,8 @@
     "warmup": 0,
     "trials": 3,
     "sources": {
-      "geant4Bin": "~/Downloads/dnaphysics-build/dnaphysics",
-      "geant4Env": "~/Downloads/geant4-install/bin/geant4.sh",
+      "geant4Bin": "~/Downloads/dnaphysics-v11.4.1-build/dnaphysics",
+      "geant4Env": "~/Downloads/geant4-v11.4.1-install/bin/geant4.sh",
       "geant4Macro": "validation/run_validation.mac",
       "wgslPhaseA": "experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json",
       "wgslPhaseAB": "dumps/manifest.json",
@@ -16,9 +16,9 @@
     }
   },
   "env": {
-    "gitSha": "a9a6f401d8657fda6f7599693cde140f0d7ab301",
+    "gitSha": "2bdb13a947d3297e9c3362234181b22186a0a748",
     "gitDirty": true,
-    "timestamp": "2026-05-11T07:51:25.554Z",
+    "timestamp": "2026-05-11T08:21:28.379Z",
     "runner": "node",
     "nodeVersion": "v24.5.0",
     "platform": "darwin",
@@ -33,57 +33,57 @@
     "nPrimaries": 4096,
     "primaryEnergyEv": 10000,
     "nGeant4Trials": 3,
-    "geant4MedianSec": 299.545,
+    "geant4MedianSec": 289.079,
     "wgslPhaseAMs": 14.399999999441206,
     "wgslPhaseABMs": 635,
     "wgslIrtMs": 194211.360291,
-    "speedupPhaseA": 20801.736111918326,
-    "speedupPhaseAB": 471.7244094488189,
-    "speedupEndToEnd": 1.5373394686594823,
-    "headline": "Geant4 median 299.5s vs WGSL Phase A+B 635 ms → 472× speedup (physics tracking, matched scope)"
+    "speedupPhaseA": 20074.930556334566,
+    "speedupPhaseAB": 455.2425196850394,
+    "speedupEndToEnd": 1.483625352653573,
+    "headline": "Geant4 median 289.1s vs WGSL Phase A+B 635 ms → 455× speedup (physics tracking, matched scope)"
   },
   "rows": [
     {
       "metric": "speedup_vs_geant4_phaseA",
       "scope": "WebGPU Phase A (primary tracking only) vs Geant4 (full physics)",
-      "t_geant4_median_ms": 299545,
+      "t_geant4_median_ms": 289079,
       "t_wgsl_ms": 14.399999999441206,
-      "speedup": 20801.736111918326,
+      "speedup": 20074.930556334566,
       "note": "Upper bound — scopes do not match (Phase A is primary-only, Geant4 simulates primaries + cascade). Reported for context, not pass-bar.",
       "status": "informational"
     },
     {
       "metric": "speedup_vs_geant4_phaseAB",
       "scope": "WebGPU Phase A + Phase B (primary + secondary tracking, no chemistry) vs Geant4 (primary + secondary tracking, no chemistry)",
-      "t_geant4_median_ms": 299545,
+      "t_geant4_median_ms": 289079,
       "t_wgsl_ms": 635,
-      "speedup": 471.7244094488189,
+      "speedup": 455.2425196850394,
       "passBar": "speedup ≥ 100 (the L6 thesis)",
       "status": "pass"
     },
     {
       "metric": "speedup_vs_geant4_end_to_end",
       "scope": "WebGPU Phase A + B + IRT chemistry (end-to-end pre-DNA pipeline) vs Geant4 single-thread physics tracking",
-      "t_geant4_median_ms": 299545,
+      "t_geant4_median_ms": 289079,
       "t_wgsl_phaseAB_ms": 635,
       "t_wgsl_irt_ms": 194211.360291,
       "t_wgsl_total_ms": 194846.360291,
-      "speedup": 1.5373394686594823,
+      "speedup": 1.483625352653573,
       "note": "Scopes match for the physics tracking (both include primary + cascade), but WebGPU additionally runs IRT chemistry on CPU. Geant4 here does NOT run chemistry — would require chem6 / dnaChem example. Reported informationally — surfaces that IRT chemistry on CPU is the system bottleneck.",
       "status": "informational"
     },
     {
       "metric": "geant4_trial_distribution",
       "trialsSec": [
-        297.654,
-        299.545,
-        427.059
+        293.342,
+        286.55,
+        289.079
       ],
-      "median_sec": 299.545,
-      "mean_sec": 341.4193333333333,
-      "std_sec": 74.17215346970409,
-      "min_sec": 297.654,
-      "max_sec": 427.059,
+      "median_sec": 289.079,
+      "mean_sec": 289.657,
+      "std_sec": 3.4326926748545237,
+      "min_sec": 286.55,
+      "max_sec": 293.342,
       "status": "informational"
     }
   ]

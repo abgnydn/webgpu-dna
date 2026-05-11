@@ -33,9 +33,9 @@ import { SEEDS } from '../lib/seeds.mjs';
 import { captureEnv } from '../lib/env.mjs';
 
 const REPO_ROOT = join(import.meta.dirname, '..', '..');
-const GEANT4_INSTALL = join(homedir(), 'Downloads', 'geant4-install');
+const GEANT4_INSTALL = join(homedir(), 'Downloads', 'geant4-v11.4.1-install');
 const GEANT4_SCRIPT = join(GEANT4_INSTALL, 'bin', 'geant4.sh');
-const DNAPHYSICS_BIN = join(homedir(), 'Downloads', 'dnaphysics-build', 'dnaphysics');
+const DNAPHYSICS_BIN = join(homedir(), 'Downloads', 'dnaphysics-v11.4.1-build', 'dnaphysics');
 const VALIDATION_MAC = join(REPO_ROOT, 'validation', 'run_validation.mac');
 const WGSL_MANIFEST = join(REPO_ROOT, 'dumps', 'manifest.json');
 const WGSL_IRT_E10K = join(REPO_ROOT, 'dumps', 'result_E10000.json');

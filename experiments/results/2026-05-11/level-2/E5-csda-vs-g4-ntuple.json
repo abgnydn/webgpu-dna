@@ -12,9 +12,9 @@
     }
   },
   "env": {
-    "gitSha": "40d81546114f796eedfaa7a32a45a0d85b604ba8",
+    "gitSha": "2bdb13a947d3297e9c3362234181b22186a0a748",
     "gitDirty": true,
-    "timestamp": "2026-05-11T06:57:47.149Z",
+    "timestamp": "2026-05-11T08:21:06.660Z",
     "runner": "node",
     "nodeVersion": "v24.5.0",
     "platform": "darwin",
@@ -31,37 +31,37 @@
     "nPrimaries": 4096,
     "primaryEnergyEv": 10000,
     "g4Stats": {
-      "meanCsdaNm": 2756.4778076171933,
-      "stdCsdaNm": 583.9670784965098,
-      "semCsdaNm": 9.124485601507965,
-      "meanIons": 509.13037109375,
-      "stdIons": 8.378619522132773,
-      "meanEdepEv": 9999.662353515625,
-      "eConsPct": 99.99662353515625
+      "meanCsdaNm": 2747.461328125004,
+      "stdCsdaNm": 589.9249344035629,
+      "semCsdaNm": 9.21757710005567,
+      "meanIons": 509.228515625,
+      "stdIons": 8.411303507951716,
+      "meanEdepEv": 9999.265307617186,
+      "eConsPct": 99.99265307617186
     },
-    "headline": "CSDA: 2714.4 vs 2756.5 (0.9847×, 4.61σ); E-cons: 100.00% vs 100.00%"
+    "headline": "CSDA: 2714.4 vs 2747.5 (0.9880×, 3.59σ); E-cons: 100.00% vs 99.99%"
   },
   "rows": [
     {
       "metric": "csda_range_nm",
       "wgslValue": 2714.4,
-      "g4Mean": 2756.4778076171933,
-      "g4Std": 583.9670784965098,
-      "g4Sem": 9.124485601507965,
-      "ratio": 0.9847349369180785,
-      "sigmaDelta": 4.611526551177768,
+      "g4Mean": 2747.461328125004,
+      "g4Std": 589.9249344035629,
+      "g4Sem": 9.21757710005567,
+      "ratio": 0.987966590180337,
+      "sigmaDelta": 3.586769903427684,
       "passBar": "ratio ∈ [0.95, 1.05] AND |Δ|/SEM < 5 (5σ accommodates the documented 1.5% systematic bias the README accepts)",
-      "note": "4.61σ deviation is statistically significant (would fail a strict 2σ bar). The 1.5% systematic underestimate is a documented physics limitation in the README (\"CSDA 0.985×\"); E5's σ bar is set at 5σ to catch new drift while accommodating this known bias. Tightening to 2σ when the physics is improved is the explicit follow-up.",
+      "note": "3.59σ deviation is statistically significant (would fail a strict 2σ bar). The 1.5% systematic underestimate is a documented physics limitation in the README (\"CSDA 0.985×\"); E5's σ bar is set at 5σ to catch new drift while accommodating this known bias. Tightening to 2σ when the physics is improved is the explicit follow-up.",
       "status": "pass"
     },
     {
       "metric": "energy_conservation_pct",
       "wgslValue": 100,
-      "g4Mean": 99.99662353515625,
-      "g4Std": 0.11638033844496752,
-      "g4Sem": 0.0018184427882026175,
-      "ratio": 1.0000337657885274,
-      "sigmaDelta": 1.856789152597613,
+      "g4Mean": 99.99265307617186,
+      "g4Std": 0.18325662666359552,
+      "g4Sem": 0.00286338479161868,
+      "ratio": 1.000073474636407,
+      "sigmaDelta": 2.5658178564203316,
       "passBar": "|ratio − 1| < 0.01",
       "status": "pass"
     },
@@ -69,10 +69,10 @@
       "metric": "ions_per_primary",
       "wgslPrimaryOnly": 194.1,
       "wgslSecPerPri": 143.2,
-      "g4TotalCascade": 509.13037109375,
-      "g4Std": 8.378619522132773,
-      "g4Sem": 0.13091593003332458,
-      "impliedIonsPerSecondary": 2.199932759034567,
+      "g4TotalCascade": 509.228515625,
+      "g4Std": 8.411303507951716,
+      "g4Sem": 0.13142661731174557,
+      "impliedIonsPerSecondary": 2.200618125872905,
       "passBar": "INFORMATIONAL — counting-convention mismatch (Geant4=cascade total, WebGPU=primary-only). Implied ions/secondary should land in [2, 3] (physically reasonable for sub-keV cascade).",
       "status": "pass"
     }

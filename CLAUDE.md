@@ -65,30 +65,38 @@ validation target.
 
 ### Current validation status (N = 4096 primaries, 10 keV)
 
-Every line below is backed by a committed artifact under
-`experiments/results/2026-05-11/`. `[E5]` etc. point at the JSON for traceability.
+All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW 8.8**
+install (`~/Downloads/geant4-v11.4.1-install/`) running `dnaphysics` on
+`validation/run_validation.mac`. Every line is backed by a committed artifact
+under `experiments/results/2026-05-11/`; `[E5]` tags point at the JSON.
 
-- **CSDA** 2714.4 nm vs Geant4-DNA direct 2756.5 nm → **0.985× (4.61σ)** [E5]
-- **Ions / primary (primary track only)** 194.1; **implied ions/secondary** = 2.20
-  (Geant4 cascade total 509.1 — counting-convention mismatch, reported as
-  informational per E5's pass bar) [E5]
-- **Energy conservation** 100.0% / 99.997% (E5 reports both sides) [E5]
-- **MFP vs Geant4** ratios [0.895, 0.965], median 0.926 across 6 energy bins
-  (-3.5% to -10.5%, all within the 25% pass bar) [E6]
-- **Per-process σ vs Geant4** ion mean 1.056 (range 1.017-1.104), el mean 1.063
-  (1.025-1.100), exc mean 2.57 (2.46-2.66, intentional Emfietzoglou-vs-Born) [E6b]
+- **CSDA** 2714.4 nm vs Geant4 11.4.1 direct 2747.5 nm → **0.988× (3.59σ)** [E5]
+- **Ions / primary (primary track only)** 194.1 (GPU `box_ions` atomic) [E5]
+- **Ions / primary (full cascade, reconstructed)** 371.9 from rad_buf H3O+ records
+  vs Geant4 cascade 509.2 → **0.730× (263σ deficit, ~27%)** [E7]
+- **Energy conservation** 100.0% / 99.99% [E5]
+- **MFP vs Geant4** ratios [0.893, 0.950], median 0.941 across 6 energy bins
+  (-5.0% to -10.7%, all within the 25% pass bar) [E6]
+- **Per-process σ vs Geant4** ion mean 1.061 (range 1.035-1.105), el mean 1.057
+  (1.041-1.104), exc mean 2.55 (2.39-2.76, intentional Emfietzoglou-vs-Born) [E6b]
 - **G(OH) @ 1 μs (10 keV)** 1.551 → 0.621× Karamitros 2011 [E10]
 - **G(e⁻aq) @ 1 μs (10 keV)** 1.406 → 0.563× [E10]
 - **G(H) @ 1 μs (10 keV)** 0.708 → 1.243× [E10]
 - **G(H₂O₂) @ 1 μs (10 keV)** 0.605 → 0.828× [E10]
 - **G(H₂) @ 1 μs (10 keV)** 0.468 → 1.114× [E10]
+- **Phase A wall-clock @ N=4096, 10 keV** 14.4 ms; peak throughput 538,947
+  primaries/sec at N=16384; per-primary marginal cost β = 1.207 μs [E15]
+- **Speedup vs Geant4 11.4.1 single-thread (matched scope, Phase A+B)** 455×
+  (Geant4 median 289.1 s over 3 trials, WGSL Phase A+B = 635 ms) [E15b]
+- **End-to-end pre-DNA pipeline vs Geant4** 1.48× (IRT chemistry on CPU
+  dominates wall-clock — 194 s of 194.6 s end-to-end) [E15b]
 - **46 / 46** unit tests pass across 7 files (`npm run test`, 233 ms)
 
 G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (11 artifacts, 2026-05-07/08)
+### Research-grade validation ledger (13 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -103,30 +111,35 @@ per-level `protocol.md` files for hypotheses + pass bars.
   scale-factor catcher per memory/cross_section_fix.md), E4 Sanche
   vibrational total, E4b Sanche per-mode XVMF fractions. All five WGSL
   cross-section tables bit-match their G4EMLOW source data.
-- **L2 — Track structure (3 of 5 planned, 3 of 3 attempted passing).**
-  E5 CSDA + E-cons + ions @ 10 keV vs Geant4 ntuple. E6 MFP across 6
-  energy bins (-3.5% to -10.5% deviation, all within 25% bar). E6b
-  per-process σ decomposition — back out σ_ion / σ_el / σ_exc from
-  the ntuple's per-process counts and compare to WGSL XI / XL / XC.
-  E7 (ions per primary) and E8 (secondary KE spectrum) deferred.
+- **L2 — Track structure (4 of 5 attempted, 3 pass / 1 honest-negative).**
+  E5 CSDA + E-cons @ 10 keV vs Geant4 11.4.1 ntuple (pass). E6 MFP
+  across 6 energy bins (-5.0% to -10.7% deviation, all within 25% bar,
+  pass). E6b per-process σ decomposition (ion +6.1%, el +5.7%, exc
+  +155% intentional, pass). **E7 cascade ions per primary** (fail —
+  WGSL 371.9 vs Geant4 509.2, 27% deficit, 263σ — real physics gap;
+  closes the counting-convention question E5 punted on). E8 (secondary
+  KE spectrum) deferred.
 - **L4 — Chemistry (1 of 2 passing).** E10 IRT G-values vs Karamitros
   2011 across 5 primary energies (1/3/5/10/20 keV). E11 GPU vs IRT
   backend deferred — needs browser runner infrastructure.
-- **L6 — Performance (1 of 2 attempted, status: fail honest-negative).**
+- **L6 — Performance (2 of 2 attempted, 1 pass + 1 honest-negative).**
   E15 Phase A α/β decomposition via WebGPU + Playwright N-sweep
-  (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 warmups + T=20 trials
-  per N with `onSubmittedWorkDone()` sync). α = 10527.8 μs (outside the
-  original [10, 500] μs hypothesis — that bound assumed pure dispatch
-  overhead; in practice α is a **single-workgroup compute floor**
-  because the WGSL primary kernel runs the full per-electron history
-  inside a for-loop, so even at N=1 we pay ~7 ms for one workgroup's
-  worth of physics). β = 1.207 μs/primary, R² = 0.908. **Peak
-  throughput 538,947 primaries/sec at N=16384, 10 keV** on apple/metal-3.
-  Revised two-regime pass bar documented in the L6 protocol; E15b
-  (vs Geant4 single-thread) waits on a Geant4 11.4.1 rebuild. [E15]
+  (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 + T=20 with
+  `onSubmittedWorkDone()` sync). α = 10527.8 μs (single-workgroup
+  compute floor; original [10, 500] μs hypothesis falsified — the
+  fused WGSL primary kernel runs the full per-electron history inside
+  a for-loop, so even at N=1 we pay ~7 ms for one workgroup's worth
+  of physics). β = 1.207 μs/primary, R² = 0.908. Peak throughput
+  538,947 primaries/sec at N=16384 on apple/metal-3. [E15]
+  **E15b vs Geant4 11.4.1 single-thread on the same M2 Pro:** 455×
+  speedup on matched-scope physics tracking (Phase A+B 635 ms vs
+  Geant4 median 289.1 s over 3 trials), satisfies the L6 protocol's
+  ≥100× kernel-fusion thesis. End-to-end pre-DNA pipeline only 1.48×
+  because IRT chemistry on CPU is the bottleneck — GPU-accelerated
+  chemistry is the next obvious win. [E15b]
 - **L3, L5** — protocols only.
 
-**Four substantive findings now in the research ledger** (would NOT
+**Six substantive findings now in the research ledger** (would NOT
 be visible without the protocol):
 
 1. **G(e⁻aq) is non-monotonic between 1 and 3 keV** (1.163 at 1 keV →
@@ -137,23 +150,37 @@ be visible without the protocol):
    this as `summary.lowEFindings.eaq`. A formal σ-significance estimate
    is not stored in the artifact — adding per-row bootstrap SEM is a
    deliberate follow-up (E10b). [E10]
-2. **The 0.985× CSDA ratio is 4.61σ statistically significant.**
-   The 1.5% systematic underestimate is a real physics gap, not random
+2. **The 0.988× CSDA ratio is 3.59σ statistically significant.**
+   The 1.2% systematic underestimate is a real physics gap, not random
    scatter at N=4096. E5's σ pass bar at 5σ deliberately accommodates
    this documented bias; tightening to 2σ when the physics is improved
    is the explicit follow-up. [E5]
-3. **MFP is consistently 3.5-10.5% lower than Geant4 across all bins**
-   (median 0.926, range [0.895, 0.965] across 6 bins from 100 eV to
-   10 keV). Confirms README's "MFP within 2-14%" prose numerically. [E6]
-4. **σ_ion is 5.6% high and σ_el is 6.3% high vs Geant4** (E6b
-   decomposition; ion mean 1.056 / range [1.017, 1.104], el mean 1.063 /
-   range [1.025, 1.100]). Previously undocumented — only the σ_exc
-   inflation (Emfietzoglou-vs-Born) was explained. Per E6b, the MFP
-   shortfall decomposes as ~47% from σ_ion overestimate, ~31% from
-   σ_el overestimate, ~22% from the (intentional) σ_exc inflation.
-   The σ_exc ratio observed (2.46-2.66×, mean 2.57×) is slightly
-   higher than the "2.2-2.4× larger than Born" documented in
-   `tools/convert_g4data.py` — worth re-deriving when convenient. [E6b]
+3. **MFP is consistently 5.0-10.7% lower than Geant4 across all bins**
+   (median 0.941, range [0.893, 0.950] across 6 bins from 100 eV to
+   10 keV). [E6]
+4. **σ_ion is 6.1% high and σ_el is 5.7% high vs Geant4 11.4.1** (E6b
+   decomposition; ion mean 1.061 / range [1.035, 1.105], el mean 1.057 /
+   range [1.041, 1.104]). Per E6b, the MFP shortfall decomposes as
+   ~49% from σ_ion overestimate, ~31% from σ_el overestimate, ~20%
+   from the (intentional) σ_exc inflation. The σ_exc ratio observed
+   (2.39-2.76×, mean 2.55×) is slightly higher than the "2.2-2.4×
+   larger than Born" documented in `tools/convert_g4data.py` — worth
+   re-deriving when convenient. [E6b]
+5. **WGSL cascade ions/primary is 27% lower than Geant4** (371.9 vs
+   509.2, 263σ statistically significant). Reconstructed from rad_buf
+   H3O+ records (species_code=3) summed across the full cascade, this
+   closes the counting-convention question E5 punted on and surfaces
+   that the 27% gap is a *real physics deficit*, not just a counting
+   artifact. Likely tied to finding (4): Emfietzoglou σ_exc inflation
+   channels energy away from ionization into excitation. [E7]
+6. **WebGPU is 455× faster than Geant4 11.4.1 single-thread on
+   matched-scope physics tracking** (Phase A+B 635 ms vs Geant4
+   median 289.1 s over 3 trials on M2 Pro), but only **1.48×** on
+   the end-to-end pre-DNA pipeline because IRT chemistry on CPU is
+   the bottleneck (194 s of 194.6 s total wall-clock at 10 keV).
+   The 455× number satisfies the L6 protocol's ≥100× kernel-fusion
+   thesis; the 1.48× number is the honest finding pointing at
+   GPU-accelerated chemistry as the next obvious win. [E15b]
 
 Run any experiment via `npm run experiments -- <id>` (e.g. `E10`).
 

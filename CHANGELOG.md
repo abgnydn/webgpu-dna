@@ -7,6 +7,31 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — Geant4 11.4.1 upgrade + L2/L6 expansion (2026-05-11)
+
+- **Geant4 11.4.1 / G4EMLOW 8.8** built locally from source at
+  `~/Downloads/geant4-v11.4.1-install/` (was 11.3.0 / 8.6.1 prior).
+  Closes the "docs claim 11.4.1 but install is 11.3.0" overclaim
+  surfaced in the audit. `validation/g4_per_event.csv` +
+  `validation/g4_mfp.csv` regenerated against the 11.4.1 ntuple.
+- **E7** — Ions per primary, full cascade. Reconstructs the cascade
+  ion count from `dumps/rad_E10000_N4096.bin` H3O+ records (species_code=3)
+  grouped by primary id. **Fail (honest negative):** WGSL 371.88 vs
+  Geant4 11.4.1 509.23 → ratio 0.730× (263σ deficit, 27%). Closes
+  the counting-convention question E5 punted on — the gap is a real
+  physics deficit, likely tied to the Emfietzoglou σ_exc inflation
+  documented in E6b.
+- **E15b** — Same-machine head-to-head vs Geant4 11.4.1 single-thread,
+  3 trials × 4096 primaries × 10 keV × DNA_Opt2. **Pass:** 455×
+  speedup on matched-scope physics tracking (Phase A+B 635 ms vs
+  Geant4 median 289.1 s) — satisfies the L6 protocol's ≥100×
+  kernel-fusion thesis. End-to-end pre-DNA pipeline only 1.48× because
+  IRT chemistry on CPU dominates wall-clock (194 s of 194.6 s).
+- Numerical shifts from 11.3.0 → 11.4.1: tiny but real, well within
+  MC noise. CSDA bias: 0.985× / 4.61σ → 0.988× / 3.59σ. MFP median:
+  0.926 → 0.941. σ_ion / σ_el / σ_exc means: 1.056/1.063/2.57 →
+  1.061/1.057/2.55. E10 chemistry unchanged (no Geant4 reference).
+
 ### Errata — corrected from v0.2.0 docs (2026-05-11 audit)
 
 After re-running all 11 experiments and auditing the prose against the
