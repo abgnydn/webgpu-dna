@@ -20,6 +20,7 @@
 import {
   VC,
   SSB_R_DAMAGE_NM,
+  SSB_R_DAMAGE_INDIRECT_NM,
   SSB_P_INDIRECT,
   SSB_P_DIRECT,
   DSB_WINDOW_BP,
@@ -47,7 +48,11 @@ export function scoreIndirectSSB(
   chem_n: number,
   rng: Rng,
 ): IndirectSSBResult {
-  const r_damage = SSB_R_DAMAGE_NM;
+  // Use SSB_R_DAMAGE_INDIRECT_NM (PARTRAC effective ~1.0 nm), NOT
+  // SSB_R_DAMAGE_NM (Nikjoo reaction-only, 0.29 nm). Indirect needs the
+  // larger radius to fold in OH diffusion-to-encounter within the
+  // per-step chemistry window. See PHYSICS_DIAGNOSIS.md §3 + E13/E13b/E13c.
+  const r_damage = SSB_R_DAMAGE_INDIRECT_NM;
   const r_damage2 = r_damage * r_damage;
   const p_ssb = SSB_P_INDIRECT;
   const hits = new Uint8Array(dna.n_bp * 2);

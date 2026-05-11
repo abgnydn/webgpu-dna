@@ -7,6 +7,46 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Changed — physics fix refined: split SSB damage radii (2026-05-11)
+
+The 2026-05-11 first attempt at applying option (a) from
+PHYSICS_DIAGNOSIS.md §3 (bump `SSB_R_DAMAGE_NM` from 0.29 → 1.0 nm)
+was too aggressive: E13c surfaced that the SHARED constant
+exploded `SSB_dir` from 24 to 388 — direct scoring also uses
+`SSB_R_DAMAGE_NM` and didn't need the bump. **Refined:** split into
+two constants, one per pathway.
+
+`src/physics/constants.ts`:
+  - `SSB_R_DAMAGE_NM = 0.29` (direct, Nikjoo reaction radius — reverted)
+  - `SSB_R_DAMAGE_INDIRECT_NM = 1.0` (indirect, PARTRAC-effective — new)
+
+`src/scoring/ssb-dsb.ts:scoreIndirectSSB` now uses the new INDIRECT
+constant; `scoreDirectSSB_events` keeps using SSB_R_DAMAGE_NM.
+
+E13c re-run after the split: SSB_dir = 24 ✓ (no regression), SSB_ind
+= 0 still. This is a real research finding: the radius isn't the
+limiting factor for indirect SSB — late-time scoring at t=1 μs is.
+By the time `scoreIndirectSSB` runs, the IRT has consumed essentially
+all OHs near the high-density DNA-track-core region. Even at the
+generous r=1.0 nm radius, ~zero survivors are nearby.
+
+**Real fix (now known precisely):** instrument `public/irt-worker.js`
+to accumulate OH-backbone encounters DURING the chemistry timeline,
+not just at the end. PHYSICS_DIAGNOSIS.md §3 option (b), estimated
+~2-3 hours WGSL/JS work, pending.
+
+### Added — L5 stage 4: E13c real-harness re-validation (2026-05-11)
+
+- **E13c** is the first experiment to drive the FULL validation harness
+  end-to-end via Playwright (~170 s wall: 8 energies × N=4096 + IRT
+  chemistry + DNA scoring at 10 keV) and parse the "DAMAGE:" log line
+  emitted by src/app.ts:199. The Playwright pattern here also makes
+  future "did this code change break the harness?" regression-tests
+  trivial — same scaffolding as B1's first-row check, just wait on the
+  DAMAGE line instead.
+- Closes the "Did the SSB radius bump actually fix anything?" question
+  with measurements rather than predictions.
+
 ### Changed — physics fix: SSB_R_DAMAGE_NM 0.29 → 1.0 nm (2026-05-11)
 
 First applied physics fix in the session. `src/physics/constants.ts`:

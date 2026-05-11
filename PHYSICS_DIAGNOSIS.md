@@ -145,20 +145,27 @@ shortfall):
    chromatin-style target (deferred to E14).
 
 **Concrete fix candidates ordered by effort:**
-- *(a) 1-line tweak — APPLIED 2026-05-11:* raised `SSB_R_DAMAGE_NM` from
-  0.29 nm to 1.0 nm in `src/physics/constants.ts`. E13b's Node-side
-  parametric scorer (which replicates `scoreIndirectSSB` on the
-  pre-chemistry rad_buf positions) predicts SSB_ind ≈ 174 at r=1.0 nm
-  vs ~8 at r=0.29 nm. After chemistry diffusion smearing reduces this
-  3-4× the actual SSB_ind should land in the **PARTRAC indirect/direct
-  ratio = 2-3 band** (i.e. SSB_ind ≈ 48-72 at SSB_dir = 24).
-  `validation/webgpu-results.json`'s SSB_ind=0 is now stale — re-run
-  the browser validation harness to refresh.
-- *(b) Refactor (pending):* move indirect-SSB scoring into
-  `public/irt-worker.js`, accumulate hits during the full IRT timeline
-  rather than only at t=1 μs. Independently of (a), this fold-in of
-  OH-backbone encounters during the chemistry phase would roughly
-  triple SSB_ind.
+- *(a) Radius bump — APPLIED + REFINED 2026-05-11:* initially raised
+  `SSB_R_DAMAGE_NM` from 0.29 nm to 1.0 nm. E13c re-validation surfaced
+  that the shared constant **EXPLODED SSB_dir from 24 to 388** (16×
+  too many — direct scoring uses rad_buf ionization sites already at
+  the molecular scale). **Refinement:** split into two constants —
+  `SSB_R_DAMAGE_NM = 0.29` (direct, Nikjoo) and `SSB_R_DAMAGE_INDIRECT_NM
+  = 1.0` (indirect, PARTRAC-effective). E13c re-run after the split
+  confirms SSB_dir is back to 24 (good), but SSB_ind STAYS at 0 even
+  at the larger indirect radius — confirming the deeper issue is
+  late-time scoring, not radius. Split is correct + future-proof.
+- *(b) Score during IRT timeline — PENDING, now the obvious next fix:*
+  E13c proved that bumping the indirect radius alone doesn't lift
+  SSB_ind from 0 because `scoreIndirectSSB` runs at t=1 μs, by which
+  point the chemistry has consumed essentially all OHs near the
+  high-density DNA-track-core region. The fix is to instrument
+  `public/irt-worker.js`'s per-step chemistry loop to accumulate
+  OH-backbone encounters as they happen during the IRT, returning the
+  hits in the result alongside the final timeline. Estimated effort
+  ~2-3 hours WGSL/JS work. Once this lands, E13b's Node prediction
+  of SSB_ind ~ 50-70 (after diffusion smearing of the 174) should
+  materialize, landing in the PARTRAC indirect/direct = 2-3 band.
 - *(c) Target redesign (pending):* swap the 21×21 fiber grid for a
   uniform-cell DNA distribution. Closes both this gap and E12's
   target-concentration artifact in one move.
