@@ -35,7 +35,7 @@ One GPU thread per primary electron, full particle history in a single fused com
 
 ### Research-grade validation ledger
 
-12 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/).
+11 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/).
 
 | Level | ID | Status | Headline |
 |------:|:---|:-------|:---------|

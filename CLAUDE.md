@@ -82,28 +82,32 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (8 artifacts, 2026-05-07/08)
+### Research-grade validation ledger (11 artifacts, 2026-05-07/08)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
 per-level `protocol.md` files for hypotheses + pass bars.
 
+- **L0 — Browser-runner infra (2 of 2 passing).** B0 browser env capture,
+  B1 webgpu-dna harness liveness via Playwright + headless Chromium WebGPU
+  (E=100 eV first row, CSDA=15.7 nm in 4.4 s).
 - **L1 — Cross sections (5 of 5 passing).** E1 Born ionization, E2
   Emfietzoglou excitation, E3 Champion elastic (retroactive 334×
   scale-factor catcher per memory/cross_section_fix.md), E4 Sanche
   vibrational total, E4b Sanche per-mode XVMF fractions. All five WGSL
   cross-section tables bit-match their G4EMLOW source data.
-- **L2 — Track structure (3 of 4 passing).** E5 CSDA + E-cons + ions
-  @ 10 keV vs Geant4 ntuple. E6 MFP across 6 energy bins
-  (-3.5% to -10.5% deviation, all within 25% bar). E6b per-process
-  σ decomposition — back out σ_ion / σ_el / σ_exc from the ntuple's
-  per-process counts and compare to WGSL XI / XL / XC.
+- **L2 — Track structure (3 of 5 planned, 3 of 3 attempted passing).**
+  E5 CSDA + E-cons + ions @ 10 keV vs Geant4 ntuple. E6 MFP across 6
+  energy bins (-3.5% to -10.5% deviation, all within 25% bar). E6b
+  per-process σ decomposition — back out σ_ion / σ_el / σ_exc from
+  the ntuple's per-process counts and compare to WGSL XI / XL / XC.
+  E7 (ions per primary) and E8 (secondary KE spectrum) deferred.
 - **L4 — Chemistry (1 of 2 passing).** E10 IRT G-values vs Karamitros
   2011 across 5 primary energies (1/3/5/10/20 keV). E11 GPU vs IRT
   backend deferred — needs browser runner infrastructure.
 - **L3, L5, L6** — protocols only.
 
-**Three substantive findings now in the research ledger** (would NOT
+**Four substantive findings now in the research ledger** (would NOT
 be visible without the protocol):
 
 1. **G(e⁻aq) is non-monotonic between 1 and 3 keV** (1.156 → 1.027 → 1.149).

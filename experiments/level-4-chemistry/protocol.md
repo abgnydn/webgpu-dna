@@ -110,19 +110,6 @@ threshold; sub-5-keV deviations reported as informational findings.
   experiment exists to *quantify* the deficit and commit it as
   `status: "fail"` with a diagnosis pointing at the diffusion-σ vs
   hash-radius math — the marquee honest negative for Level 4.
-
-### E11 — GPU chemistry backend vs IRT worker
-- **Hypothesis:** The `chemBackend: 'gpu'` path produces G-values within
-  10% of the IRT worker at the same N and same time checkpoints.
-- **Method:** Run the same primary set through both backends; compare
-  G(species, t) at all 7 time checkpoints (0.1 ps → 1 μs).
-- **Pass bar:** `|G_gpu − G_irt| / G_irt < 0.10` at every (species, t).
-- **Expected outcome:** **fail.** CLAUDE.md flags the GPU backend as
-  undercounting long-time reactions because the spatial-hash search
-  radius is narrower than the diffusion σ at 30 ns timesteps. This
-  experiment exists to *quantify* the deficit and commit it as
-  `status: "fail"` with a diagnosis pointing at the diffusion-σ vs
-  hash-radius math — the marquee honest negative for Level 4.
 - **Why ship the failure:** webgpu-q's pattern. A documented failure
   with reproducible numbers is research-grade; a one-line "known gap"
   in CLAUDE.md is a footnote.
