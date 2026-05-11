@@ -21,6 +21,7 @@ alongside passing ones. Each artifact carries:
 | 2026-05-11 | L0 | B1-harness-liveness   | pass | First row (E=100 eV) in 2.9s, CSDA=15.7 nm via Playwright + vite + real WebGPU; full pipeline live end-to-end |
 | 2026-05-11 | L1 | E1-ion-xs-match       | pass | peak_ratio 0.9987, median 8.46e-4, p90 1.78e-2 vs G4EMLOW Born σ_ion |
 | 2026-05-11 | L1 | E1b-per-shell-ion-xs  | pass | Per-shell σ_ion validation: 1b₁/3a₁/1b₂/2a₁/1a₁ all in band, peak ratios 0.997-1.000. Validates σ_wgsl_shell_i(E) = XI(E) × XSF_i(E) decomposition. |
+| 2026-05-11 | L1 | E1c-shell-fraction-closure | pass | Internal-consistency check: at every active energy bin, Σ_i XSF_i = 1.0 within 5e-3. 96/96 bins in band; max deviation 4.4e-3 at 13.2 eV (near 3a₁ shell opening). Verifies primary.wgsl's shell-selection sampling normalization. |
 | 2026-05-11 | L1 | E2-exc-xs-match       | pass | peak_ratio 0.9970, median 2.42e-4, p90 3.51e-3 vs G4EMLOW Emfietzoglou σ_exc |
 | 2026-05-11 | L1 | E2b-per-level-exc-xs  | pass | Per-level σ_exc validation: A¹B₁/B¹A₁/Ryd A+B/Ryd C+D/Diffuse all in band, peak ratios 0.997-1.000. Validates σ_wgsl_level_i(E) = XC(E) × XEF_i(E) decomposition for the 5 Emfietzoglou excitation channels. |
 | 2026-05-11 | L1 | E3-elastic-xs-match   | pass | peak_ratio 0.9751, median 1.25e-4, p90 7.78e-4 vs G4EMLOW Champion σ_el (retroactive 334× catcher) |

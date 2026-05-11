@@ -1,0 +1,226 @@
+{
+  "meta": {
+    "protocol": "E1c-shell-fraction-closure",
+    "hypothesis": "At every energy in the WGSL XE grid, the per-shell ionization fractions XSF_0..XSF_4 either all equal zero (sub-threshold, no ionization possible) or sum to 1.0 within 5e-3. Verifies that primary.wgsl's shell-selection sampling is properly normalized; a fraction-sum < 1.0 would cause occasional missed ionizations, > 1.0 would cause double-counting.",
+    "passBar": "|Σ_i XSF_i(E) - 1.0| < 5e-3 for every energy bin where any shell is active. Bins where all 5 fractions are exactly 0 must also have σ_total = 0 (no inconsistency).",
+    "seed": "E1_ION_XS=0x4D6E5301",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "wgsl": "public/cross_sections.wgsl",
+      "arrays": "XE, XI, XSF0..XSF4"
+    }
+  },
+  "env": {
+    "gitSha": "f8384a6384c14b90dfdeda86bec89b280e55f60c",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T11:08:20.861Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "nEnergyBins": 100,
+    "nActiveBins": 96,
+    "nBinsInBand": 96,
+    "maxDeviation": 0.0044377700000000075,
+    "meanDeviation": 0.00022541177083334565,
+    "headline": "96/96 active bins in 5e-3 band; max |Σ XSF - 1| = 4.44e-3 at 13.2 eV"
+  },
+  "rows": [
+    {
+      "metric": "bin_0",
+      "energyEv": 8,
+      "sigma_total": 0,
+      "fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sum": 0,
+      "deviation": 1,
+      "consistent": true,
+      "status": "informational"
+    },
+    {
+      "metric": "bin_10",
+      "energyEv": 18.3698,
+      "sigma_total": 0.00368053,
+      "fractions": [
+        0.84642865,
+        0.15073025,
+        0.00213466,
+        0,
+        0
+      ],
+      "sum": 0.99929356,
+      "deviation": 0.0007064399999999749,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_20",
+      "energyEv": 42.181,
+      "sigma_total": 0.01671469,
+      "fractions": [
+        0.6309272,
+        0.3004539,
+        0.06233646,
+        0.00563843,
+        0
+      ],
+      "sum": 0.9993559900000001,
+      "deviation": 0.0006440099999999171,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_30",
+      "energyEv": 96.8567,
+      "sigma_total": 0.02398514,
+      "fractions": [
+        0.52204737,
+        0.33412321,
+        0.09904157,
+        0.04471398,
+        0
+      ],
+      "sum": 0.9999261300000001,
+      "deviation": 0.00007386999999992039,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_40",
+      "energyEv": 222.4042,
+      "sigma_total": 0.01891674,
+      "fractions": [
+        0.46617992,
+        0.33177287,
+        0.13172352,
+        0.07018361,
+        0
+      ],
+      "sum": 0.99985992,
+      "deviation": 0.00014007999999998688,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_50",
+      "energyEv": 510.6887,
+      "sigma_total": 0.01167565,
+      "fractions": [
+        0.43596,
+        0.32826833,
+        0.15070372,
+        0.08506427,
+        0
+      ],
+      "sum": 0.9999963199999999,
+      "deviation": 0.000003680000000061412,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_60",
+      "energyEv": 1172.6531,
+      "sigma_total": 0.00640856,
+      "fractions": [
+        0.41779118,
+        0.3272721,
+        0.16120113,
+        0.09238747,
+        0.00109586
+      ],
+      "sum": 0.99974774,
+      "deviation": 0.00025226000000000415,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_70",
+      "energyEv": 2692.668,
+      "sigma_total": 0.00334754,
+      "fractions": [
+        0.40475133,
+        0.3276056,
+        0.16785802,
+        0.09620747,
+        0.00353383
+      ],
+      "sum": 0.99995625,
+      "deviation": 0.00004375000000000906,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_80",
+      "energyEv": 6182.9547,
+      "sigma_total": 0.00169633,
+      "fractions": [
+        0.39547998,
+        0.32884125,
+        0.17235566,
+        0.09822166,
+        0.00510021
+      ],
+      "sum": 0.99999876,
+      "deviation": 0.0000012400000000134526,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_90",
+      "energyEv": 14197.4164,
+      "sigma_total": 0.00085157,
+      "fractions": [
+        0.38866083,
+        0.33036692,
+        0.17565846,
+        0.09941706,
+        0.0058779
+      ],
+      "sum": 0.9999811699999999,
+      "deviation": 0.000018830000000136238,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "bin_99",
+      "energyEv": 30000,
+      "sigma_total": 0.00046137,
+      "fractions": [
+        0.38350709,
+        0.33163449,
+        0.17817156,
+        0.10039999,
+        0.00628688
+      ],
+      "sum": 1.0000000100000002,
+      "deviation": 1.0000000161269895e-8,
+      "consistent": true,
+      "status": "pass"
+    },
+    {
+      "metric": "summary",
+      "n_energies": 100,
+      "n_active_energies": 96,
+      "n_active_within_1em3": 96,
+      "n_active_outside_1em3": 0,
+      "n_inconsistent_zero_or_positive": 0,
+      "mean_abs_deviation": 0.00022541177083334565,
+      "max_abs_deviation": 0.0044377700000000075,
+      "max_dev_at_eV": 13.1734,
+      "status": "pass"
+    }
+  ]
+}

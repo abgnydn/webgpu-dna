@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { writeArtifact, todayUtcDate } from './lib/artifact.mjs';
 import { runE1 } from './level-1-cross-sections/E1-ion-xs-match.mjs';
 import { runE1b } from './level-1-cross-sections/E1b-per-shell-ion-xs.mjs';
+import { runE1c } from './level-1-cross-sections/E1c-shell-fraction-closure.mjs';
 import { runE2 } from './level-1-cross-sections/E2-exc-xs-match.mjs';
 import { runE2b } from './level-1-cross-sections/E2b-per-level-exc-xs.mjs';
 import { runE3 } from './level-1-cross-sections/E3-elastic-xs-match.mjs';
@@ -41,6 +42,7 @@ const REGISTRY = {
   // Level 1 — cross-section bit-match
   E1:  { run: runE1,  level: 'level-1', id: 'E1-ion-xs-match' },
   E1b: { run: runE1b, level: 'level-1', id: 'E1b-per-shell-ion-xs' },
+  E1c: { run: runE1c, level: 'level-1', id: 'E1c-shell-fraction-closure' },
   E2:  { run: runE2,  level: 'level-1', id: 'E2-exc-xs-match' },
   E2b: { run: runE2b, level: 'level-1', id: 'E2b-per-level-exc-xs' },
   E3:  { run: runE3,  level: 'level-1', id: 'E3-elastic-xs-match' },
