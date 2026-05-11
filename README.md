@@ -18,7 +18,7 @@ One GPU thread per primary electron, full particle history in a single fused com
 
 ## Results (N = 4096 primaries @ 10 keV)
 
-Every numeric claim below is backed by a committed JSON artifact. `[E5]` / `[E10]` / `[B1]` tags link to the latest run under [`experiments/results/2026-05-11/`](./experiments/results/2026-05-11/) — re-run any with `npm run experiments -- E5`.
+Every numeric claim below is backed by a committed JSON artifact. `[E5]` / `[E10]` / `[B1]` / `[E15]` tags link to the latest run under [`experiments/results/2026-05-11/`](./experiments/results/2026-05-11/) — re-run any with `npm run experiments -- E5`.
 
 | Metric                                | This build | Reference                   | Ratio              | Source |
 | ------------------------------------- | ---------- | --------------------------- | ------------------ | ------ |
@@ -32,9 +32,14 @@ Every numeric claim below is backed by a committed JSON artifact. `[E5]` / `[E10
 | G(H) at 1 μs                          | 0.708      | 0.57                        | 1.243×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
 | G(H₂O₂) at 1 μs                       | 0.605      | 0.73                        | 0.828×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
 | G(H₂) at 1 μs                         | 0.468      | 0.42                        | 1.114×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| Phase A wall-clock @ N=4096 (10 keV)  | 14.4 ms    | (no Geant4 baseline yet³)   | informational³     | [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
+| Phase A peak throughput               | 538,947 primaries/sec at N=16384 | (no Geant4 baseline yet³) | informational³ | [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
+| Phase A per-primary marginal cost (β) | 1.207 μs/primary | (no Geant4 baseline yet³) | informational³ | [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 
 ¹ G(OH) / G(e⁻aq) at 10 keV LET are inherently below the Karamitros 2011 low-LET (~1 MeV) reference — track-core density drives higher radical recombination.
 ² **Counting-convention mismatch.** Geant4's `dnaphysics` ntuple reports the full cascade total (509.1 ions/primary, summed across primary + all secondaries). WebGPU's `box_ions` counter accumulates only the primary track (194.1); the secondary side contributes via `sec_per_primary = 143.2`. Reconstructing a directly comparable cascade total would require an extra reduction pass over `rad_buf`. E5 reports the implied 2.20 ions/secondary as the comparable sanity check (physical bound [2, 3] for sub-keV cascades). See [E5 artifact](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) `rows[ions_per_primary]`.
+
+³ **No Geant4 single-thread baseline on this machine yet.** The marquee "kernel fusion beats Geant4 by N×" claim is not yet measured. E15 reports an honest within-WebGPU baseline (Phase A α/β decomposition + peak throughput). E15b will measure Geant4 11.4.1 single-thread on the same machine for the matched workload; Geant4 install is in progress (source at `~/Downloads/geant4-11.3.0`, install build was wiped — rebuild underway).
 
 **46 / 46** unit tests pass across 7 files (`npm run test`). See [`validation/compare.py`](./validation/compare.py) for the full side-by-side against a Geant4-DNA ntuple.
 
@@ -55,8 +60,9 @@ Every numeric claim below is backed by a committed JSON artifact. `[E5]` / `[E10
 | 2 | E6  | ✓ | MFP across 6 energy bins — ratios [0.895, 0.965], median 0.926 (-3.5% to -10.5%) | [E6](./experiments/results/2026-05-11/level-2/E6-mfp-vs-g4-ntuple.json) |
 | 2 | E6b | ✓ | Per-process σ decomposition — **σ_ion 5.6% high, σ_el 6.3% high** vs Geant4, σ_exc 2.57× (intentional Emfietzoglou) | [E6b](./experiments/results/2026-05-11/level-2/E6b-sigma-per-process-vs-g4.json) |
 | 4 | E10 | ✓ | IRT G-values vs Karamitros 2011 across 5 energies — surfaces **G(e⁻aq) V-shape at 1→3 keV** (1.163→1.026→1.147, 11.8% drop, real track-end / spur-structure effect; LET monotonicity confirmed for E ≥ 5 keV) | [E10](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| 6 | E15 | ✗ fail (honest negative) | Phase A α/β decomposition via WebGPU timestamp-disciplined N-sweep — **α = 10.5 ms (single-workgroup compute floor, not pure dispatch overhead — original [10, 500] μs hypothesis falsified)**, β = 1.207 μs/primary, R² = 0.908. **Peak throughput 538,947 primaries/sec at N=16384, 10 keV** on apple/metal-3. Diagnosis + revised two-regime pass bar in [level-6-performance/protocol.md](./experiments/level-6-performance/protocol.md). | [E15](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 
-Run any experiment via `npm run experiments -- <id>` (e.g. `E1`, `E10`, `B1`).
+Run any experiment via `npm run experiments -- <id>` (e.g. `E1`, `E10`, `B1`, `E15`).
 
 ## Quick start
 

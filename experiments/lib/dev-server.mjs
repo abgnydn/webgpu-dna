@@ -19,8 +19,16 @@ const REPO_ROOT = join(import.meta.dirname, '..', '..');
 
 // Vite typically picks 8765 per vite.config.ts; if taken, it'll bump.
 // We capture the actual URL from the ready log line.
+//
+// Vite emits ANSI escapes (color + bold) around "Local" and the URL —
+// strip them before regex matching, otherwise `Local:` becomes
+// `Local\x1b[22m:` and the regex misses (silently falling back to
+// localhost:8765 = wrong port when 8765 is held by another tool).
 const VITE_READY_REGEX = /Local:\s+(https?:\/\/\S+?)\/?\s*$/im;
 const VITE_READY_FALLBACK_REGEX = /ready in/i;
+// eslint-disable-next-line no-control-regex
+const ANSI_REGEX = /\x1b\[[0-9;]*m/g;
+const stripAnsi = (s) => s.replace(ANSI_REGEX, '');
 
 export async function startDevServer({ readyTimeoutMs = 60_000 } = {}) {
   return new Promise((resolve, reject) => {
@@ -43,23 +51,36 @@ export async function startDevServer({ readyTimeoutMs = 60_000 } = {}) {
       reject(new Error(`vite dev server did not signal ready within ${readyTimeoutMs}ms.\n--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}`));
     }, readyTimeoutMs);
 
-    function maybeReady(text) {
+    function maybeReady(_chunk) {
       if (resolved) return;
-      const m = text.match(VITE_READY_REGEX);
+      const clean = stripAnsi(stdout);
+      // Match against accumulated, ANSI-stripped stdout — the "Local: URL"
+      // line may arrive in a different chunk than "ready in Xms", and we
+      // MUST commit to the actual URL vite picked (port shifts to 8766+
+      // when 8765 is held by another tool).
+      const m = clean.match(VITE_READY_REGEX);
       if (m) {
         resolvedUrl = m[1];
         finish();
         return;
       }
-      // Fallback: "ready in Xms" appears slightly before the Local: URL on some vite versions.
-      // Wait a beat, then assume default.
-      if (VITE_READY_FALLBACK_REGEX.test(text) && !resolvedUrl) {
+      // We have a "ready in" signal but no Local: line yet. Wait briefly
+      // (Local: arrives within a few hundred ms on every vite we test),
+      // then fall back. The fallback URL should NEVER be used in practice;
+      // it exists only so a vite version that drops the Local: line
+      // entirely doesn't deadlock.
+      if (VITE_READY_FALLBACK_REGEX.test(clean) && !resolvedUrl) {
         setTimeout(() => {
-          if (!resolved) {
-            resolvedUrl = 'http://localhost:8765';
+          if (resolved) return;
+          const m2 = stripAnsi(stdout).match(VITE_READY_REGEX);
+          if (m2) {
+            resolvedUrl = m2[1];
             finish();
+            return;
           }
-        }, 300);
+          resolvedUrl = 'http://localhost:8765';
+          finish();
+        }, 2000);
       }
     }
 

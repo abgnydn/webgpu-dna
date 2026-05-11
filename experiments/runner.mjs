@@ -15,6 +15,7 @@ import { runE5 } from './level-2-track-structure/E5-csda-vs-g4-ntuple.mjs';
 import { runE6 } from './level-2-track-structure/E6-mfp-vs-g4-ntuple.mjs';
 import { runE6b } from './level-2-track-structure/E6b-sigma-per-process-vs-g4.mjs';
 import { runE10 } from './level-4-chemistry/E10-irt-vs-karamitros.mjs';
+import { runE15 } from './level-6-performance/E15-phase-a-alpha-beta.mjs';
 import { runB0 } from './level-0-env/B0-browser-env.mjs';
 import { runB1 } from './level-0-env/B1-harness-liveness.mjs';
 
@@ -37,6 +38,9 @@ const REGISTRY = {
 
   // Level 4 — chemistry
   E10: { run: runE10, level: 'level-4', id: 'E10-irt-vs-karamitros' },
+
+  // Level 6 — performance
+  E15: { run: runE15, level: 'level-6', id: 'E15-phase-a-alpha-beta' },
 };
 
 const REPO_ROOT = join(import.meta.dirname, '..');

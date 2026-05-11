@@ -12,6 +12,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         splat: resolve(__dirname, 'splat.html'),
         see: resolve(__dirname, 'see.html'),
+        bench: resolve(__dirname, 'bench.html'),
       },
     },
   },

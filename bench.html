@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>webgpu-dna · Phase A bench</title>
+  <style>
+    body { font: 14px/1.4 ui-sans-serif, system-ui, sans-serif; max-width: 840px; margin: 2rem auto; padding: 0 1rem; color: #d8d8d8; background: #0b0b0e; }
+    h1 { font-size: 18px; }
+    code { color: #b0ffd0; }
+    pre { background: #14141a; padding: 0.75rem; border-radius: 4px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>webgpu-dna — Phase A α/β benchmark</h1>
+  <p>
+    Driven by <code>experiments/level-6-performance/E15-phase-a-alpha-beta.mjs</code>.
+    The page exposes <code>window.runPhaseABench({ Ns, warmups, trials, energyEv })</code>
+    once <code>window.__benchReady === true</code>. No UI affordance — the
+    Playwright driver evaluates the function and reads back the result.
+  </p>
+  <pre id="status">loading…</pre>
+  <script type="module">
+    import './src/bench.ts';
+    const el = document.getElementById('status');
+    const tick = () => {
+      if (window.__benchError) { el.textContent = `error: ${window.__benchError}`; return; }
+      if (window.__benchReady) { el.textContent = 'ready — window.runPhaseABench is exposed'; return; }
+      requestAnimationFrame(tick);
+    };
+    tick();
+  </script>
+</body>
+</html>

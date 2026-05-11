@@ -112,7 +112,19 @@ per-level `protocol.md` files for hypotheses + pass bars.
 - **L4 — Chemistry (1 of 2 passing).** E10 IRT G-values vs Karamitros
   2011 across 5 primary energies (1/3/5/10/20 keV). E11 GPU vs IRT
   backend deferred — needs browser runner infrastructure.
-- **L3, L5, L6** — protocols only.
+- **L6 — Performance (1 of 2 attempted, status: fail honest-negative).**
+  E15 Phase A α/β decomposition via WebGPU + Playwright N-sweep
+  (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 warmups + T=20 trials
+  per N with `onSubmittedWorkDone()` sync). α = 10527.8 μs (outside the
+  original [10, 500] μs hypothesis — that bound assumed pure dispatch
+  overhead; in practice α is a **single-workgroup compute floor**
+  because the WGSL primary kernel runs the full per-electron history
+  inside a for-loop, so even at N=1 we pay ~7 ms for one workgroup's
+  worth of physics). β = 1.207 μs/primary, R² = 0.908. **Peak
+  throughput 538,947 primaries/sec at N=16384, 10 keV** on apple/metal-3.
+  Revised two-regime pass bar documented in the L6 protocol; E15b
+  (vs Geant4 single-thread) waits on a Geant4 11.4.1 rebuild. [E15]
+- **L3, L5** — protocols only.
 
 **Four substantive findings now in the research ledger** (would NOT
 be visible without the protocol):
