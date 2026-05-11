@@ -1,0 +1,226 @@
+{
+  "meta": {
+    "protocol": "E8-secondary-ke-spectrum",
+    "hypothesis": "WGSL Born-differential CDF sampling for ionization secondaries produces a creation-time KE distribution that matches Geant4 11.4.1's ntuple within 30% per bin (over bins with > 1% of counts) at 10 keV primary energy. Bins span 1 eV to 5 keV log-spaced (4/decade).",
+    "passBar": "Per significant bin (> 1% of counts): |freq_wgsl - freq_g4| / max(freq_wgsl, freq_g4) < 0.30.",
+    "seed": "E8_E_SPECTRUM=0x54524B04",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "wgsl": "src/bench.ts (extended 2026-05-11 with dumpSecBuf option)",
+      "g4Root": "~/Downloads/dnaphysics-v11.4.1-build/dna.root",
+      "g4Macro": "validation/run_validation.mac (10 keV, 4096 primaries, DNA_Opt2)"
+    },
+    "config": {
+      "primaryEnergyEv": 10000,
+      "nPrimaries": 4096,
+      "bins": 14
+    }
+  },
+  "env": {
+    "gitSha": "d726f2f9d4207125b0bea80d6aaa959abe2e84bd",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T10:28:47.727Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184,
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": "",
+      "description": ""
+    }
+  },
+  "status": "fail",
+  "diagnosis": "1/8 significant bins failed the 30% band",
+  "summary": {
+    "nPrimaries": 4096,
+    "primaryEnergyEv": 10000,
+    "nSignificantBins": 8,
+    "nBinsPassed": 7,
+    "wgslSecondaries": 587165,
+    "wgslSecPerPri": 143.350830078125,
+    "g4Secondaries": 593496,
+    "g4SecPerPri": 144.896484375,
+    "headline": "7/8 significant bins in 30% band. Sec/pri: WGSL 143.4 vs G4 144.9"
+  },
+  "rows": [
+    {
+      "metric": "bin_1.0_1.8_eV",
+      "eLo": 1,
+      "eHi": 1.8374356705068005,
+      "wgsl_count": 0,
+      "g4_count": 0,
+      "wgsl_frac": 0,
+      "g4_frac": 0,
+      "status": "informational",
+      "note": "below significance threshold (< 1%)"
+    },
+    {
+      "metric": "bin_1.8_3.4_eV",
+      "eLo": 1.8374356705068005,
+      "eHi": 3.3761698432507754,
+      "wgsl_count": 0,
+      "g4_count": 0,
+      "wgsl_frac": 0,
+      "g4_frac": 0,
+      "status": "informational",
+      "note": "below significance threshold (< 1%)"
+    },
+    {
+      "metric": "bin_3.4_6.2_eV",
+      "eLo": 3.3761698432507754,
+      "eHi": 6.203494899678328,
+      "wgsl_count": 0,
+      "g4_count": 0,
+      "wgsl_frac": 0,
+      "g4_frac": 0,
+      "status": "informational",
+      "note": "below significance threshold (< 1%)"
+    },
+    {
+      "metric": "bin_6.2_11.4_eV",
+      "eLo": 6.203494899678328,
+      "eHi": 11.398522810475965,
+      "wgsl_count": 145441,
+      "g4_count": 145917,
+      "wgsl_frac": 0.2477003908611719,
+      "g4_frac": 0.2458601237413563,
+      "rel_diff": 0.007429407411985146,
+      "passBar": "|Δfreq| / max(freq) < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "bin_11.4_20.9_eV",
+      "eLo": 11.398522810475965,
+      "eHi": 20.94405240305397,
+      "wgsl_count": 194295,
+      "g4_count": 195499,
+      "wgsl_frac": 0.3309035790621035,
+      "g4_frac": 0.32940238855864235,
+      "rel_diff": 0.004536640273629092,
+      "passBar": "|Δfreq| / max(freq) < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "bin_20.9_38.5_eV",
+      "eLo": 20.94405240305397,
+      "eHi": 38.48334897033503,
+      "wgsl_count": 111691,
+      "g4_count": 112800,
+      "wgsl_frac": 0.190220806757896,
+      "g4_frac": 0.19006025314408184,
+      "rel_diff": 0.000844038128901909,
+      "passBar": "|Δfreq| / max(freq) < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "bin_38.5_70.7_eV",
+      "eLo": 38.48334897033503,
+      "eHi": 70.71067811865476,
+      "wgsl_count": 66704,
+      "g4_count": 67081,
+      "wgsl_frac": 0.11360350157110863,
+      "g4_frac": 0.11302687802445173,
+      "rel_diff": 0.00507575504876466,
+      "passBar": "|Δfreq| / max(freq) < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "bin_70.7_129.9_eV",
+      "eLo": 70.71067811865476,
+      "eHi": 129.9263222609409,
+      "wgsl_count": 35796,
+      "g4_count": 35668,
+      "wgsl_frac": 0.06096412422402561,
+      "g4_frac": 0.06009813040020489,
+      "rel_diff": 0.014204974398359998,
+      "passBar": "|Δfreq| / max(freq) < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "bin_129.9_238.7_eV",
+      "eLo": 129.9263222609409,
+      "eHi": 238.73125906001476,
+      "wgsl_count": 17650,
+      "g4_count": 17906,
+      "wgsl_frac": 0.030059693612527996,
+      "g4_frac": 0.030170380255300795,
+      "rel_diff": 0.0036687188506134877,
+      "passBar": "|Δfreq| / max(freq) < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "bin_238.7_438.7_eV",
+      "eLo": 238.73125906001476,
+      "eHi": 438.6533310618708,
+      "wgsl_count": 8738,
+      "g4_count": 8560,
+      "wgsl_frac": 0.014881677211686664,
+      "g4_frac": 0.014423012118026069,
+      "rel_diff": 0.030820793055530267,
+      "passBar": "|Δfreq| / max(freq) < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "bin_438.7_806.0_eV",
+      "eLo": 438.6533310618708,
+      "eHi": 805.99727747971,
+      "wgsl_count": 4075,
+      "g4_count": 7272,
+      "wgsl_frac": 0.0069401275620992395,
+      "g4_frac": 0.012252820575033362,
+      "rel_diff": 0.43358939114471257,
+      "passBar": "|Δfreq| / max(freq) < 0.30",
+      "status": "fail"
+    },
+    {
+      "metric": "bin_806.0_1481.0_eV",
+      "eLo": 805.99727747971,
+      "eHi": 1480.9681479725862,
+      "wgsl_count": 1849,
+      "g4_count": 1888,
+      "wgsl_frac": 0.0031490296594653975,
+      "g4_frac": 0.003181150336312292,
+      "status": "informational",
+      "note": "below significance threshold (< 1%)"
+    },
+    {
+      "metric": "bin_1481.0_2721.2_eV",
+      "eLo": 1480.9681479725862,
+      "eHi": 2721.1837019692252,
+      "wgsl_count": 743,
+      "g4_count": 728,
+      "wgsl_frac": 0.0012654023996661926,
+      "g4_frac": 0.0012266300025610957,
+      "status": "informational",
+      "note": "below significance threshold (< 1%)"
+    },
+    {
+      "metric": "bin_2721.2_5000.0_eV",
+      "eLo": 2721.1837019692252,
+      "eHi": 5000,
+      "wgsl_count": 183,
+      "g4_count": 177,
+      "wgsl_frac": 0.0003116670782488738,
+      "g4_frac": 0.00029823284402927735,
+      "status": "informational",
+      "note": "below significance threshold (< 1%)"
+    },
+    {
+      "metric": "totals",
+      "wgsl_secondaries": 587165,
+      "wgsl_sec_per_primary": 143.350830078125,
+      "g4_secondaries": 593496,
+      "g4_sec_per_primary": 144.896484375,
+      "g4_total_raw_secondaries": 593496,
+      "wgsl_sec_n_raw": 587165,
+      "note": "g4_secondaries here counts ONLY those falling within the [1 eV, 5 keV] histogram range; raw count is g4_total_raw_secondaries.",
+      "status": "informational"
+    }
+  ]
+}

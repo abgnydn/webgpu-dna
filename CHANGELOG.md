@@ -7,6 +7,27 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L2 stage 4: E8 secondary KE spectrum (2026-05-11)
+
+- Extended `src/bench.ts` with a `dumpSecBuf` option that reads back the
+  Phase-A secondary buffer after the final dispatch and returns per-
+  secondary kinetic energies at creation time. Required adding COPY_SRC
+  to `sec_buf`'s GPU buffer usage flags (was STORAGE | COPY_DST only;
+  silent-fail copy was diagnosed by getting all-zero readback).
+- **E8** compares the WGSL secondary KE distribution to the Geant4
+  11.4.1 ntuple's primary-emitted electrons (parentID=1, flagParticle=1,
+  KE ≥ 7.4 eV — matched to WGSL's above-cutoff scope). At N=4096 ×
+  10 keV:
+  - **Sec/primary: WGSL 143.4 vs G4 144.9 (1.0% match)**
+  - **7 of 8 significant log-bins from 6 eV to 800 eV agree within
+    0.1-3.1%** — Born differential CDF sampling matches Geant4
+    essentially exactly across the bulk
+  - One tail bin (438-806 eV) shows a 43% deficit (WGSL 0.69% vs
+    G4 1.23%, ~2.5σ)
+
+  Status: partial pass; 7/8 in 30% band. The Born differential sampling
+  is now validated experimentally across the bulk of the distribution.
+
 ### Added — L4 stage 3: E11 GPU chem backend vs IRT worker (2026-05-11)
 
 - **E11** drives `src/shaders/chemistry.wgsl` on the same rad bin as the

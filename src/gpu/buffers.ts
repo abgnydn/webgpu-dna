@@ -66,7 +66,10 @@ export function allocateBuffers(device: GPUDevice, np: number): GPUBuffers {
     radBuf: mk(MAX_RAD * 16, S | C | D),
     radBufRB: mk(MAX_RAD * 16, D | R),
 
-    secBuf: mk(MAX_SEC * 48, S | D),
+    // COPY_SRC added 2026-05-11 so E8 can read back the secondary buffer for
+    // the KE-spectrum experiment. Production Phase A/B never read sec_buf
+    // CPU-side, so this is bench-only — small alignment cost, no behavior change.
+    secBuf: mk(MAX_SEC * 48, S | C | D),
     secParams: mk(48, U | D),
     secStats: mk(32, S | C | D),
     secStatsRB: mk(32, D | R),

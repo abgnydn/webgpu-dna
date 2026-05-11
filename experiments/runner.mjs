@@ -15,6 +15,7 @@ import { runE5 } from './level-2-track-structure/E5-csda-vs-g4-ntuple.mjs';
 import { runE6 } from './level-2-track-structure/E6-mfp-vs-g4-ntuple.mjs';
 import { runE6b } from './level-2-track-structure/E6b-sigma-per-process-vs-g4.mjs';
 import { runE7 } from './level-2-track-structure/E7-ions-per-primary-cascade.mjs';
+import { runE8 } from './level-2-track-structure/E8-secondary-ke-spectrum.mjs';
 import { runE10 } from './level-4-chemistry/E10-irt-vs-karamitros.mjs';
 import { runE10b } from './level-4-chemistry/E10b-vshape-bootstrap-sigma.mjs';
 import { runE10c } from './level-4-chemistry/E10c-vs-chem6-at-10keV.mjs';
@@ -44,6 +45,7 @@ const REGISTRY = {
   E6:  { run: runE6,  level: 'level-2', id: 'E6-mfp-vs-g4-ntuple' },
   E6b: { run: runE6b, level: 'level-2', id: 'E6b-sigma-per-process-vs-g4' },
   E7:  { run: runE7,  level: 'level-2', id: 'E7-ions-per-primary-cascade' },
+  E8:  { run: runE8,  level: 'level-2', id: 'E8-secondary-ke-spectrum' },
 
   // Level 4 — chemistry
   E10:  { run: runE10,  level: 'level-4', id: 'E10-irt-vs-karamitros' },

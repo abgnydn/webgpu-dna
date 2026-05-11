@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (19 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (20 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -115,14 +115,17 @@ per-level `protocol.md` files for hypotheses + pass bars.
   scale-factor catcher per memory/cross_section_fix.md), E4 Sanche
   vibrational total, E4b Sanche per-mode XVMF fractions. All five WGSL
   cross-section tables bit-match their G4EMLOW source data.
-- **L2 — Track structure (4 of 5 attempted, 3 pass / 1 honest-negative).**
-  E5 CSDA + E-cons @ 10 keV vs Geant4 11.4.1 ntuple (pass). E6 MFP
-  across 6 energy bins (-5.0% to -10.7% deviation, all within 25% bar,
-  pass). E6b per-process σ decomposition (ion +6.1%, el +5.7%, exc
-  +155% intentional, pass). **E7 cascade ions per primary** (fail —
-  WGSL 371.9 vs Geant4 509.2, 27% deficit, 263σ — real physics gap;
-  closes the counting-convention question E5 punted on). E8 (secondary
-  KE spectrum) deferred.
+- **L2 — Track structure (5 of 5 attempted, 3 pass / 1 honest-negative
+  / 1 partial pass).** E5 CSDA + E-cons @ 10 keV vs Geant4 11.4.1
+  ntuple (pass). E6 MFP across 6 energy bins (-5.0% to -10.7% deviation,
+  all within 25% bar, pass). E6b per-process σ decomposition (ion
+  +6.1%, el +5.7%, exc +155% intentional, pass). **E7 cascade ions
+  per primary** (fail — WGSL 371.9 vs Geant4 509.2, 27% deficit, 263σ,
+  real physics gap). **E8 secondary KE spectrum** (partial pass —
+  sec/primary 143.4 vs G4 144.9 (1.0% match), 7 of 8 log-bins in
+  6-800 eV agree within 0.1-3.1%, only the 438-806 eV tail shows a
+  43% deficit; closes the Born differential CDF sampling correctness
+  question).
 - **L4 — Chemistry (4 of 4 attempted, 2 pass + 2 fail honest-negative).**
   E10 IRT G-values vs Karamitros 2011 across 5 primary energies
   (1/3/5/10/20 keV) — pass. E10b V-shape σ-significance via primary

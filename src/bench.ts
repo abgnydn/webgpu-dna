@@ -44,6 +44,14 @@ interface BenchOpts {
    * partial fusion levels.
    */
   ms?: number;
+  /**
+   * Dump the secondary-electron buffer (sec_buf) after the LAST trial at the
+   * largest N, then return the per-secondary kinetic energies. Used by E8
+   * to histogram the secondary KE spectrum at creation time (before any
+   * Phase B thermalization mutates the energies). Adds one extra dispatch
+   * and a CPU readback at the end of the run.
+   */
+  dumpSecBuf?: boolean;
 }
 
 interface BenchPerN {
@@ -70,6 +78,16 @@ interface BenchResult {
   };
   limits: { maxBufferSize: number; maxStorageBufferBindingSize: number };
   perN: BenchPerN[];
+  /**
+   * Per-secondary kinetic energies (eV) captured after the FINAL trial when
+   * `opts.dumpSecBuf` is true; undefined otherwise. Each entry is one
+   * secondary's KE at creation time (before any Phase B thermalization).
+   */
+  secKEs?: number[];
+  /** Number of secondaries returned by the GPU sec_n counter. */
+  secN?: number;
+  /** Number of primaries used for the final dump (largest N in the sweep). */
+  secNPrimaries?: number;
 }
 
 declare global {
@@ -215,6 +233,62 @@ async function runPhaseABench(opts: BenchOpts): Promise<BenchResult> {
     perN.push({ N, trialsMs, ...stats(trialsMs) });
   }
 
+  // Optional: dump sec_buf after the LAST dispatch at the largest N.
+  // The state captured here is the secondary at CREATION (before any Phase B
+  // step has mutated it), since this bench never runs Phase B.
+  let secKEs: number[] | undefined;
+  let secN: number | undefined;
+  let secNPrimaries: number | undefined;
+  if (opts.dumpSecBuf) {
+    const N = Math.max(...opts.Ns);
+    secNPrimaries = N;
+    // Re-do one fresh dispatch so the sec_buf is in a known state.
+    seedPrimaryRNG(device, buffers.rng, N, seed + 99999);
+    writePrimaryParams(device, buffers.params, N, boxNm, ceEV, opts.energyEv, ms);
+    device.queue.writeBuffer(buffers.counters, 0, new Uint32Array(8));
+    device.queue.writeBuffer(buffers.dbg, 0, new Uint32Array(8));
+    device.queue.writeBuffer(buffers.secStats, 0, new Uint32Array(8));
+    device.queue.writeBuffer(buffers.dose, 0, new Uint32Array(doseSize));
+    await dispatchOnce(device, pipelines, N);
+
+    // Read sec_n from counters[6].
+    const countersRB = device.createBuffer({
+      size: 32,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+    });
+    const enc = device.createCommandEncoder();
+    enc.copyBufferToBuffer(buffers.counters, 0, countersRB, 0, 32);
+    device.queue.submit([enc.finish()]);
+    await device.queue.onSubmittedWorkDone();
+    await countersRB.mapAsync(GPUMapMode.READ);
+    const countersA = new Uint32Array(countersRB.getMappedRange().slice(0) as ArrayBuffer);
+    countersRB.unmap();
+    countersRB.destroy();
+    const secNRaw = countersA[6];
+    secN = Math.min(secNRaw, MAX_SEC);
+
+    if (secN > 0) {
+      const secBytes = secN * 48;
+      const secRB = device.createBuffer({
+        size: secBytes,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+      });
+      const enc2 = device.createCommandEncoder();
+      enc2.copyBufferToBuffer(buffers.secBuf, 0, secRB, 0, secBytes);
+      device.queue.submit([enc2.finish()]);
+      await device.queue.onSubmittedWorkDone();
+      await secRB.mapAsync(GPUMapMode.READ);
+      const secF32 = new Float32Array(secRB.getMappedRange().slice(0) as ArrayBuffer);
+      secRB.unmap();
+      secRB.destroy();
+      // Layout: 12 f32 per Particle. pos_E.w (KE in eV) is at offset 3.
+      secKEs = new Array<number>(secN);
+      for (let i = 0; i < secN; i++) secKEs[i] = secF32[i * 12 + 3];
+    } else {
+      secKEs = [];
+    }
+  }
+
   return {
     energyEv: opts.energyEv,
     boxNm,
@@ -232,6 +306,9 @@ async function runPhaseABench(opts: BenchOpts): Promise<BenchResult> {
       maxStorageBufferBindingSize: device.limits.maxStorageBufferBindingSize,
     },
     perN,
+    secKEs,
+    secN,
+    secNPrimaries,
   };
 }
 
