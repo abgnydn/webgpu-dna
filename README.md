@@ -32,18 +32,20 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 | σ_ion ratio (mean over 6 bins)        | 1.061      | 1.000                           | +6.1% (range +3.5 to +10.5%) | [[E6b]](./experiments/results/2026-05-11/level-2/E6b-sigma-per-process-vs-g4.json) |
 | σ_el ratio (mean over 6 bins)         | 1.057      | 1.000                           | +5.7% (range +4.1 to +10.4%) | [[E6b]](./experiments/results/2026-05-11/level-2/E6b-sigma-per-process-vs-g4.json) |
 | σ_exc ratio (mean over 6 bins)        | 2.55       | 1.000 (intentional Emfietzoglou) | +155%             | [[E6b]](./experiments/results/2026-05-11/level-2/E6b-sigma-per-process-vs-g4.json) |
-| G(OH) at 1 μs                         | 1.551      | 2.50 (Karamitros 2011)          | 0.621×¹            | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
-| G(e⁻aq) at 1 μs                       | 1.406      | 2.50                            | 0.563×¹            | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
-| G(H) at 1 μs                          | 0.708      | 0.57                            | 1.243×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
-| G(H₂O₂) at 1 μs                       | 0.605      | 0.73                            | 0.828×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
-| G(H₂) at 1 μs                         | 0.468      | 0.42                            | 1.114×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| G(OH) at 1 μs vs Karamitros 2011 (~1 MeV ref) | 1.551 | 2.50 (low-LET)            | 0.621×¹            | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| G(OH) at 1 μs **vs chem6 @ 10 keV** (matched LET) | 1.551 | 1.710                | **0.907× (4.8σ)**  | [[E10c]](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
+| G(e⁻aq) at 1 μs **vs chem6 @ 10 keV**  | 1.406      | 1.694                          | **0.830× (9.7σ)**  | [[E10c]](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
+| G(H) at 1 μs **vs chem6 @ 10 keV**     | 0.708      | 0.710                          | 0.997× ✓           | [[E10c]](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
+| G(H₂O₂) at 1 μs **vs chem6 @ 10 keV**  | 0.605      | 0.850                          | **0.711× (20.0σ)** | [[E10c]](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
+| G(H₂) at 1 μs **vs chem6 @ 10 keV**    | 0.468      | 0.622                          | **0.752× (13.8σ)** | [[E10c]](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
+| G(e⁻aq) V-shape drop at 1→3 keV       | 0.137 (12.5%) | 0 (smooth monotonic falsifier) | **126σ significant** (B=20 primary bootstrap, m/n corrected) | [[E10b]](./experiments/results/2026-05-11/level-4/E10b-vshape-bootstrap-sigma.json) |
 | Phase A wall-clock @ N=4096 (10 keV)  | 14.4 ms    | (informational baseline)        | n/a                | [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | Phase A peak throughput               | 538,947 primaries/sec at N=16384 | (informational baseline) | n/a       | [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | Phase A per-primary marginal cost (β) | 1.207 μs/primary | (informational baseline)    | n/a                | [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | Phase A + B vs Geant4 single-thread   | 635 ms     | 289.1 s (Geant4 11.4.1 median, 3 trials) | **455× speedup**³ | [[E15b]](./experiments/results/2026-05-11/level-6/E15b-vs-geant4-single-thread.json) |
 | End-to-end pre-DNA vs Geant4          | 194.6 s    | 289.1 s                         | 1.48× speedup⁴     | [[E15b]](./experiments/results/2026-05-11/level-6/E15b-vs-geant4-single-thread.json) |
 
-¹ G(OH) / G(e⁻aq) at 10 keV LET are inherently below the Karamitros 2011 low-LET (~1 MeV) reference — track-core density drives higher radical recombination.
+¹ G(OH) / G(e⁻aq) at 10 keV LET are inherently below the Karamitros 2011 low-LET (~1 MeV) reference — track-core density drives higher radical recombination. The matched-LET comparison to Geant4 chem6 at 10 keV (next two rows) is the fair test: the 0.62× vs Karamitros was confounding LET-deficit with a real but smaller (~9-17%) chemistry gap.
 ² **Counting-convention mismatch (now resolved by E7).** Geant4's `dnaphysics` ntuple reports the full cascade total (509.2 ions/primary). WebGPU's `box_ions` GPU atomic counts only the primary track (194.1). E7 reconstructs the cascade total directly from `rad_buf` (counts H3O+ records, species_code=3) and lands at 371.9 — the gap is a real physics deficit, not just a counting artifact (see E7).
 
 ³ **Matched-scope physics tracking.** Both sides simulate primary + secondary cascade electrons without radiolysis chemistry. The 455× number is the marquee speedup claim the project can stand behind. Apple M2 Pro 10-core, single-thread Geant4.
@@ -54,7 +56,7 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 
 ### Research-grade validation ledger
 
-13 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/).
+15 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/).
 
 | Level | ID | Status | Headline | Artifact (2026-05-11) |
 |------:|:---|:-------|:---------|:----------------------|
@@ -70,6 +72,8 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 | 2 | E6b | ✓ | Per-process σ decomposition — **σ_ion 6.1% high, σ_el 5.7% high** vs Geant4 11.4.1, σ_exc 2.55× (intentional Emfietzoglou) | [E6b](./experiments/results/2026-05-11/level-2/E6b-sigma-per-process-vs-g4.json) |
 | 2 | E7  | ✗ fail (honest negative) | Cascade ions per primary reconstructed from rad_buf H3O+ records — **WGSL 371.9 vs Geant4 509.2 → 0.730× (263σ, 27% deficit)**; closes the counting-convention question E5 punted on, surfaces a real physics gap likely tied to E6b's σ_exc inflation channeling energy away from ionization | [E7](./experiments/results/2026-05-11/level-2/E7-ions-per-primary-cascade.json) |
 | 4 | E10 | ✓ | IRT G-values vs Karamitros 2011 across 5 energies — surfaces **G(e⁻aq) V-shape at 1→3 keV** (1.163→1.026→1.147, 11.8% drop, real track-end / spur-structure effect; LET monotonicity confirmed for E ≥ 5 keV) | [E10](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| 4 | E10b | ✓ | V-shape σ-significance via primary-bootstrap (B=20 unique-pids resamples per energy, m/n corrected SE) — **drop at 1→3 keV is 126σ significant** (was claimed as ~40σ before E10b actually measured it). Confirms the drop is real physics, not MC noise. | [E10b](./experiments/results/2026-05-11/level-4/E10b-vshape-bootstrap-sigma.json) |
+| 4 | E10c | ✗ fail (honest negative) | **G(species) at MATCHED 10 keV LET vs Geant4 11.4.1 chem6** (closes the "is the 0.62× vs Karamitros real LET physics or our chemistry bug?" question). Result: G(OH) 0.91× / G(eaq) 0.83× / G(H) 1.00× / **G(H₂) 0.75× / G(H₂O₂) 0.71×**. The 0.6× deficit vs Karamitros was confounding ~30% LET-deficit (real physics) with ~10-29% chemistry deficit (real implementation gap, biggest on H₂ and H₂O₂). | [E10c](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
 | 6 | E15 | ✗ fail (honest negative) | Phase A α/β decomposition via WebGPU timestamp-disciplined N-sweep — **α = 10.5 ms (single-workgroup compute floor, not pure dispatch overhead — original [10, 500] μs hypothesis falsified)**, β = 1.207 μs/primary, R² = 0.908. **Peak throughput 538,947 primaries/sec at N=16384, 10 keV** on apple/metal-3. Diagnosis + revised two-regime pass bar in [level-6-performance/protocol.md](./experiments/level-6-performance/protocol.md). | [E15](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | 6 | E15b | ✓ | Same-machine head-to-head vs Geant4 11.4.1 single-thread (3 trials, M2 Pro) — **455× speedup** on matched-scope physics tracking (Phase A+B 635 ms vs Geant4 median 289.1 s); end-to-end pre-DNA pipeline (Phase A+B+IRT chem) only 1.48× because IRT chemistry on CPU is the bottleneck | [E15b](./experiments/results/2026-05-11/level-6/E15b-vs-geant4-single-thread.json) |
 

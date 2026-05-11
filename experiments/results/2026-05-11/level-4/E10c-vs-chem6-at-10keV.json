@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "protocol": "E10c-vs-chem6-at-10keV",
+    "hypothesis": "WebGPU IRT G(species, 1 μs) at 10 keV agrees with Geant4 11.4.1 chem6 (matched LET, G4EmDNAPhysics_option2, Meesungnoen2002 solvation, IRT time-step model) within 20% per species AND within 3σ of chem6 MC noise. Tests whether the 0.62× / 0.56× deficit vs Karamitros 2011 is real LET-deficit physics (this experiment passes) or a chemistry bug (this fails).",
+    "passBar": "Per species: |ratio − 1| < 0.20 AND |G_wgsl − G_chem6| / sqrt(SE_wgsl² + SE_chem6²) < 3. Reported informationally if chem6 N < 50.",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "chem6Bin": "~/Downloads/chem6-build/chem6",
+      "geant4Env": "~/Downloads/geant4-v11.4.1-install/bin/geant4.sh",
+      "chem6Macro": "validation/chem6_10keV.mac",
+      "wgslReference": "experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json",
+      "speciesMap": "chem6 species table (chem6.out): 0=H3O+, 1=OH, 2=OH-, 3=eaq, 4=H, 5=H2, 6=H2O2"
+    },
+    "config": {
+      "nPrimaries": 100,
+      "targetTime": "1 us",
+      "primaryEnergyEv": 10000
+    }
+  },
+  "env": {
+    "gitSha": "1431daafad8d9f51271ee95b2f9b9103b1b28599",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T09:01:24.576Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "OH: WGSL 1.551 vs chem6 1.710 (ratio 0.907, 4.8σ); eaq: WGSL 1.406 vs chem6 1.694 (ratio 0.830, 9.7σ); H2: WGSL 0.468 vs chem6 0.622 (ratio 0.752, 13.8σ); H2O2: WGSL 0.605 vs chem6 0.850 (ratio 0.711, 20.0σ)",
+  "summary": {
+    "nPrimaries": 100,
+    "chem6WallSec": 23.707,
+    "nPassed": 1,
+    "nFailed": 4,
+    "perSpecies": [
+      {
+        "name": "OH",
+        "wgsl": 1.55142578125,
+        "chem6": 1.7098999999999256,
+        "ratio": 0.9073195983683652,
+        "sigma": 4.849780375218254
+      },
+      {
+        "name": "eaq",
+        "wgsl": 1.40635498046875,
+        "chem6": 1.6939999999999262,
+        "ratio": 0.8301977452590386,
+        "sigma": 9.715034843302938
+      },
+      {
+        "name": "H",
+        "wgsl": 0.70837158203125,
+        "chem6": 0.7137999999999696,
+        "ratio": 0.992395043473354,
+        "sigma": 0.40087335930959267
+      },
+      {
+        "name": "H2",
+        "wgsl": 0.4676904296875,
+        "chem6": 0.6219999999999734,
+        "ratio": 0.7519138740956914,
+        "sigma": 13.807563657090704
+      },
+      {
+        "name": "H2O2",
+        "wgsl": 0.60463623046875,
+        "chem6": 0.8501999999999633,
+        "ratio": 0.7111694077496779,
+        "sigma": 19.99632730243364
+      }
+    ],
+    "headline": "G(OH)=1.55/1.71 (0.91×)  G(eaq)=1.41/1.69 (0.83×)  G(H)=0.71/0.71 (0.99×)  G(H2)=0.47/0.62 (0.75×)  G(H2O2)=0.60/0.85 (0.71×)"
+  },
+  "rows": [
+    {
+      "metric": "species_OH",
+      "gWgsl": 1.55142578125,
+      "gChem6": 1.7098999999999256,
+      "seChem6": 0.021911896588866556,
+      "seWgsl_estimated": 0.02424102783203125,
+      "ratio": 0.9073195983683652,
+      "delta": -0.1584742187499255,
+      "sigma": 4.849780375218254,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 3",
+      "status": "fail"
+    },
+    {
+      "metric": "species_eaq",
+      "gWgsl": 1.40635498046875,
+      "gChem6": 1.6939999999999262,
+      "seChem6": 0.019843834754848976,
+      "seWgsl_estimated": 0.02197429656982422,
+      "ratio": 0.8301977452590386,
+      "delta": -0.28764501953117616,
+      "sigma": 9.715034843302938,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 3",
+      "status": "fail"
+    },
+    {
+      "metric": "species_H",
+      "gWgsl": 0.70837158203125,
+      "gChem6": 0.7137999999999696,
+      "seChem6": 0.00780155384678185,
+      "seWgsl_estimated": 0.01106830596923828,
+      "ratio": 0.992395043473354,
+      "delta": -0.005428417968719623,
+      "sigma": 0.40087335930959267,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 3",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2",
+      "gWgsl": 0.4676904296875,
+      "gChem6": 0.6219999999999734,
+      "seChem6": 0.008455468614745314,
+      "seWgsl_estimated": 0.007307662963867188,
+      "ratio": 0.7519138740956914,
+      "delta": -0.15430957031247333,
+      "sigma": 13.807563657090704,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 3",
+      "status": "fail"
+    },
+    {
+      "metric": "species_H2O2",
+      "gWgsl": 0.60463623046875,
+      "gChem6": 0.8501999999999633,
+      "seChem6": 0.0078457091148698,
+      "seWgsl_estimated": 0.00944744110107422,
+      "ratio": 0.7111694077496779,
+      "delta": -0.24556376953121328,
+      "sigma": 19.99632730243364,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 3",
+      "status": "fail"
+    },
+    {
+      "metric": "chem6_run_metadata",
+      "nPrimaries": 100,
+      "chem6_wall_sec": 23.707,
+      "chem6_nEvents_in_ntuple": 100,
+      "chem6Bin": "~/Downloads/chem6-build/chem6",
+      "status": "informational"
+    }
+  ]
+}

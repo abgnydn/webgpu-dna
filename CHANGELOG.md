@@ -7,6 +7,27 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L4 expansion: chem6 head-to-head + V-shape bootstrap (2026-05-11)
+
+- **E10b** — Bootstrap σ-significance for the G(e⁻aq) V-shape at 1→3 keV.
+  Primary-level bootstrap (B=20 unique-pids resamples per energy, m/n
+  correction for sub-sampling SE). Drop = 0.137 (12.5%) at **z = 126σ**.
+  Closes the previously unbacked "~40σ" prose claim with an actual
+  measurement — the V-shape is real physics with significance well
+  above the prior unverified estimate.
+- **E10c** — G(species, 1 μs) at MATCHED 10 keV LET vs Geant4 11.4.1
+  chem6 (G4EmDNAPhysics_option2, Meesungnoen2002 solvation, IRT model,
+  N=100 chem6 primaries vs 4096 WGSL primaries). **Fail (honest negative):**
+  G(OH) 0.907× (4.8σ), G(eaq) 0.830× (9.7σ), G(H) 1.00× (passed),
+  G(H₂) 0.752× (13.8σ), G(H₂O₂) 0.711× (20.0σ). **Closes the previously
+  open "is the 0.62× vs Karamitros real LET physics or our chemistry
+  has a bug?" question** — answer: both. ~70% is real LET-deficit
+  physics (the Karamitros 2011 reference is for ~1 MeV low-LET, so a
+  deficit at 10 keV is expected), and ~30% is a real WGSL-vs-chem6
+  chemistry gap. Biggest implementation deficits are on H₂ and H₂O₂
+  (both molecular products of secondary recombination), suggesting
+  the WGSL IRT under-counts long-time TDC pair reactions.
+
 ### Added — Geant4 11.4.1 upgrade + L2/L6 expansion (2026-05-11)
 
 - **Geant4 11.4.1 / G4EMLOW 8.8** built locally from source at

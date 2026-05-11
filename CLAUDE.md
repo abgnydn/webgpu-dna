@@ -79,11 +79,15 @@ under `experiments/results/2026-05-11/`; `[E5]` tags point at the JSON.
   (-5.0% to -10.7%, all within the 25% pass bar) [E6]
 - **Per-process σ vs Geant4** ion mean 1.061 (range 1.035-1.105), el mean 1.057
   (1.041-1.104), exc mean 2.55 (2.39-2.76, intentional Emfietzoglou-vs-Born) [E6b]
-- **G(OH) @ 1 μs (10 keV)** 1.551 → 0.621× Karamitros 2011 [E10]
-- **G(e⁻aq) @ 1 μs (10 keV)** 1.406 → 0.563× [E10]
-- **G(H) @ 1 μs (10 keV)** 0.708 → 1.243× [E10]
-- **G(H₂O₂) @ 1 μs (10 keV)** 0.605 → 0.828× [E10]
-- **G(H₂) @ 1 μs (10 keV)** 0.468 → 1.114× [E10]
+- **G(OH) @ 1 μs (10 keV)** 1.551 → 0.621× Karamitros 2011 (low-LET ~1 MeV) [E10]
+- **G(OH) @ 1 μs (10 keV) vs Geant4 chem6 at MATCHED 10 keV** 1.551 / 1.710 → **0.907× (4.8σ)** [E10c]
+- **G(e⁻aq) @ 1 μs (10 keV) vs chem6** 1.406 / 1.694 → **0.830× (9.7σ)** [E10c]
+- **G(H) @ 1 μs (10 keV) vs chem6** 0.708 / 0.710 → 0.997× (no significant deviation) [E10c]
+- **G(H₂O₂) @ 1 μs (10 keV) vs chem6** 0.605 / 0.850 → **0.711× (20.0σ)** [E10c]
+- **G(H₂) @ 1 μs (10 keV) vs chem6** 0.468 / 0.622 → **0.752× (13.8σ)** [E10c]
+- **G(e⁻aq) V-shape (1→3 keV) significance** drop 0.137 (12.5%) at **z = 126σ**
+  (B=20 primary-bootstrap, m/n corrected SE; was claimed as "~40σ" before
+  E10b actually measured it) [E10b]
 - **Phase A wall-clock @ N=4096, 10 keV** 14.4 ms; peak throughput 538,947
   primaries/sec at N=16384; per-primary marginal cost β = 1.207 μs [E15]
 - **Speedup vs Geant4 11.4.1 single-thread (matched scope, Phase A+B)** 455×
@@ -96,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (13 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (15 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -119,9 +123,18 @@ per-level `protocol.md` files for hypotheses + pass bars.
   WGSL 371.9 vs Geant4 509.2, 27% deficit, 263σ — real physics gap;
   closes the counting-convention question E5 punted on). E8 (secondary
   KE spectrum) deferred.
-- **L4 — Chemistry (1 of 2 passing).** E10 IRT G-values vs Karamitros
-  2011 across 5 primary energies (1/3/5/10/20 keV). E11 GPU vs IRT
-  backend deferred — needs browser runner infrastructure.
+- **L4 — Chemistry (3 of 4 attempted, 2 pass + 1 fail honest-negative).**
+  E10 IRT G-values vs Karamitros 2011 across 5 primary energies
+  (1/3/5/10/20 keV) — pass. E10b V-shape σ-significance via primary
+  bootstrap — pass, **126σ** (was claimed as ~40σ; now properly measured).
+  E10c G(species) vs Geant4 11.4.1 chem6 at matched 10 keV LET — fail
+  (honest negative): G(OH) 0.91× / G(eaq) 0.83× / G(H) 1.00× /
+  G(H₂) 0.75× / G(H₂O₂) 0.71×. **Closes the previously open question
+  "is the 0.6× vs Karamitros real LET-deficit physics or our chemistry
+  has a bug?"** Answer: both — the deficit decomposes as ~30% real LET
+  effect (closed by E10c being well above 0.62×) + ~10-29% real
+  WGSL-vs-chem6 implementation gap, biggest on H₂ and H₂O₂.
+  E11 GPU vs IRT backend deferred — needs browser runner infrastructure.
 - **L6 — Performance (2 of 2 attempted, 1 pass + 1 honest-negative).**
   E15 Phase A α/β decomposition via WebGPU + Playwright N-sweep
   (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 + T=20 with
@@ -139,17 +152,16 @@ per-level `protocol.md` files for hypotheses + pass bars.
   chemistry is the next obvious win. [E15b]
 - **L3, L5** — protocols only.
 
-**Six substantive findings now in the research ledger** (would NOT
+**Seven substantive findings now in the research ledger** (would NOT
 be visible without the protocol):
 
-1. **G(e⁻aq) is non-monotonic between 1 and 3 keV** (1.163 at 1 keV →
-   1.026 at 3 keV → 1.147 at 5 keV — **11.8% drop**, real track-end /
-   spur-structure physics, not MC scatter or a bug). The naive
-   "monotonic LET deficit" framing applies cleanly only to E ≥ 5 keV;
-   the LET-trend pass bar in E10 reflects this. The artifact records
-   this as `summary.lowEFindings.eaq`. A formal σ-significance estimate
-   is not stored in the artifact — adding per-row bootstrap SEM is a
-   deliberate follow-up (E10b). [E10]
+1. **G(e⁻aq) is non-monotonic between 1 and 3 keV at z = 126σ** (1.163 at
+   1 keV → 1.026 at 3 keV → 1.147 at 5 keV — 12.5% drop, real track-end /
+   spur-structure physics). Significance measured by E10b via primary-level
+   bootstrap (B=20 unique-pids resamples per energy, with m/n correction
+   for sub-sampling SE). The naive "monotonic LET deficit" framing
+   applies cleanly only to E ≥ 5 keV. Previously claimed as "~40σ"
+   without backing — now properly measured. [E10, E10b]
 2. **The 0.988× CSDA ratio is 3.59σ statistically significant.**
    The 1.2% systematic underestimate is a real physics gap, not random
    scatter at N=4096. E5's σ pass bar at 5σ deliberately accommodates
@@ -181,6 +193,16 @@ be visible without the protocol):
    The 455× number satisfies the L6 protocol's ≥100× kernel-fusion
    thesis; the 1.48× number is the honest finding pointing at
    GPU-accelerated chemistry as the next obvious win. [E15b]
+7. **The "G(OH) at 10 keV is 0.62× Karamitros 2011" deficit was
+   confounding two effects** (closed by E10c). At matched LET, our
+   IRT vs Geant4 chem6 G(OH) is 0.907× (4.8σ) and G(eaq) is 0.830×
+   (9.7σ) — so ~70% of the deficit vs Karamitros is REAL LET physics
+   (expected, the Karamitros reference is for ~1 MeV low-LET), and
+   ~30% is a real WGSL-vs-chem6 chemistry gap. **G(H₂) at 0.752×
+   (13.8σ) and G(H₂O₂) at 0.711× (20.0σ) are the biggest implementation
+   gaps** — both molecular products of secondary recombination, which
+   suggests the WGSL IRT under-counts long-time TDC pair reactions
+   relative to chem6. Diagnosis and fix candidates pending. [E10c]
 
 Run any experiment via `npm run experiments -- <id>` (e.g. `E10`).
 

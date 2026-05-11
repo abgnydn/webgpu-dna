@@ -1,0 +1,58 @@
+# Geant4 chem6 macro — G-value scoring at 10 keV electron primary,
+# matched to our WebGPU IRT setup. Used by E10c to compare WebGPU IRT
+# at 10 keV against Geant4 chem6 (same energy, same chemistry option1).
+
+/run/numberOfThreads 1
+
+# G4EmDNAPhysics_option2 is the canonical DNA_Opt2 we already match.
+# (Note: chem6 ships with G4EmDNAChemistry_option1 by default — same
+#  9-reaction table our IRT worker implements.)
+/chem/phys/registerPhysics G4EmDNAPhysics_option2
+
+# e-aq thermalization model — match Geant4 default that our IRT worker uses
+# (Meesungnoen 2002 sets the 1.7 eV solvation cutoff).
+/process/dna/e-SolvationSubType Meesungnoen2002
+
+# Use IRT (matches our worker's algorithm, not SBS step-by-step).
+/process/chem/TimeStepModel IRT
+
+/run/initialize
+
+/scheduler/verbose 0
+/tracking/verbose 0
+
+# Record G(species) at the 8 checkpoints E10 uses (0.1 ps → 1 μs).
+# /scorer/species/addTimeToRecord arguments are individual time stamps.
+/scorer/species/addTimeToRecord 0.1 ps
+/scorer/species/addTimeToRecord 1 ps
+/scorer/species/addTimeToRecord 10 ps
+/scorer/species/addTimeToRecord 100 ps
+/scorer/species/addTimeToRecord 1 ns
+/scorer/species/addTimeToRecord 10 ns
+/scorer/species/addTimeToRecord 100 ns
+/scorer/species/addTimeToRecord 1 microsecond
+
+/scheduler/endTime 1 microsecond
+
+# Output filename (will produce Gvalue_0.root after run 0).
+/scorer/species/fileName Gvalue
+
+# Electron beam: 10 keV, isotropic from origin.
+/gun/particle e-
+/gun/position 0 0 0
+/gun/direction 0 0 1
+
+# IMPORTANT: don't kill the primary early. The default chem6 macro uses
+# primaryKiller to bound dose per event for LET-based runs; we want the
+# full 10 keV deposit per primary so the G(species, 1 μs) comparison is
+# at matched LET to E10's WebGPU run.
+/primaryKiller/eLossMin 10 keV
+/primaryKiller/eLossMax 10.001 keV
+
+/gun/energy 10 keV
+
+# N primaries. Chem6 at 10 keV with full energy deposit is slow
+# (~10-30 sec per primary), so this is conservative. Reset via the
+# E10c driver if needed.
+/run/printProgress 1
+/run/beamOn 100
