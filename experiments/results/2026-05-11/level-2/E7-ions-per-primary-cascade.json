@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "protocol": "E7-ions-per-primary-cascade",
+    "hypothesis": "WebGPU cascade ion count per primary (reconstructed from H3O+ records in rad_buf, species_code = 3) agrees with the Geant4 11.3.0 ntuple \"ions\" column within 15% at 10 keV, N = 4096. Loose because Emfietzoglou σ_exc is ~2.57× Born (E6b) so we expect *fewer* ionizations relative to Geant4 DNA_Opt2.",
+    "passBar": "|ratio - 1| < 0.15 AND |Δ| / SEM < 5; status reported as fail with diagnosis otherwise (an honest negative — closes the open question from E5).",
+    "seed": "E7_IONS_PER_PRI=0x54524B03",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "wgsl": "dumps/rad_E10000_N4096.bin (browser-harness dump, gitignored)",
+      "g4Ntuple": "validation/g4_per_event.csv (Geant4 11.3.0 dnaphysics, 4096 events at 10 keV)",
+      "speciesMap": "public/irt-worker.js:377 — { 0:OH, 1:eaq, 2:H, 3:H3O+, 5:pre-therm eaq }"
+    }
+  },
+  "env": {
+    "gitSha": "a9a6f401d8657fda6f7599693cde140f0d7ab301",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T07:44:25.435Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "cascade ions ratio 0.7304 — WGSL undercounts by 27.0% vs Geant4 (|ratio − 1| ≥ 0.15); |Δ|/SEM = 263.08σ (≥ 5σ — statistically significant gap)",
+  "summary": {
+    "nPrimaries": 4096,
+    "primaryEnergyEv": 10000,
+    "binPath": "dumps/rad_E10000_N4096.bin",
+    "binBytes": 84778880,
+    "nRecords": 5298680,
+    "wgslIonsPerPriMean": 371.8759765625,
+    "g4IonsPerPriMean": 509.13037109375,
+    "ratio": 0.7304140504594326,
+    "sigmaDelta": 263.08171149650286,
+    "headline": "WGSL cascade ions/primary: 371.88 vs Geant4 509.13 → ratio 0.7304 (Δ/SEM = 263.1σ)"
+  },
+  "rows": [
+    {
+      "metric": "ions_per_primary_cascade",
+      "wgslMean": 371.8759765625,
+      "wgslStd": 32.3213451439671,
+      "wgslSem": 0.505021017874486,
+      "wgslMedian": 375,
+      "wgslMin": 242,
+      "wgslMax": 448,
+      "g4Mean": 509.13037109375,
+      "g4Std": 8.379642490151008,
+      "g4Sem": 0.1309319139086095,
+      "ratio": 0.7304140504594326,
+      "delta": -137.25439453125,
+      "seDelta": 0.5217177345794883,
+      "sigmaDelta": 263.08171149650286,
+      "passBar": "ratio ∈ [0.85, 1.15] AND |Δ|/SEM < 5 (5σ accommodates the documented Emfietzoglou-inflated σ_exc which channels energy away from ionization).",
+      "status": "fail"
+    },
+    {
+      "metric": "species_histogram_wgsl",
+      "bins": [
+        {
+          "code": 0,
+          "name": "OH",
+          "count": 1845969,
+          "perPrimary": 450.676025390625
+        },
+        {
+          "code": 1,
+          "name": "eaq",
+          "count": 93215,
+          "perPrimary": 22.757568359375
+        },
+        {
+          "code": 2,
+          "name": "H",
+          "count": 322680,
+          "perPrimary": 78.779296875
+        },
+        {
+          "code": 3,
+          "name": "H3O+",
+          "count": 1523204,
+          "perPrimary": 371.8759765625
+        },
+        {
+          "code": 4,
+          "name": "unmapped",
+          "count": 0,
+          "perPrimary": 0
+        },
+        {
+          "code": 5,
+          "name": "pre-therm eaq",
+          "count": 1456582,
+          "perPrimary": 355.61083984375
+        },
+        {
+          "code": 6,
+          "name": "unmapped",
+          "count": 11013,
+          "perPrimary": 2.688720703125
+        },
+        {
+          "code": 7,
+          "name": "other",
+          "count": 46017,
+          "perPrimary": 11.234619140625
+        }
+      ],
+      "totalRecords": 5298680,
+      "note": "Reference: irt-worker.js:377 species map. Species 7 is occasional — flag if >>1% of total.",
+      "status": "informational"
+    }
+  ]
+}

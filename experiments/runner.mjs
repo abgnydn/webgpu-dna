@@ -14,8 +14,10 @@ import { runE4b } from './level-1-cross-sections/E4b-vib-mode-fractions.mjs';
 import { runE5 } from './level-2-track-structure/E5-csda-vs-g4-ntuple.mjs';
 import { runE6 } from './level-2-track-structure/E6-mfp-vs-g4-ntuple.mjs';
 import { runE6b } from './level-2-track-structure/E6b-sigma-per-process-vs-g4.mjs';
+import { runE7 } from './level-2-track-structure/E7-ions-per-primary-cascade.mjs';
 import { runE10 } from './level-4-chemistry/E10-irt-vs-karamitros.mjs';
 import { runE15 } from './level-6-performance/E15-phase-a-alpha-beta.mjs';
+import { runE15b } from './level-6-performance/E15b-vs-geant4-single-thread.mjs';
 import { runB0 } from './level-0-env/B0-browser-env.mjs';
 import { runB1 } from './level-0-env/B1-harness-liveness.mjs';
 
@@ -35,12 +37,14 @@ const REGISTRY = {
   E5:  { run: runE5,  level: 'level-2', id: 'E5-csda-vs-g4-ntuple' },
   E6:  { run: runE6,  level: 'level-2', id: 'E6-mfp-vs-g4-ntuple' },
   E6b: { run: runE6b, level: 'level-2', id: 'E6b-sigma-per-process-vs-g4' },
+  E7:  { run: runE7,  level: 'level-2', id: 'E7-ions-per-primary-cascade' },
 
   // Level 4 — chemistry
   E10: { run: runE10, level: 'level-4', id: 'E10-irt-vs-karamitros' },
 
   // Level 6 — performance
-  E15: { run: runE15, level: 'level-6', id: 'E15-phase-a-alpha-beta' },
+  E15:  { run: runE15,  level: 'level-6', id: 'E15-phase-a-alpha-beta' },
+  E15b: { run: runE15b, level: 'level-6', id: 'E15b-vs-geant4-single-thread' },
 };
 
 const REPO_ROOT = join(import.meta.dirname, '..');
