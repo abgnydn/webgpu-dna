@@ -18,33 +18,43 @@ One GPU thread per primary electron, full particle history in a single fused com
 
 ## Results (N = 4096 primaries @ 10 keV)
 
-| Metric                     | This build | Reference                   | Ratio      |
-| -------------------------- | ---------- | --------------------------- | ---------- |
-| CSDA range (nm)            | 2714.4     | 2756.5 (Geant4-DNA direct)  | **0.985×** |
-| Energy conservation        | 100.0 %    | 100.0 %                     | 1.000×     |
-| Ions per primary (full)    | ≈ 509      | 509.1 (Geant4 direct)       | 1.00×      |
-| G(OH) at 1 μs              | 1.55       | 2.50 (Karamitros 2011)      | 0.62×¹     |
-| G(e⁻aq) at 1 μs            | 1.41       | 2.50                        | 0.56×¹     |
-| G(H) at 1 μs               | 0.71       | 0.57                        | 1.24×      |
-| G(H₂O₂) at 1 μs            | 0.60       | 0.73                        | 0.83×      |
-| G(H₂) at 1 μs              | 0.47       | 0.42                        | 1.11×      |
+Every numeric claim below is backed by a committed JSON artifact. `[E5]` / `[E10]` / `[B1]` tags link to the latest run under [`experiments/results/2026-05-11/`](./experiments/results/2026-05-11/) — re-run any with `npm run experiments -- E5`.
+
+| Metric                                | This build | Reference                   | Ratio              | Source |
+| ------------------------------------- | ---------- | --------------------------- | ------------------ | ------ |
+| CSDA range (nm)                       | 2714.4     | 2756.5 (Geant4-DNA direct)  | **0.985× (4.61σ)** | [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
+| Energy conservation                   | 100.0 %    | 100.0 %                     | 1.000×             | [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
+| Ions / primary (primary track only)²  | 194.1      | 509.1 (Geant4 full cascade) | informational²     | [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
+| Implied ions / secondary              | 2.20       | [2, 3] physical bound       | ✓ in band          | [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
+| MFP_total ratio (median over 6 bins)  | 0.926      | 1.000 (Geant4 ntuple)       | -7.4% (range -3.5% to -10.5%) | [[E6]](./experiments/results/2026-05-11/level-2/E6-mfp-vs-g4-ntuple.json) |
+| G(OH) at 1 μs                         | 1.551      | 2.50 (Karamitros 2011)      | 0.621×¹            | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| G(e⁻aq) at 1 μs                       | 1.406      | 2.50                        | 0.563×¹            | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| G(H) at 1 μs                          | 0.708      | 0.57                        | 1.243×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| G(H₂O₂) at 1 μs                       | 0.605      | 0.73                        | 0.828×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
+| G(H₂) at 1 μs                         | 0.468      | 0.42                        | 1.114×             | [[E10]](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
 
 ¹ G(OH) / G(e⁻aq) at 10 keV LET are inherently below the Karamitros 2011 low-LET (~1 MeV) reference — track-core density drives higher radical recombination.
+² **Counting-convention mismatch.** Geant4's `dnaphysics` ntuple reports the full cascade total (509.1 ions/primary, summed across primary + all secondaries). WebGPU's `box_ions` counter accumulates only the primary track (194.1); the secondary side contributes via `sec_per_primary = 143.2`. Reconstructing a directly comparable cascade total would require an extra reduction pass over `rad_buf`. E5 reports the implied 2.20 ions/secondary as the comparable sanity check (physical bound [2, 3] for sub-keV cascades). See [E5 artifact](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) `rows[ions_per_primary]`.
 
-46 unit tests pass across 7 files. See `validation/compare.py` for the full side-by-side against a Geant4-DNA ntuple.
+**46 / 46** unit tests pass across 7 files (`npm run test`). See [`validation/compare.py`](./validation/compare.py) for the full side-by-side against a Geant4-DNA ntuple.
 
 ### Research-grade validation ledger
 
 11 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/).
 
-| Level | ID | Status | Headline |
-|------:|:---|:-------|:---------|
-| 0 | B0, B1 | ✓ | Browser-runner infrastructure: Playwright + headless Chromium WebGPU; B1 drives the live harness end-to-end (E=100 eV, CSDA=15.7 nm in 4.4s) |
-| 1 | E1–E4b | ✓ | All four cross-section families bit-matched against G4EMLOW source data (5 experiments) |
-| 2 | E5    | ✓ | CSDA + E-cons + ions @ 10 keV vs Geant4 ntuple — surfaces 0.985× as **4.61σ statistically significant** |
-| 2 | E6    | ✓ | MFP across 6 energy bins — confirms "MFP within 2-14%" prose as -3.5% to -10.5% across [100 eV, 10 keV] |
-| 2 | E6b   | ✓ | Per-process σ decomposition — surfaces **σ_ion 5.6% high and σ_el 6.3% high** vs Geant4 (previously undocumented) |
-| 4 | E10   | ✓ | IRT G-values vs Karamitros 2011 across 5 primary energies — surfaces **G(eaq) V-shape at 1-3 keV** (~40σ outside MC noise — track-end physics) |
+| Level | ID | Status | Headline | Artifact (2026-05-11) |
+|------:|:---|:-------|:---------|:----------------------|
+| 0 | B0  | ✓ | Browser env capture: apple/metal-3, headless Chromium, maxBuffer 4 GB | [B0](./experiments/results/2026-05-11/level-0/B0-browser-env.json) |
+| 0 | B1  | ✓ | Harness liveness: vite + Playwright + WebGPU, first row (E=100 eV, CSDA=15.7 nm) in 2.9s | [B1](./experiments/results/2026-05-11/level-0/B1-harness-liveness.json) |
+| 1 | E1  | ✓ | Born σ_ion: 58 rows, peak ratio 0.9987, median 8.46e-4 vs G4EMLOW | [E1](./experiments/results/2026-05-11/level-1/E1-ion-xs-match.json) |
+| 1 | E2  | ✓ | Emfietzoglou σ_exc: 74 rows, peak ratio 0.9970, median 2.42e-4 vs G4EMLOW | [E2](./experiments/results/2026-05-11/level-1/E2-exc-xs-match.json) |
+| 1 | E3  | ✓ | Champion σ_el: 58 rows, peak ratio 0.9751, max 3.26e-3 vs G4EMLOW (retroactive 334× scale-factor catcher) | [E3](./experiments/results/2026-05-11/level-1/E3-elastic-xs-match.json) |
+| 1 | E4  | ✓ | Sanche σ_vib total: 38 rows, peak ratio 1.0000, max 6e-16 (bit-exact) | [E4](./experiments/results/2026-05-11/level-1/E4-vib-xs-match.json) |
+| 1 | E4b | ✓ | Sanche per-mode XVMF: 342 (energy, mode) pairs, max sum-dev 4e-8 | [E4b](./experiments/results/2026-05-11/level-1/E4b-vib-mode-fractions.json) |
+| 2 | E5  | ✓ | CSDA 2714.4 vs 2756.5 nm — **0.985× is 4.61σ statistically significant** | [E5](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
+| 2 | E6  | ✓ | MFP across 6 energy bins — ratios [0.895, 0.965], median 0.926 (-3.5% to -10.5%) | [E6](./experiments/results/2026-05-11/level-2/E6-mfp-vs-g4-ntuple.json) |
+| 2 | E6b | ✓ | Per-process σ decomposition — **σ_ion 5.6% high, σ_el 6.3% high** vs Geant4, σ_exc 2.57× (intentional Emfietzoglou) | [E6b](./experiments/results/2026-05-11/level-2/E6b-sigma-per-process-vs-g4.json) |
+| 4 | E10 | ✓ | IRT G-values vs Karamitros 2011 across 5 energies — surfaces **G(e⁻aq) V-shape at 1→3 keV** (1.163→1.026→1.147, 11.8% drop, real track-end / spur-structure effect; LET monotonicity confirmed for E ≥ 5 keV) | [E10](./experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json) |
 
 Run any experiment via `npm run experiments -- <id>` (e.g. `E1`, `E10`, `B1`).
 

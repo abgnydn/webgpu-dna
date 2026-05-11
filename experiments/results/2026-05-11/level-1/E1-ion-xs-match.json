@@ -1,0 +1,511 @@
+{
+  "meta": {
+    "protocol": "E1-ion-xs-match",
+    "hypothesis": "σ_total_wgsl(E) via log-log interp on (XE, XI) agrees with σ_total_raw(E) = Σ_shells × 2.993e-5 nm² at every raw energy in the WGSL support.",
+    "passBar": "peak σ ratio ∈ [0.95, 1.05] AND median rel_err < 1e-3 over σ_raw > 0 AND p90 rel_err < 5e-2 over σ_raw > 1e-6 nm² AND max rel_err < 1e-1 (loose cap; log-log subsampling near shell openings).",
+    "seed": "E1_ION_XS=0x4D6E5301",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "raw": "data/g4emlow/dna/sigma_ionisation_e_born.dat",
+      "wgsl": "public/cross_sections.wgsl",
+      "wgslArray": "XI",
+      "scaleFactor": 0.00002993
+    }
+  },
+  "env": {
+    "gitSha": "40d81546114f796eedfaa7a32a45a0d85b604ba8",
+    "gitDirty": false,
+    "timestamp": "2026-05-11T06:57:33.607Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "nRows": 58,
+    "nInRange": 55,
+    "nOutOfRange": 3,
+    "peakSigmaRawNm2": 0.0240168717682,
+    "peakSigmaWgslNm2": 0.02398514,
+    "peakRatio": 0.9986787718023288,
+    "medianRelErr": 0.000845759177487473,
+    "p90RelErr": 0.01780512021870493,
+    "maxRelErrMeaningful": 0.07257740259875363,
+    "nNonZero": 55,
+    "nMeaningful": 55,
+    "dataRangeMinEv": 10.79,
+    "dataRangeMaxEv": 30000
+  },
+  "rows": [
+    {
+      "energyEv": 8,
+      "sigmaRawNm2": 0,
+      "sigmaWgslNm2": 0,
+      "relErr": 0,
+      "inDataRange": false,
+      "status": "out-of-range"
+    },
+    {
+      "energyEv": 9,
+      "sigmaRawNm2": 0,
+      "sigmaWgslNm2": 0,
+      "relErr": 0,
+      "inDataRange": false,
+      "status": "out-of-range"
+    },
+    {
+      "energyEv": 10,
+      "sigmaRawNm2": 0,
+      "sigmaWgslNm2": 0,
+      "relErr": 0,
+      "inDataRange": false,
+      "status": "out-of-range"
+    },
+    {
+      "energyEv": 11,
+      "sigmaRawNm2": 0.00009304970623,
+      "sigmaWgslNm2": 0.00009656227441285542,
+      "relErr": 0.03774937423416541,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 12,
+      "sigmaRawNm2": 0.0003850569325,
+      "sigmaWgslNm2": 0.0003571105004865064,
+      "relErr": 0.07257740259875363,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 13,
+      "sigmaRawNm2": 0.0007233593140999999,
+      "sigmaWgslNm2": 0.0007107825181188888,
+      "relErr": 0.01738665105426772,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 14,
+      "sigmaRawNm2": 0.0011539646185,
+      "sigmaWgslNm2": 0.0011436178430452902,
+      "relErr": 0.00896628483129687,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 15,
+      "sigmaRawNm2": 0.0017159452635,
+      "sigmaWgslNm2": 0.0016732354046311466,
+      "relErr": 0.024889989079102906,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 16,
+      "sigmaRawNm2": 0.0022970752122900002,
+      "sigmaWgslNm2": 0.002263248909287939,
+      "relErr": 0.014725814296841886,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 17,
+      "sigmaRawNm2": 0.0028786174168999997,
+      "sigmaWgslNm2": 0.0028702852169982516,
+      "relErr": 0.0028945145168756555,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 18,
+      "sigmaRawNm2": 0.003415060777259,
+      "sigmaWgslNm2": 0.0034480433214903036,
+      "relErr": 0.009657966982882264,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 19,
+      "sigmaRawNm2": 0.004167233193549,
+      "sigmaWgslNm2": 0.0040501309918370455,
+      "relErr": 0.02810070765735695,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 20,
+      "sigmaRawNm2": 0.00467937484252,
+      "sigmaWgslNm2": 0.0046851190689769515,
+      "relErr": 0.0012275627942338679,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 22,
+      "sigmaRawNm2": 0.00618007177677,
+      "sigmaWgslNm2": 0.0061031192472877985,
+      "relErr": 0.012451720993185776,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 24,
+      "sigmaRawNm2": 0.00725771594282,
+      "sigmaWgslNm2": 0.007239655112603728,
+      "relErr": 0.0024885005638914997,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 26,
+      "sigmaRawNm2": 0.0082959770476,
+      "sigmaWgslNm2": 0.008335169758563812,
+      "relErr": 0.004724303206112516,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 28,
+      "sigmaRawNm2": 0.0096613136114,
+      "sigmaWgslNm2": 0.009643230365308958,
+      "relErr": 0.0018717171202997077,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 30,
+      "sigmaRawNm2": 0.010862593669,
+      "sigmaWgslNm2": 0.01087074485164626,
+      "relErr": 0.0007503900904921722,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 31,
+      "sigmaRawNm2": 0.0115333626808,
+      "sigmaWgslNm2": 0.011324792200646307,
+      "relErr": 0.01808409966166307,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 32,
+      "sigmaRawNm2": 0.0121475352598,
+      "sigmaWgslNm2": 0.011721022179997816,
+      "relErr": 0.03511107979358161,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 32.2,
+      "sigmaRawNm2": 0.0116903230833,
+      "sigmaWgslNm2": 0.011800392898619451,
+      "relErr": 0.009415463929879742,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 35,
+      "sigmaRawNm2": 0.013289451532856,
+      "sigmaWgslNm2": 0.01323926303368769,
+      "relErr": 0.003776566628368944,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 40,
+      "sigmaRawNm2": 0.01579092173209,
+      "sigmaWgslNm2": 0.01572420492863119,
+      "relErr": 0.004225010077988497,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 45,
+      "sigmaRawNm2": 0.017913725568619997,
+      "sigmaWgslNm2": 0.017858317570046165,
+      "relErr": 0.003093047192309983,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 50,
+      "sigmaRawNm2": 0.019602350997489998,
+      "sigmaWgslNm2": 0.019579273345916318,
+      "relErr": 0.0011772899881567903,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 60,
+      "sigmaRawNm2": 0.021591847092899994,
+      "sigmaWgslNm2": 0.021552676098161028,
+      "relErr": 0.001814156731030524,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 70,
+      "sigmaRawNm2": 0.023000975436900002,
+      "sigmaWgslNm2": 0.022970509044802946,
+      "relErr": 0.0013245695679575144,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 80,
+      "sigmaRawNm2": 0.023692551485399997,
+      "sigmaWgslNm2": 0.02363327772346508,
+      "relErr": 0.002501788883795088,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 90,
+      "sigmaRawNm2": 0.023912337352299997,
+      "sigmaWgslNm2": 0.023904753704410836,
+      "relErr": 0.00031714373118073866,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 100,
+      "sigmaRawNm2": 0.0240168717682,
+      "sigmaWgslNm2": 0.02392518408422056,
+      "relErr": 0.003817636404289751,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 125,
+      "sigmaRawNm2": 0.0232102822122,
+      "sigmaWgslNm2": 0.02319792071458629,
+      "relErr": 0.0005325871310264388,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 150,
+      "sigmaRawNm2": 0.022162375147299997,
+      "sigmaWgslNm2": 0.02213066692861697,
+      "relErr": 0.0014307229469893404,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 175,
+      "sigmaRawNm2": 0.0210226518214,
+      "sigmaWgslNm2": 0.021008742243986814,
+      "relErr": 0.0006616471381135138,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 200,
+      "sigmaRawNm2": 0.0198761906539,
+      "sigmaWgslNm2": 0.019860964792238124,
+      "relErr": 0.000766035198947285,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 250,
+      "sigmaRawNm2": 0.017913359404999996,
+      "sigmaWgslNm2": 0.01788530173222912,
+      "relErr": 0.0015662987682279023,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 300,
+      "sigmaRawNm2": 0.0162216658219,
+      "sigmaWgslNm2": 0.01621127456789275,
+      "relErr": 0.0006405787248569178,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 350,
+      "sigmaRawNm2": 0.0148429206181,
+      "sigmaWgslNm2": 0.014830367081766525,
+      "relErr": 0.000845759177487473,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 400,
+      "sigmaRawNm2": 0.013668564690600002,
+      "sigmaWgslNm2": 0.013667706765596322,
+      "relErr": 0.00006276628330035995,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 450,
+      "sigmaRawNm2": 0.0126904328361,
+      "sigmaWgslNm2": 0.012683373641845835,
+      "relErr": 0.0005562611098720008,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 500,
+      "sigmaRawNm2": 0.0118414079275,
+      "sigmaWgslNm2": 0.011839684071369452,
+      "relErr": 0.00014557864580826875,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 539.7,
+      "sigmaRawNm2": 0.011253517480099999,
+      "sigmaWgslNm2": 0.011251645991627852,
+      "relErr": 0.00016630253389274456,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 545,
+      "sigmaRawNm2": 0.01118192955127665,
+      "sigmaWgslNm2": 0.011178273229197244,
+      "relErr": 0.0003269848967156616,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 600,
+      "sigmaRawNm2": 0.010466679984867699,
+      "sigmaWgslNm2": 0.010466055400749585,
+      "relErr": 0.00005967356592705643,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 700,
+      "sigmaRawNm2": 0.0093959441393033,
+      "sigmaWgslNm2": 0.009393651243097871,
+      "relErr": 0.00024403042115132817,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 800,
+      "sigmaRawNm2": 0.008536958031661098,
+      "sigmaWgslNm2": 0.008535190129144313,
+      "relErr": 0.0002070881115062729,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 900,
+      "sigmaRawNm2": 0.007835109750660998,
+      "sigmaWgslNm2": 0.00783363182241506,
+      "relErr": 0.00018862891433186276,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 1000,
+      "sigmaRawNm2": 0.007244719049829999,
+      "sigmaWgslNm2": 0.0072434940994053326,
+      "relErr": 0.000169081839646354,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 2000,
+      "sigmaRawNm2": 0.004248395104841,
+      "sigmaWgslNm2": 0.00424569288036546,
+      "relErr": 0.0006360577132905607,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 3000,
+      "sigmaRawNm2": 0.0030698094188600002,
+      "sigmaWgslNm2": 0.0030692796710078277,
+      "relErr": 0.00017256701634893587,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 4000,
+      "sigmaRawNm2": 0.002430845602371,
+      "sigmaWgslNm2": 0.002430329794041784,
+      "relErr": 0.00021219296228149162,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 5000,
+      "sigmaRawNm2": 0.002022035973452,
+      "sigmaWgslNm2": 0.00202196578015372,
+      "relErr": 0.000034714168888076043,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 6000,
+      "sigmaRawNm2": 0.001739073009547,
+      "sigmaWgslNm2": 0.0017390170955333397,
+      "relErr": 0.000032151619485363564,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 7000,
+      "sigmaRawNm2": 0.001530578232154,
+      "sigmaWgslNm2": 0.0015305420852922739,
+      "relErr": 0.00002361647445826317,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 8000,
+      "sigmaRawNm2": 0.0013700844105810001,
+      "sigmaWgslNm2": 0.0013700565263094345,
+      "relErr": 0.00002035222892124692,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 9000,
+      "sigmaRawNm2": 0.0012421629381069998,
+      "sigmaWgslNm2": 0.0012422232869053853,
+      "relErr": 0.00004858364111024194,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 10000,
+      "sigmaRawNm2": 0.0011381689771959998,
+      "sigmaWgslNm2": 0.0011382057538640328,
+      "relErr": 0.000032312133584570805,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 20000,
+      "sigmaRawNm2": 0.0006412620933009999,
+      "sigmaWgslNm2": 0.0006413503136022627,
+      "relErr": 0.00013757292405769476,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 30000,
+      "sigmaRawNm2": 0.00046136683013549995,
+      "sigmaWgslNm2": 0.00046137,
+      "relErr": 0.000006870594704721328,
+      "inDataRange": true,
+      "status": "pass"
+    }
+  ]
+}

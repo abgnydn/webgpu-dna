@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "protocol": "E6-mfp-vs-g4-ntuple",
+    "hypothesis": "WebGPU MFP_total(E_mid) = 1 / (n_water × Σ σ_proc(E_mid)) agrees with Geant4 ntuple MFP_total (mean of the three per-process rows in each energy bin) within 25%. n_water = 33.43 nm⁻³ (liquid water STP). E_mid = geometric midpoint of each bin.",
+    "passBar": "|MFP_wgsl / MFP_g4_mean − 1| < 0.25 for every energy bin.",
+    "seed": "E6_MFP=0x54524B02",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "wgsl": "public/cross_sections.wgsl (XI / XC / XL arrays)",
+      "g4Mfp": "validation/g4_mfp.csv (Geant4 11.4.1 ntuple, primary-electron stats)"
+    },
+    "constants": {
+      "nWaterPerNm3": 33.43
+    }
+  },
+  "env": {
+    "gitSha": "40d81546114f796eedfaa7a32a45a0d85b604ba8",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T06:57:47.508Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "nRows": 6,
+    "nFailed": 0,
+    "medianRatio": 0.9261926194412619,
+    "minRatio": 0.8949397280263501,
+    "maxRatio": 0.9647397924011267,
+    "headline": "6 (process, bin) cells; ratio range [0.895, 0.965], median 0.926"
+  },
+  "rows": [
+    {
+      "eLoEv": 100,
+      "eHiEv": 300,
+      "eMidEv": 173.20508075688772,
+      "sigmaXi": 0.021097013596230632,
+      "sigmaXc": 0.0010494033179617214,
+      "sigmaXl": 0.01666432919546935,
+      "sigmaTotal": 0.0388107461096617,
+      "mfpWgslNm": 0.7707466248117034,
+      "mfpG4MeanNm": 0.8321666666666667,
+      "mfpG4SpreadNm": 0.028200000000000003,
+      "g4PerProcess": {
+        "elastic": 0.8151,
+        "excitation": 0.8433,
+        "ionisation": 0.8381
+      },
+      "ratio": 0.9261926194412619,
+      "pctErr": -7.380738055873815,
+      "status": "pass"
+    },
+    {
+      "eLoEv": 300,
+      "eHiEv": 500,
+      "eMidEv": 387.2983346207417,
+      "sigmaXi": 0.013943554392355366,
+      "sigmaXc": 0.000591674867207311,
+      "sigmaXl": 0.009660349613364105,
+      "sigmaTotal": 0.024195578872926782,
+      "mfpWgslNm": 1.2363106387141087,
+      "mfpG4MeanNm": 1.3472333333333335,
+      "mfpG4SpreadNm": 0.19409999999999994,
+      "g4PerProcess": {
+        "elastic": 1.2785,
+        "excitation": 1.4726,
+        "ionisation": 1.2906
+      },
+      "ratio": 0.9176663077770062,
+      "pctErr": -8.23336922229938,
+      "status": "pass"
+    },
+    {
+      "eLoEv": 500,
+      "eHiEv": 1000,
+      "eMidEv": 707.1067811865476,
+      "sigmaXi": 0.009327106627597618,
+      "sigmaXc": 0.00037229502031839326,
+      "sigmaXl": 0.006244602214216773,
+      "sigmaTotal": 0.015944003862132784,
+      "mfpWgslNm": 1.8761442752463242,
+      "mfpG4MeanNm": 1.9487333333333332,
+      "mfpG4SpreadNm": 0.0827,
+      "g4PerProcess": {
+        "elastic": 1.9806,
+        "excitation": 1.8979,
+        "ionisation": 1.9677
+      },
+      "ratio": 0.9627506458449887,
+      "pctErr": -3.7249354155011294,
+      "status": "pass"
+    },
+    {
+      "eLoEv": 1000,
+      "eHiEv": 3000,
+      "eMidEv": 1732.0508075688772,
+      "sigmaXi": 0.004745990371194835,
+      "sigmaXc": 0.00018019557829733295,
+      "sigmaXl": 0.0030344560765408197,
+      "sigmaTotal": 0.007960642026032987,
+      "mfpWgslNm": 3.7576430987127716,
+      "mfpG4MeanNm": 4.198766666666667,
+      "mfpG4SpreadNm": 0.013600000000000279,
+      "g4PerProcess": {
+        "elastic": 4.1993,
+        "excitation": 4.1917,
+        "ionisation": 4.2053
+      },
+      "ratio": 0.8949397280263501,
+      "pctErr": -10.506027197364986,
+      "status": "pass"
+    },
+    {
+      "eLoEv": 3000,
+      "eHiEv": 5000,
+      "eMidEv": 3872.983346207417,
+      "sigmaXi": 0.0024950598278669677,
+      "sigmaXc": 0.00009171197114857142,
+      "sigmaXl": 0.0015854108576603201,
+      "sigmaTotal": 0.0041721826566758595,
+      "mfpWgslNm": 7.169688873180534,
+      "mfpG4MeanNm": 7.431733333333334,
+      "mfpG4SpreadNm": 0.17830000000000013,
+      "g4PerProcess": {
+        "elastic": 7.4973,
+        "excitation": 7.319,
+        "ionisation": 7.4789
+      },
+      "ratio": 0.9647397924011267,
+      "pctErr": -3.526020759887327,
+      "status": "pass"
+    },
+    {
+      "eLoEv": 5000,
+      "eHiEv": 10000,
+      "eMidEv": 7071.067811865475,
+      "sigmaXi": 0.001517779154544895,
+      "sigmaXc": 0.000054822187972764454,
+      "sigmaXl": 0.000875493953470205,
+      "sigmaTotal": 0.0024480952959878644,
+      "mfpWgslNm": 12.218989848748924,
+      "mfpG4MeanNm": 13.216466666666667,
+      "mfpG4SpreadNm": 0.3526999999999987,
+      "g4PerProcess": {
+        "elastic": 13.0919,
+        "excitation": 13.4446,
+        "ionisation": 13.1129
+      },
+      "ratio": 0.9245277241584178,
+      "pctErr": -7.547227584158223,
+      "status": "pass"
+    }
+  ]
+}

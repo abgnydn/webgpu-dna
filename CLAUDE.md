@@ -65,18 +65,24 @@ validation target.
 
 ### Current validation status (N = 4096 primaries, 10 keV)
 
-Matches numbers in `README.md` — single source of truth. As of 2026-04-21:
+Every line below is backed by a committed artifact under
+`experiments/results/2026-05-11/`. `[E5]` etc. point at the JSON for traceability.
 
-- **CSDA** 2714.4 nm vs Geant4-DNA direct 2756.5 nm → **0.985×**
-- **Ions per primary** ≈ 509 vs Geant4 509.1 → 1.00×
-- **Energy conservation** 100.0% across all 8 ESTAR energies
-- **MFP vs Geant4** within 2–14% at all energies (100 eV – 10 keV)
-- **G(OH) @ 1 μs** 1.55 → 0.62× Karamitros 2011
-- **G(e⁻aq) @ 1 μs** 1.41 → 0.56×
-- **G(H) @ 1 μs** 0.71 → 1.24×
-- **G(H₂O₂) @ 1 μs** 0.60 → 0.83×
-- **G(H₂) @ 1 μs** 0.47 → 1.11×
-- **46 / 46** unit tests pass (`npm run test`)
+- **CSDA** 2714.4 nm vs Geant4-DNA direct 2756.5 nm → **0.985× (4.61σ)** [E5]
+- **Ions / primary (primary track only)** 194.1; **implied ions/secondary** = 2.20
+  (Geant4 cascade total 509.1 — counting-convention mismatch, reported as
+  informational per E5's pass bar) [E5]
+- **Energy conservation** 100.0% / 99.997% (E5 reports both sides) [E5]
+- **MFP vs Geant4** ratios [0.895, 0.965], median 0.926 across 6 energy bins
+  (-3.5% to -10.5%, all within the 25% pass bar) [E6]
+- **Per-process σ vs Geant4** ion mean 1.056 (range 1.017-1.104), el mean 1.063
+  (1.025-1.100), exc mean 2.57 (2.46-2.66, intentional Emfietzoglou-vs-Born) [E6b]
+- **G(OH) @ 1 μs (10 keV)** 1.551 → 0.621× Karamitros 2011 [E10]
+- **G(e⁻aq) @ 1 μs (10 keV)** 1.406 → 0.563× [E10]
+- **G(H) @ 1 μs (10 keV)** 0.708 → 1.243× [E10]
+- **G(H₂O₂) @ 1 μs (10 keV)** 0.605 → 0.828× [E10]
+- **G(H₂) @ 1 μs (10 keV)** 0.468 → 1.114× [E10]
+- **46 / 46** unit tests pass across 7 files (`npm run test`, 233 ms)
 
 G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
@@ -88,9 +94,10 @@ The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
 per-level `protocol.md` files for hypotheses + pass bars.
 
-- **L0 — Browser-runner infra (2 of 2 passing).** B0 browser env capture,
-  B1 webgpu-dna harness liveness via Playwright + headless Chromium WebGPU
-  (E=100 eV first row, CSDA=15.7 nm in 4.4 s).
+- **L0 — Browser-runner infra (2 of 2 passing).** B0 browser env capture
+  (apple/metal-3, headless Chromium, maxBuffer 4 GB). B1 webgpu-dna
+  harness liveness via Playwright + headless Chromium WebGPU (E=100 eV
+  first row, CSDA=15.7 nm in 2.9 s on the 2026-05-11 run). [B0, B1]
 - **L1 — Cross sections (5 of 5 passing).** E1 Born ionization, E2
   Emfietzoglou excitation, E3 Champion elastic (retroactive 334×
   scale-factor catcher per memory/cross_section_fix.md), E4 Sanche
@@ -110,26 +117,31 @@ per-level `protocol.md` files for hypotheses + pass bars.
 **Four substantive findings now in the research ledger** (would NOT
 be visible without the protocol):
 
-1. **G(e⁻aq) is non-monotonic between 1 and 3 keV** (1.156 → 1.027 → 1.149).
-   ~40σ outside MC noise at N=4096 — a real V-shape attributable to
-   track-end / spur-structure physics, not MC scatter or a bug. The
-   naive "monotonic LET deficit" framing applies cleanly only to E ≥ 5 keV.
-   In E10's `summary.lowEFindings`.
+1. **G(e⁻aq) is non-monotonic between 1 and 3 keV** (1.163 at 1 keV →
+   1.026 at 3 keV → 1.147 at 5 keV — **11.8% drop**, real track-end /
+   spur-structure physics, not MC scatter or a bug). The naive
+   "monotonic LET deficit" framing applies cleanly only to E ≥ 5 keV;
+   the LET-trend pass bar in E10 reflects this. The artifact records
+   this as `summary.lowEFindings.eaq`. A formal σ-significance estimate
+   is not stored in the artifact — adding per-row bootstrap SEM is a
+   deliberate follow-up (E10b). [E10]
 2. **The 0.985× CSDA ratio is 4.61σ statistically significant.**
    The 1.5% systematic underestimate is a real physics gap, not random
    scatter at N=4096. E5's σ pass bar at 5σ deliberately accommodates
    this documented bias; tightening to 2σ when the physics is improved
-   is the explicit follow-up.
-3. **MFP is consistently 4-11% lower than Geant4 across all bins.**
-   Confirms README's "MFP within 2-14%" prose numerically.
+   is the explicit follow-up. [E5]
+3. **MFP is consistently 3.5-10.5% lower than Geant4 across all bins**
+   (median 0.926, range [0.895, 0.965] across 6 bins from 100 eV to
+   10 keV). Confirms README's "MFP within 2-14%" prose numerically. [E6]
 4. **σ_ion is 5.6% high and σ_el is 6.3% high vs Geant4** (E6b
-   decomposition). Previously undocumented — only the σ_exc inflation
-   (Emfietzoglou-vs-Born) was explained. Per E6b, the MFP shortfall
-   decomposes as ~47% from σ_ion overestimate, ~31% from σ_el
-   overestimate, ~22% from the (intentional) σ_exc inflation.
+   decomposition; ion mean 1.056 / range [1.017, 1.104], el mean 1.063 /
+   range [1.025, 1.100]). Previously undocumented — only the σ_exc
+   inflation (Emfietzoglou-vs-Born) was explained. Per E6b, the MFP
+   shortfall decomposes as ~47% from σ_ion overestimate, ~31% from
+   σ_el overestimate, ~22% from the (intentional) σ_exc inflation.
    The σ_exc ratio observed (2.46-2.66×, mean 2.57×) is slightly
    higher than the "2.2-2.4× larger than Born" documented in
-   `tools/convert_g4data.py` — worth re-deriving when convenient.
+   `tools/convert_g4data.py` — worth re-deriving when convenient. [E6b]
 
 Run any experiment via `npm run experiments -- <id>` (e.g. `E10`).
 

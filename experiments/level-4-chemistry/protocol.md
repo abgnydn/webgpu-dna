@@ -12,15 +12,17 @@ GPU chemistry path needs WebGPU; we run the IRT side Node-side via
 > Karamitros 2011 / Tran 2024, with explicit accounting for the
 > LET-induced deficit at 10 keV vs the ~1 MeV low-LET reference.
 
-## Baseline (E10 results across 5 energies, post-migration 2026-04-21 dumps)
+## Baseline (E10 results across 5 energies, run 2026-05-11)
+
+Values from `experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json`.
 
 | E (eV) | G(OH) | G(e⁻aq) | G(H) | G(H₂O₂) | G(H₂) |
 |-------:|------:|--------:|-----:|--------:|------:|
-|   1000 | 0.961 |   1.156 | 0.715 |  0.943 | 0.665 |
-|   3000 | 1.104 |   1.027 | 0.697 |  0.777 | 0.626 |
-|   5000 | 1.275 |   1.149 | 0.704 |  0.700 | 0.566 |
-|  10000 | 1.553 |   1.408 | 0.705 |  0.604 | 0.468 |
-|  20000 | 1.802 |   1.658 | 0.690 |  0.520 | 0.387 |
+|   1000 | 0.959 |   1.163 | 0.712 |  0.952 | 0.670 |
+|   3000 | 1.101 |   1.026 | 0.702 |  0.778 | 0.623 |
+|   5000 | 1.272 |   1.147 | 0.706 |  0.702 | 0.566 |
+|  10000 | 1.551 |   1.406 | 0.708 |  0.605 | 0.468 |
+|  20000 | 1.802 |   1.659 | 0.689 |  0.521 | 0.387 |
 
 vs Karamitros 2011 reference (low-LET, ~1 MeV): 2.50 / 2.50 / 0.57 /
 0.73 / 0.42.
@@ -31,15 +33,23 @@ is lower. A research-grade pass bar must encode this expectation;
 comparing 10 keV results to low-LET references with a flat 10% bar
 would always fail for the wrong reason.
 
-**Empirical finding from E10 first run:** G(e⁻aq) is **non-monotonic
-between 1 and 3 keV** (1.156 at 1 keV, drops to 1.027 at 3 keV, back
-up to 1.149 at 5 keV). At N = 4096 primaries this is ~40σ outside MC
-noise — it's a real physical V-shape, attributable to track-end /
-spur-structure effects in the keV regime. The naive
-"monotonically-increasing G(e⁻aq) with primary energy" framing in the
-README applies cleanly only to E ≥ 5 keV. The protocol's LET-trend
-pass bar reflects this: monotonic check applied only above the 5 keV
-threshold; sub-5-keV deviations reported as informational findings.
+**Empirical finding from E10 (latest run 2026-05-11):** G(e⁻aq) is
+**non-monotonic between 1 and 3 keV** (1.163 at 1 keV, drops to
+1.026 at 3 keV, back up to 1.147 at 5 keV — an 11.8% drop, recorded
+in `summary.lowEFindings.eaq` of the artifact). This is a real
+physical V-shape, attributable to track-end / spur-structure effects
+in the keV regime. The naive "monotonically-increasing G(e⁻aq) with
+primary energy" framing in the README applies cleanly only to
+E ≥ 5 keV. The protocol's LET-trend pass bar reflects this: monotonic
+check applied only above the 5 keV threshold; sub-5-keV deviations
+reported as informational findings.
+
+A formal σ-significance estimate for the V-shape is **not currently
+stored in the artifact** (E10 reports `trials: 1` over a single
+N=4096 batch). Adding per-row bootstrap SEM is the deliberate
+follow-up (working title E10b); until then claims about how many σ
+the drop sits outside MC noise should not appear in the README/CLAUDE.md
+prose — only the artifact-supported 11.8% drop language.
 
 ## Experiments
 

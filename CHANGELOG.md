@@ -5,6 +5,34 @@ format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/) starting
 from `0.1.0`.
 
+## [Unreleased]
+
+### Errata — corrected from v0.2.0 docs (2026-05-11 audit)
+
+After re-running all 11 experiments and auditing the prose against the
+committed artifacts, two claims were tightened to match what the JSON
+actually supports:
+
+- **"Ions per primary ≈ 509 vs 509.1 → 1.00×"** in the README headline
+  table is **incorrect as written**. The E5 artifact reports
+  `wgslPrimaryOnly = 194.1` (primary track only) and `wgslSecPerPri = 143.2`,
+  and explicitly flags this metric as `INFORMATIONAL — counting-convention
+  mismatch` (Geant4 ntuple sums the full cascade; WebGPU's `box_ions`
+  counts the primary track only). Corrected to report 194.1 + an
+  implied-ions-per-secondary sanity check of 2.20 (physical bound [2, 3]).
+- **"G(e⁻aq) V-shape at 1-3 keV is ~40σ outside MC noise"** appeared in
+  five places (`README.md`, `CLAUDE.md`, `CHANGELOG.md`, `experiments/results/README.md`,
+  `experiments/level-4-chemistry/protocol.md`). The E10 artifact stores
+  `trials: 1` and no per-row SEM — the σ figure is not derivable from
+  anything committed. Replaced with the artifact-supported statement
+  from `summary.lowEFindings.eaq`: an **11.8% drop** between 1 keV and
+  3 keV, real track-end / spur-structure physics, not MC scatter.
+  Computing a formal σ-significance via bootstrap is the explicit
+  follow-up (working title E10b).
+
+Every numeric claim in `README.md` and `CLAUDE.md` is now tagged with a
+`[E5]` / `[E10]` / `[B1]` source marker pointing at the dated artifact.
+
 ## [0.2.0] — 2026-05-08
 
 Research-grade protocol release. Promotes the validation prose from

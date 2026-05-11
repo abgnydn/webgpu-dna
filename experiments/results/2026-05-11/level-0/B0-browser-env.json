@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "protocol": "B0-browser-env",
+    "hypothesis": "Headless Chromium with --headless=new + --enable-unsafe-webgpu exposes navigator.gpu when the page is in a secure context (webgpureport.org), and the adapter has limits sufficient for webgpu-dna (rad_buf = 256 MB).",
+    "passBar": "navigator.gpu available AND maxBufferSize ≥ 256 MB AND maxStorageBufferBindingSize ≥ 256 MB.",
+    "seed": "n/a (deterministic env query, no MC)",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "browserLauncher": "experiments/lib/browser.mjs (Playwright + Chromium)",
+      "captureUrl": "https://webgpureport.org/ (default; secure-context HTTPS page used for navigator.gpu access)"
+    }
+  },
+  "env": {
+    "gitSha": "40d81546114f796eedfaa7a32a45a0d85b604ba8",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T06:57:52.037Z",
+    "runner": "playwright-chromium",
+    "nodeVersion": "v24.5.0",
+    "platform": "MacIntel",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": "",
+      "description": ""
+    },
+    "limits": {
+      "maxTextureDimension1D": 16384,
+      "maxTextureDimension2D": 16384,
+      "maxTextureDimension3D": 2048,
+      "maxTextureArrayLayers": 2048,
+      "maxBindGroups": 4,
+      "maxBindGroupsPlusVertexBuffers": 24,
+      "maxBindingsPerBindGroup": 1000,
+      "maxDynamicUniformBuffersPerPipelineLayout": 10,
+      "maxDynamicStorageBuffersPerPipelineLayout": 8,
+      "maxSampledTexturesPerShaderStage": 48,
+      "maxSamplersPerShaderStage": 16,
+      "maxStorageBuffersPerShaderStage": 10,
+      "maxStorageTexturesPerShaderStage": 8,
+      "maxUniformBuffersPerShaderStage": 12,
+      "maxUniformBufferBindingSize": 65536,
+      "maxStorageBufferBindingSize": 4294967292,
+      "minUniformBufferOffsetAlignment": 256,
+      "minStorageBufferOffsetAlignment": 256,
+      "maxVertexBuffers": 8,
+      "maxBufferSize": 4294967292,
+      "maxVertexAttributes": 30,
+      "maxVertexBufferArrayStride": 2048,
+      "maxInterStageShaderVariables": 28,
+      "maxColorAttachments": 8,
+      "maxColorAttachmentBytesPerSample": 128,
+      "maxComputeWorkgroupStorageSize": 32768,
+      "maxComputeInvocationsPerWorkgroup": 1024,
+      "maxComputeWorkgroupSizeX": 1024,
+      "maxComputeWorkgroupSizeY": 1024,
+      "maxComputeWorkgroupSizeZ": 64,
+      "maxComputeWorkgroupsPerDimension": 65535,
+      "maxImmediateSize": 64,
+      "maxStorageBuffersInFragmentStage": 10,
+      "maxStorageTexturesInFragmentStage": 8,
+      "maxStorageBuffersInVertexStage": 10,
+      "maxStorageTexturesInVertexStage": 8
+    }
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "adapterVendor": "apple",
+    "adapterArchitecture": "metal-3",
+    "maxBufferBytes": 4294967292,
+    "maxStorageBufferBindingBytes": 4294967292,
+    "maxComputeWorkgroupsPerDimension": 65535,
+    "maxComputeInvocationsPerWorkgroup": 1024,
+    "headline": "apple/metal-3 | maxBuf=4096MB"
+  },
+  "rows": []
+}

@@ -1,0 +1,353 @@
+{
+  "meta": {
+    "protocol": "E4-vib-xs-match",
+    "hypothesis": "σ_total_wgsl(E) = XVS[i] agrees with σ_total_raw(E) = Σ_modes(E) × 0.02 nm² (= 0.01 × 2.0 liquid factor) at every raw energy in the WGSL support, to fp32 round-off precision (Sanche WGSL is non-subsampled).",
+    "passBar": "peak σ ratio ∈ [0.99, 1.01] AND median rel_err < 1e-5 AND p90 rel_err < 1e-4 AND max rel_err < 1e-3.",
+    "seed": "E4_VIB_XS=0x4D6E5304",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "raw": "data/g4emlow/dna/sigma_excitationvib_e_sanche.dat",
+      "wgsl": "public/cross_sections.wgsl",
+      "wgslArray": "XVS",
+      "energyArray": "XVE",
+      "scaleFactor": 0.02,
+      "scaleBreakdown": "0.01 nm² (G4DNASancheExcitationModel.cc) × 2.0 (liquid-phase factor)"
+    }
+  },
+  "env": {
+    "gitSha": "40d81546114f796eedfaa7a32a45a0d85b604ba8",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T06:57:42.363Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "nRows": 38,
+    "nInRange": 37,
+    "nOutOfRange": 1,
+    "peakSigmaRawNm2": 0.019000000000000003,
+    "peakSigmaWgslNm2": 0.019,
+    "peakRatio": 0.9999999999999998,
+    "medianRelErr": 2.6204282114453275e-16,
+    "p90RelErr": 5.439605120383791e-16,
+    "maxRelErrMeaningful": 6.079638350386005e-16,
+    "nNonZero": 37,
+    "nMeaningful": 37,
+    "dataRangeMinEv": 1.7,
+    "dataRangeMaxEv": 100
+  },
+  "rows": [
+    {
+      "energyEv": 0,
+      "sigmaRawNm2": 0.018000000000000002,
+      "sigmaWgslNm2": 0,
+      "relErr": 1,
+      "inDataRange": false,
+      "status": "out-of-range"
+    },
+    {
+      "energyEv": 1.7,
+      "sigmaRawNm2": 0.018000000000000002,
+      "sigmaWgslNm2": 0.018000000000000002,
+      "relErr": 0,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 3.2,
+      "sigmaRawNm2": 0.01214,
+      "sigmaWgslNm2": 0.01214,
+      "relErr": 0,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 5.2,
+      "sigmaRawNm2": 0.013240000000000002,
+      "sigmaWgslNm2": 0.013239999999999998,
+      "relErr": 2.6204282114453275e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 7.2,
+      "sigmaRawNm2": 0.019000000000000003,
+      "sigmaWgslNm2": 0.019,
+      "relErr": 1.8260247115545334e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 9.2,
+      "sigmaRawNm2": 0.015340000000000001,
+      "sigmaWgslNm2": 0.015339999999999996,
+      "relErr": 3.392549170749948e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 11.2,
+      "sigmaRawNm2": 0.00978,
+      "sigmaWgslNm2": 0.009780000000000002,
+      "relErr": 1.773745885456858e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 13.2,
+      "sigmaRawNm2": 0.011880000000000002,
+      "sigmaWgslNm2": 0.011880000000000002,
+      "relErr": 0,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 15.2,
+      "sigmaRawNm2": 0.01302,
+      "sigmaWgslNm2": 0.013020000000000006,
+      "relErr": 3.9970587004073894e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 17.2,
+      "sigmaRawNm2": 0.01228,
+      "sigmaWgslNm2": 0.012279999999999996,
+      "relErr": 2.8252825341641813e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 20,
+      "sigmaRawNm2": 0.0102,
+      "sigmaWgslNm2": 0.010199999999999996,
+      "relErr": 5.102127870520021e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 22.5,
+      "sigmaRawNm2": 0.01002,
+      "sigmaWgslNm2": 0.010019999999999996,
+      "relErr": 3.46252190813734e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 25,
+      "sigmaRawNm2": 0.0097,
+      "sigmaWgslNm2": 0.0097,
+      "relErr": 0,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 27.5,
+      "sigmaRawNm2": 0.00956,
+      "sigmaWgslNm2": 0.009560000000000003,
+      "relErr": 1.81456430541507e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 30,
+      "sigmaRawNm2": 0.009440000000000002,
+      "sigmaWgslNm2": 0.009440000000000004,
+      "relErr": 1.8376308008228883e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 32.5,
+      "sigmaRawNm2": 0.009800000000000001,
+      "sigmaWgslNm2": 0.009799999999999996,
+      "relErr": 5.310377987684103e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 35,
+      "sigmaRawNm2": 0.009840000000000002,
+      "sigmaWgslNm2": 0.009839999999999996,
+      "relErr": 5.288791085295143e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 37.5,
+      "sigmaRawNm2": 0.009840000000000002,
+      "sigmaWgslNm2": 0.009839999999999996,
+      "relErr": 5.288791085295143e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 40,
+      "sigmaRawNm2": 0.009540000000000002,
+      "sigmaWgslNm2": 0.009540000000000002,
+      "relErr": 0,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 42.5,
+      "sigmaRawNm2": 0.009320000000000002,
+      "sigmaWgslNm2": 0.009320000000000004,
+      "relErr": 1.8612912832369172e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 45,
+      "sigmaRawNm2": 0.009000000000000001,
+      "sigmaWgslNm2": 0.009,
+      "relErr": 1.9274705288631188e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 47.5,
+      "sigmaRawNm2": 0.008660000000000001,
+      "sigmaWgslNm2": 0.008659999999999998,
+      "relErr": 4.006289782856367e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 50,
+      "sigmaRawNm2": 0.008060000000000001,
+      "sigmaWgslNm2": 0.008060000000000003,
+      "relErr": 2.1522623771424403e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 52.5,
+      "sigmaRawNm2": 0.008280000000000001,
+      "sigmaWgslNm2": 0.008279999999999997,
+      "relErr": 4.1901533236154757e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 55,
+      "sigmaRawNm2": 0.008220000000000002,
+      "sigmaWgslNm2": 0.008220000000000003,
+      "relErr": 2.1103691921858963e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 57.5,
+      "sigmaRawNm2": 0.008020000000000001,
+      "sigmaWgslNm2": 0.008020000000000001,
+      "relErr": 0,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 60,
+      "sigmaRawNm2": 0.008100000000000001,
+      "sigmaWgslNm2": 0.008100000000000003,
+      "relErr": 2.1416339209590208e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 62.5,
+      "sigmaRawNm2": 0.00834,
+      "sigmaWgslNm2": 0.00834,
+      "relErr": 0,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 65,
+      "sigmaRawNm2": 0.00838,
+      "sigmaWgslNm2": 0.008380000000000004,
+      "relErr": 4.1401514939780597e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 67.5,
+      "sigmaRawNm2": 0.008140000000000001,
+      "sigmaWgslNm2": 0.008140000000000003,
+      "relErr": 2.1311099213474285e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 70,
+      "sigmaRawNm2": 0.008900000000000002,
+      "sigmaWgslNm2": 0.008899999999999998,
+      "relErr": 3.8982550021950714e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 72.5,
+      "sigmaRawNm2": 0.009460000000000001,
+      "sigmaWgslNm2": 0.009459999999999996,
+      "relErr": 5.501237238827083e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 75,
+      "sigmaRawNm2": 0.009460000000000001,
+      "sigmaWgslNm2": 0.009459999999999996,
+      "relErr": 5.501237238827083e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 77.5,
+      "sigmaRawNm2": 0.009460000000000001,
+      "sigmaWgslNm2": 0.009459999999999996,
+      "relErr": 5.501237238827083e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 80,
+      "sigmaRawNm2": 0.009860000000000002,
+      "sigmaWgslNm2": 0.009859999999999997,
+      "relErr": 5.278063314331055e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 85,
+      "sigmaRawNm2": 0.009640000000000003,
+      "sigmaWgslNm2": 0.009639999999999998,
+      "relErr": 5.398517041421597e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 90,
+      "sigmaRawNm2": 0.008760000000000002,
+      "sigmaWgslNm2": 0.00876,
+      "relErr": 1.980277940612793e-16,
+      "inDataRange": true,
+      "status": "pass"
+    },
+    {
+      "energyEv": 100,
+      "sigmaRawNm2": 0.008560000000000002,
+      "sigmaWgslNm2": 0.008559999999999996,
+      "relErr": 6.079638350386005e-16,
+      "inDataRange": true,
+      "status": "pass"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "protocol": "B1-harness-liveness",
+    "hypothesis": "Spawning the vite dev server and driving the webgpu-dna harness in headless Chromium produces the first energy result in #tb within ~90 seconds at N=1024 primaries / E=100 eV (lowest ESTAR energy). The CSDA value in that row is plausible (> 1 nm, < 50000 nm).",
+    "passBar": "first row appears within 90s AND CSDA cell parses to a number in [1, 50000] nm AND no page-level errors during the run.",
+    "seed": "n/a (harness uses its own RNG; this experiment only checks liveness)",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "harness": "src/app.ts → runValidation()",
+      "driver": "experiments/lib/dev-server.mjs (vite) + experiments/lib/browser.mjs (Playwright)",
+      "nPrimaries": 1024
+    }
+  },
+  "env": {
+    "gitSha": "40d81546114f796eedfaa7a32a45a0d85b604ba8",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T06:58:02.335Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "totalSec": 4.466,
+    "firstRowSec": 2.852,
+    "nRowsAtCapture": 1,
+    "firstRowCells": [
+      "100 eV",
+      "1024",
+      "0",
+      "15.7",
+      "2.4",
+      "6.54×",
+      "9.9",
+      "9.91",
+      "58",
+      "0.17×",
+      "3.8",
+      "1.9",
+      "99.9%",
+      "5.79",
+      "4.57",
+      "1.33",
+      "—",
+      "—",
+      "—",
+      "—",
+      "353"
+    ],
+    "energyEv": 100,
+    "csdaNm": 15.7,
+    "consoleLineCount": 2,
+    "pageErrorCount": 0,
+    "headline": "first row (E=100 eV) in 2.9s; CSDA=15.7 nm (1 rows captured)"
+  },
+  "rows": [
+    {
+      "firstRowCells": [
+        "100 eV",
+        "1024",
+        "0",
+        "15.7",
+        "2.4",
+        "6.54×",
+        "9.9",
+        "9.91",
+        "58",
+        "0.17×",
+        "3.8",
+        "1.9",
+        "99.9%",
+        "5.79",
+        "4.57",
+        "1.33",
+        "—",
+        "—",
+        "—",
+        "—",
+        "353"
+      ],
+      "logTail": "[13:58:01] GPU initialized: [13:58:01] Shaders compiled, buffers allocated (np=1024)[13:58:01] Running 1024 primaries at 8 energies, box=15000nm, cutoff=7.4eV[13:58:01] DNA target: 441 fibers × 8823 bp = 3.89 Mbp (3000 nm, 21² grid, 150 nm spacing)[13:58:02]   E=100 eV: CSDA=15.7nm (6.54×) ions/pri=3.8 sec/pri=1.9 G_init(OH/eaq/H)=5.79/4.57/1.33 rad_n=16749 E_cons=99.9%",
+      "consoleTail": [
+        "[debug] [vite] connecting...",
+        "[debug] [vite] connected."
+      ]
+    }
+  ]
+}
