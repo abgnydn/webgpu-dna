@@ -23,6 +23,7 @@ import { runE15 } from './level-6-performance/E15-phase-a-alpha-beta.mjs';
 import { runE15b } from './level-6-performance/E15b-vs-geant4-single-thread.mjs';
 import { runE16 } from './level-6-performance/E16-fused-vs-naive.mjs';
 import { runE12 } from './level-5-dna-damage/E12-ssb-yield-vs-friedland.mjs';
+import { runE11 } from './level-4-chemistry/E11-gpu-chem-vs-irt.mjs';
 import { runB0 } from './level-0-env/B0-browser-env.mjs';
 import { runB1 } from './level-0-env/B1-harness-liveness.mjs';
 
@@ -48,6 +49,7 @@ const REGISTRY = {
   E10:  { run: runE10,  level: 'level-4', id: 'E10-irt-vs-karamitros' },
   E10b: { run: runE10b, level: 'level-4', id: 'E10b-vshape-bootstrap-sigma' },
   E10c: { run: runE10c, level: 'level-4', id: 'E10c-vs-chem6-at-10keV' },
+  E11:  { run: runE11,  level: 'level-4', id: 'E11-gpu-chem-vs-irt' },
 
   // Level 3 — pre-chemistry
   E9:   { run: runE9,   level: 'level-3', id: 'E9-prechem-vs-chem6' },

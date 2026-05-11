@@ -1,0 +1,428 @@
+{
+  "meta": {
+    "protocol": "E11-gpu-chem-vs-irt",
+    "hypothesis": "On the same rad_E10000_N4096.bin input, the GPU chemistry backend (src/shaders/chemistry.wgsl) produces G(species) within 20% of the IRT worker at all checkpoints up to t = 100 ns. At t > 100 ns the GPU backend is documented to undercount long-time reactions due to the 30 ns timestep × spatial-hash search radius; that gap is quantified here.",
+    "passBar": "Per species AND per checkpoint at t ≤ 100 ns: |G_gpu / G_irt - 1| < 0.20. t > 100 ns rows reported informationally.",
+    "seed": "E11_GPU_VS_IRT=0x43484D02",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "gpuHarness": "src/bench-chem.ts (drives runChemistry from src/chemistry/schedule.ts)",
+      "irtCache": "experiments/.cache/E10/E10000-N4096.json",
+      "radBin": "dumps/rad_E10000_N4096.bin"
+    },
+    "config": {
+      "primaryEnergyEv": 10000,
+      "nPrimaries": 4096,
+      "strictCheckpointMaxNs": 100
+    }
+  },
+  "env": {
+    "gitSha": "326f1033cca8b33d5e216e3961681b3ac58b75c9",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T10:11:15.901Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184,
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": "",
+      "description": ""
+    }
+  },
+  "status": "fail",
+  "diagnosis": "15/30 strict (t ≤ 100 ns) species×checkpoint cells failed the 20% band",
+  "summary": {
+    "nPrimaries": 4096,
+    "primaryEnergyEv": 10000,
+    "nStrictPass": 15,
+    "nStrictFail": 15,
+    "gpuWalltimeMs": 14254.799999998882,
+    "gpu_at_1us": {
+      "G_OH": 3.61669921875,
+      "G_eaq": 3.07889404296875,
+      "G_H": 0.78382080078125,
+      "G_H2O2": 0.17388671875,
+      "G_H2": 0.0832373046875
+    },
+    "irt_at_1us": {
+      "G_OH": 1.5546728515625,
+      "G_eaq": 1.408349609375,
+      "G_H": 0.7060498046875,
+      "G_H2O2": 0.60281005859375,
+      "G_H2": 0.4676513671875
+    },
+    "ratio_at_1us": {
+      "OH": 2.3263410145196093,
+      "eaq": 2.186171688104566,
+      "H": 1.1101494477831797,
+      "H2O2": 0.2884602144092406,
+      "H2": 0.17799008091882015
+    },
+    "headline": "Strict ≤ 100 ns: 15/30 pass. At 1 μs: G(OH) 3.62/1.55 (2.33×), G(eaq) 3.08/1.41 (2.19×)"
+  },
+  "rows": [
+    {
+      "metric": "species_G_OH_at_1 ps",
+      "t_ns": 0.001,
+      "G_gpu": 4.3350048828125,
+      "G_irt": 4.3652392578125,
+      "ratio": 0.9930738332507458,
+      "relErr": 0.00692616674925417,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_eaq_at_1 ps",
+      "t_ns": 0.001,
+      "G_gpu": 3.64507568359375,
+      "G_irt": 3.6790771484375,
+      "ratio": 0.9907581538869903,
+      "relErr": 0.00924184611300971,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H_at_1 ps",
+      "t_ns": 0.001,
+      "G_gpu": 0.78465087890625,
+      "G_irt": 0.7845263671875,
+      "ratio": 1.0001587094124016,
+      "relErr": 0.00015870941240159198,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H2O2_at_1 ps",
+      "t_ns": 0.001,
+      "G_gpu": 0.0375732421875,
+      "G_irt": 0.03470947265625,
+      "ratio": 1.0825068579869173,
+      "relErr": 0.08250685798691726,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H2_at_1 ps",
+      "t_ns": 0.001,
+      "G_gpu": 0.02257080078125,
+      "G_irt": 0.13023193359375,
+      "ratio": 0.1733123371388936,
+      "relErr": 0.8266876628611064,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_OH_at_10 ps",
+      "t_ns": 0.010000000000000002,
+      "G_gpu": 4.23443359375,
+      "G_irt": 4.26105712890625,
+      "ratio": 0.9937518943419837,
+      "relErr": 0.006248105658016256,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_eaq_at_10 ps",
+      "t_ns": 0.010000000000000002,
+      "G_gpu": 3.56684814453125,
+      "G_irt": 3.6164892578125,
+      "ratio": 0.9862736732387597,
+      "relErr": 0.013726326761240304,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H_at_10 ps",
+      "t_ns": 0.010000000000000002,
+      "G_gpu": 0.78411376953125,
+      "G_irt": 0.77685302734375,
+      "ratio": 1.0093463524398254,
+      "relErr": 0.0093463524398254,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H2O2_at_10 ps",
+      "t_ns": 0.010000000000000002,
+      "G_gpu": 0.0590966796875,
+      "G_irt": 0.05978759765625,
+      "ratio": 0.9884437910898771,
+      "relErr": 0.011556208910122878,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H2_at_10 ps",
+      "t_ns": 0.010000000000000002,
+      "G_gpu": 0.03319091796875,
+      "G_irt": 0.138349609375,
+      "ratio": 0.23990611985600338,
+      "relErr": 0.7600938801439966,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_OH_at_100 ps",
+      "t_ns": 0.1,
+      "G_gpu": 3.96145263671875,
+      "G_irt": 3.85441650390625,
+      "ratio": 1.0277697370546293,
+      "relErr": 0.027769737054629262,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_eaq_at_100 ps",
+      "t_ns": 0.1,
+      "G_gpu": 3.37788818359375,
+      "G_irt": 3.39021484375,
+      "ratio": 0.9963640474942246,
+      "relErr": 0.0036359525057754194,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H_at_100 ps",
+      "t_ns": 0.1,
+      "G_gpu": 0.778193359375,
+      "G_irt": 0.74831787109375,
+      "ratio": 1.0399235263987263,
+      "relErr": 0.03992352639872632,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H2O2_at_100 ps",
+      "t_ns": 0.1,
+      "G_gpu": 0.11917724609375,
+      "G_irt": 0.15992431640625,
+      "ratio": 0.7452102892908938,
+      "relErr": 0.25478971070910617,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_H2_at_100 ps",
+      "t_ns": 0.1,
+      "G_gpu": 0.05422119140625,
+      "G_irt": 0.16257080078125,
+      "ratio": 0.3335235549415069,
+      "relErr": 0.6664764450584931,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_OH_at_1 ns",
+      "t_ns": 1,
+      "G_gpu": 3.75813720703125,
+      "G_irt": 3.05810302734375,
+      "ratio": 1.228911247733712,
+      "relErr": 0.22891124773371208,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_eaq_at_1 ns",
+      "t_ns": 1,
+      "G_gpu": 3.22828857421875,
+      "G_irt": 2.93615966796875,
+      "ratio": 1.099493535531089,
+      "relErr": 0.09949353553108908,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H_at_1 ns",
+      "t_ns": 1,
+      "G_gpu": 0.7764990234375,
+      "G_irt": 0.7090478515625,
+      "ratio": 1.095129223967551,
+      "relErr": 0.09512922396755097,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H2O2_at_1 ns",
+      "t_ns": 1,
+      "G_gpu": 0.158330078125,
+      "G_irt": 0.36455810546875,
+      "ratio": 0.43430683819639304,
+      "relErr": 0.565693161803607,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_H2_at_1 ns",
+      "t_ns": 1,
+      "G_gpu": 0.06736328125,
+      "G_irt": 0.21571044921875,
+      "ratio": 0.3122856657800917,
+      "relErr": 0.6877143342199084,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_OH_at_10 ns",
+      "t_ns": 10,
+      "G_gpu": 3.69615234375,
+      "G_irt": 2.3510302734375,
+      "ratio": 1.572141535355801,
+      "relErr": 0.572141535355801,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_eaq_at_10 ns",
+      "t_ns": 10,
+      "G_gpu": 3.1691259765625,
+      "G_irt": 2.3506396484375,
+      "ratio": 1.3481972784169869,
+      "relErr": 0.3481972784169869,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_H_at_10 ns",
+      "t_ns": 10,
+      "G_gpu": 0.77865234375,
+      "G_irt": 0.7101416015625,
+      "ratio": 1.0964747622681987,
+      "relErr": 0.09647476226819873,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H2O2_at_10 ns",
+      "t_ns": 10,
+      "G_gpu": 0.1666357421875,
+      "G_irt": 0.50981201171875,
+      "ratio": 0.32685723042443454,
+      "relErr": 0.6731427695755654,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_H2_at_10 ns",
+      "t_ns": 10,
+      "G_gpu": 0.07318115234375,
+      "G_irt": 0.29964111328125,
+      "ratio": 0.2442293433713834,
+      "relErr": 0.7557706566286166,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_OH_at_100 ns",
+      "t_ns": 100,
+      "G_gpu": 3.64976318359375,
+      "G_irt": 1.8768798828125,
+      "ratio": 1.9445907098351913,
+      "relErr": 0.9445907098351913,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_eaq_at_100 ns",
+      "t_ns": 100,
+      "G_gpu": 3.117119140625,
+      "G_irt": 1.80403564453125,
+      "ratio": 1.7278589533827828,
+      "relErr": 0.7278589533827828,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_H_at_100 ns",
+      "t_ns": 100,
+      "G_gpu": 0.78142822265625,
+      "G_irt": 0.71459228515625,
+      "ratio": 1.0935301694243535,
+      "relErr": 0.09353016942435355,
+      "strict": true,
+      "status": "pass"
+    },
+    {
+      "metric": "species_G_H2O2_at_100 ns",
+      "t_ns": 100,
+      "G_gpu": 0.17099609375,
+      "G_irt": 0.56980712890625,
+      "ratio": 0.30009469007211015,
+      "relErr": 0.6999053099278898,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_H2_at_100 ns",
+      "t_ns": 100,
+      "G_gpu": 0.07896240234375,
+      "G_irt": 0.3936376953125,
+      "ratio": 0.2005966483496037,
+      "relErr": 0.7994033516503963,
+      "strict": true,
+      "status": "fail"
+    },
+    {
+      "metric": "species_G_OH_at_1 μs",
+      "t_ns": 1000,
+      "G_gpu": 3.61669921875,
+      "G_irt": 1.5546728515625,
+      "ratio": 2.3263410145196093,
+      "relErr": 1.3263410145196093,
+      "strict": false,
+      "status": "informational"
+    },
+    {
+      "metric": "species_G_eaq_at_1 μs",
+      "t_ns": 1000,
+      "G_gpu": 3.07889404296875,
+      "G_irt": 1.408349609375,
+      "ratio": 2.186171688104566,
+      "relErr": 1.186171688104566,
+      "strict": false,
+      "status": "informational"
+    },
+    {
+      "metric": "species_G_H_at_1 μs",
+      "t_ns": 1000,
+      "G_gpu": 0.78382080078125,
+      "G_irt": 0.7060498046875,
+      "ratio": 1.1101494477831797,
+      "relErr": 0.1101494477831797,
+      "strict": false,
+      "status": "informational"
+    },
+    {
+      "metric": "species_G_H2O2_at_1 μs",
+      "t_ns": 1000,
+      "G_gpu": 0.17388671875,
+      "G_irt": 0.60281005859375,
+      "ratio": 0.2884602144092406,
+      "relErr": 0.7115397855907595,
+      "strict": false,
+      "status": "informational"
+    },
+    {
+      "metric": "species_G_H2_at_1 μs",
+      "t_ns": 1000,
+      "G_gpu": 0.0832373046875,
+      "G_irt": 0.4676513671875,
+      "ratio": 0.17799008091882015,
+      "relErr": 0.8220099190811798,
+      "strict": false,
+      "status": "informational"
+    },
+    {
+      "metric": "gpu_walltime_ms",
+      "gpu_walltime_ms": 14254.799999998882,
+      "gpu_rad_n": 5298680,
+      "gpu_bin_bytes": 84778880,
+      "status": "informational"
+    }
+  ]
+}

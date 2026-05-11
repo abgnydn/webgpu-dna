@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>webgpu-dna · GPU chem bench</title>
+  <style>body{font:14px/1.4 ui-sans-serif;max-width:840px;margin:2rem auto;padding:0 1rem;color:#d8d8d8;background:#0b0b0e;}pre{background:#14141a;padding:0.75rem;border-radius:4px}</style>
+</head>
+<body>
+  <h1>webgpu-dna — GPU chemistry backend bench</h1>
+  <p>Drives <code>src/shaders/chemistry.wgsl</code> on a rad_buf dump fetched from the dev server. Used by E11 to compare GPU-resident chemistry to the IRT worker.</p>
+  <pre id="status">loading…</pre>
+  <script type="module">
+    import './src/bench-chem.ts';
+    const el = document.getElementById('status');
+    const tick = () => {
+      if (window.__chemBenchError) { el.textContent = `error: ${window.__chemBenchError}`; return; }
+      if (window.__chemBenchReady) { el.textContent = 'ready — window.runGpuChemBench is exposed'; return; }
+      requestAnimationFrame(tick);
+    };
+    tick();
+  </script>
+</body>
+</html>

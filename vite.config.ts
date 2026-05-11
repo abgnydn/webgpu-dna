@@ -13,6 +13,7 @@ export default defineConfig({
         splat: resolve(__dirname, 'splat.html'),
         see: resolve(__dirname, 'see.html'),
         bench: resolve(__dirname, 'bench.html'),
+        benchChem: resolve(__dirname, 'bench-chem.html'),
       },
     },
   },

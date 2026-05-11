@@ -4,6 +4,11 @@ dumps/
 *.log
 .DS_Store
 
+# E11 stages rad bins under public/ for vite to serve them to bench-chem.html.
+# They are ~85 MB at 10 keV and regenerable from dumps/rad_E*_N4096.bin —
+# never commit.
+public/rad_E*_N*.bin
+
 # Local editor/agent config
 .claude/
 .vscode/

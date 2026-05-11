@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (18 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (19 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -123,7 +123,7 @@ per-level `protocol.md` files for hypotheses + pass bars.
   WGSL 371.9 vs Geant4 509.2, 27% deficit, 263σ — real physics gap;
   closes the counting-convention question E5 punted on). E8 (secondary
   KE spectrum) deferred.
-- **L4 — Chemistry (3 of 4 attempted, 2 pass + 1 fail honest-negative).**
+- **L4 — Chemistry (4 of 4 attempted, 2 pass + 2 fail honest-negative).**
   E10 IRT G-values vs Karamitros 2011 across 5 primary energies
   (1/3/5/10/20 keV) — pass. E10b V-shape σ-significance via primary
   bootstrap — pass, **126σ** (was claimed as ~40σ; now properly measured).
@@ -134,7 +134,14 @@ per-level `protocol.md` files for hypotheses + pass bars.
   has a bug?"** Answer: both — the deficit decomposes as ~30% real LET
   effect (closed by E10c being well above 0.62×) + ~10-29% real
   WGSL-vs-chem6 implementation gap, biggest on H₂ and H₂O₂.
-  E11 GPU vs IRT backend deferred — needs browser runner infrastructure.
+  **E11 GPU chem backend vs IRT worker on the same rad bin (fail, honest
+  negative):** GPU primary species match IRT within 5% at t ≤ 100 ps; at
+  long times G(OH) and G(eaq) diverge upward (2.33× and 2.19× at 1 μs)
+  because GPU spatial-hash search radius is narrower than diffusion σ at
+  30 ns timestep — more OH/eaq survive. Molecular products (H₂, H₂O₂)
+  consistently low (0.18-0.30×). GPU runs in 14.2 s vs IRT's 194 s
+  (13.6× faster but inaccurate at long times) — quantifies why
+  DEFAULT_CHEM_BACKEND='worker'. [E11]
 - **L6 — Performance (3 of 3 attempted, 1 pass + 2 honest-negative).**
   E15 Phase A α/β decomposition via WebGPU + Playwright N-sweep
   (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 + T=20 with

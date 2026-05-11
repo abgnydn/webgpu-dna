@@ -7,6 +7,27 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L4 stage 3: E11 GPU chem backend vs IRT worker (2026-05-11)
+
+- **E11** drives `src/shaders/chemistry.wgsl` on the same rad bin as the
+  IRT worker. Adds src/bench-chem.ts + bench-chem.html as a new
+  in-browser harness that fetches the rad bin (staged temporarily under
+  public/), uploads to rad_buf, runs `runChemistry()` from
+  src/chemistry/schedule.ts, and emits per-checkpoint G-values.
+- **Result (fail, honest negative):**
+  - Strict t ≤ 100 ns: 15/30 species×checkpoint cells in band (50% pass).
+  - At t ≤ 100 ps the GPU primary species (OH, eaq, H) agree with IRT
+    within 5%.
+  - At long times G(OH) and G(eaq) diverge UPWARD (1.94× at 100 ns,
+    2.33× at 1 μs) — the GPU spatial-hash search radius is narrower
+    than the diffusion σ at the 30 ns timestep, so radical pairs that
+    would react in IRT don't find each other in the spatial hash. More
+    primaries survive → higher apparent G.
+  - Molecular products are consistently low: G(H₂) 0.18-0.31× and
+    G(H₂O₂) 0.29-1.08× of IRT throughout.
+  - GPU walltime 14.2 s vs IRT's 194 s — **13.6× faster but inaccurate
+    at long times**. Confirms why `DEFAULT_CHEM_BACKEND='worker'`.
+
 ### Added — L5 stage 1: E12 SSB/DSB yields vs Friedland 2011 (2026-05-11)
 
 - **E12** compares WGSL SSB/DSB yields per Gy per Da to Friedland 2011 /
