@@ -7,6 +7,28 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L6 stage 5: E15d Phase A α/β at multiple energies (2026-05-11)
+
+- **E15d** extends E15 (which measured Phase A α/β only at 10 keV) to
+  the full 8-energy ESTAR sweep (100, 300, 500 eV, 1, 3, 5, 10, 20 keV).
+  For each energy, runs N ∈ {256, 1024, 4096, 16384} with W=3 + T=10
+  trials and OLS-fits T(N) = α + β·N over the medians.
+- **Result (pass):** β scales monotonically with energy as expected
+  from the fused-loop design (longer primary histories = more compute
+  per primary):
+  -    100 eV: β = 0.23 μs/pri, peak 2.1M pri/s
+  -    300 eV: β = 0.25 μs/pri, peak 1.9M pri/s
+  -    500 eV: β = 0.32 μs/pri, peak 1.7M pri/s
+  -  1000 eV: β = 0.38 μs/pri, peak 1.4M pri/s
+  -  3000 eV: β = 0.58 μs/pri, peak 926k pri/s
+  -  5000 eV: β = 0.75 μs/pri, peak 727k pri/s
+  - 10000 eV: β = 1.47 μs/pri, peak 421k pri/s
+  - 20000 eV: β = 2.05 μs/pri, peak 293k pri/s
+
+  9× β-spread across the 200× energy range confirms the kernel is doing
+  more work per primary at higher energies (longer cascades), and the
+  peak-throughput drop maps linearly onto that.
+
 ### Added — L1 stage 10: E3b Champion angular CDF (2026-05-11)
 
 - **E3b** validates the elastic-scattering angle sampling. WGSL's

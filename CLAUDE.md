@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (27 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (28 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -158,7 +158,12 @@ per-level `protocol.md` files for hypotheses + pass bars.
   consistently low (0.18-0.30×). GPU runs in 14.2 s vs IRT's 194 s
   (13.6× faster but inaccurate at long times) — quantifies why
   DEFAULT_CHEM_BACKEND='worker'. [E11]
-- **L6 — Performance (4 of 4 attempted, 2 pass + 2 honest-negative).**
+- **L6 — Performance (5 of 5 attempted, 3 pass + 2 honest-negative).**
+  E15d extends E15 to all 8 ESTAR energies: β scales monotonically
+  from 0.23 μs/pri @ 100 eV up to 2.05 μs/pri @ 20 keV; peak throughput
+  drops from 2.1M pri/s to 0.29M pri/s across that range. Confirms
+  per-primary compute cost is energy-dependent (longer histories =
+  more inner-loop iterations in the fused kernel). [E15d]
   E15 Phase A α/β decomposition via WebGPU + Playwright N-sweep
   (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 + T=20 with
   `onSubmittedWorkDone()` sync). α = 10527.8 μs (single-workgroup
