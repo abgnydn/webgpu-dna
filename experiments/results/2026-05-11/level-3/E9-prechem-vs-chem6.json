@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "protocol": "E9-prechem-vs-chem6",
+    "hypothesis": "At MATCHED 10 keV LET, WebGPU IRT initial G(species) at 0.1 ps agrees with Geant4 11.4.1 chem6 within 20% per species. A failure here localizes the H₂/H₂O₂ deficit at 1 μs (E10c) to a pre-chemistry stage discrepancy (different OH/H/eaq starting populations) rather than to the IRT reaction rates (which are identical between our worker and chem6 — confirmed line-by-line).",
+    "passBar": "Per species: |ratio − 1| < 0.20 AND |G_wgsl − G_chem6| / sqrt(SE_chem6² + SE_wgsl_estimated²) < 5.",
+    "seed": "E9_PRECHEM_G_INIT=0x50524501",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "wgslCache": "experiments/.cache/E10/E10000-N4096.json",
+      "chem6Root": "/tmp/webgpu-dna-e10c/Gvalue0.root",
+      "chem6Macro": "validation/chem6_10keV.mac (same as E10c)",
+      "irtWorkerTimelineChange": "public/irt-worker.js — added 0.0001 ns (0.1 ps) checkpoint 2026-05-11",
+      "speciesMap": "chem6 species table: 0=H3O+, 1=OH, 2=OH-, 3=eaq, 4=H, 5=H2, 6=H2O2"
+    },
+    "config": {
+      "targetLabel": "0.1 ps",
+      "targetTimeNs": 0.0001,
+      "primaryEnergyEv": 10000,
+      "nPrimaries": 4096
+    }
+  },
+  "env": {
+    "gitSha": "509e1bd424c5e49b81d3e3cceea8331c6053b9ba",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T09:52:19.772Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "OH: WGSL 4.382 vs chem6 5.049 (ratio 0.868, 9.5σ); eaq: WGSL 3.692 vs chem6 4.097 (ratio 0.901, 6.9σ); H: WGSL 0.786 vs chem6 0.893 (ratio 0.880, 6.7σ); H2: WGSL 0.127 vs chem6 0.251 (ratio 0.508, 22.0σ); H2O2: WGSL 0.031 vs chem6 0.053 (ratio 0.577, 9.3σ)",
+  "summary": {
+    "targetLabel": "0.1 ps",
+    "energyEv": 10000,
+    "nPrimaries": 4096,
+    "nPassed": 0,
+    "nFailed": 5,
+    "perSpecies": [
+      {
+        "name": "OH",
+        "wgsl": 4.3822314453125,
+        "chem6": 5.048599999999785,
+        "ratio": 0.8680092392569597,
+        "sigma": 9.54944009730507
+      },
+      {
+        "name": "eaq",
+        "wgsl": 3.69185302734375,
+        "chem6": 4.097499999999824,
+        "ratio": 0.9010013489551942,
+        "sigma": 6.89635201243963
+      },
+      {
+        "name": "H",
+        "wgsl": 0.78607666015625,
+        "chem6": 0.8927999999999622,
+        "ratio": 0.8804622089564105,
+        "sigma": 6.6676896391532505
+      },
+      {
+        "name": "H2",
+        "wgsl": 0.1274169921875,
+        "chem6": 0.25079999999998925,
+        "ratio": 0.5080422336024938,
+        "sigma": 22.000387145384618
+      },
+      {
+        "name": "H2O2",
+        "wgsl": 0.0305615234375,
+        "chem6": 0.052999999999997736,
+        "ratio": 0.5766325176887039,
+        "sigma": 9.338441489555514
+      }
+    ],
+    "headline": "G(OH)=4.38/5.05 (0.87×)  G(eaq)=3.69/4.10 (0.90×)  G(H)=0.79/0.89 (0.88×)  G(H2)=0.13/0.25 (0.51×)  G(H2O2)=0.03/0.05 (0.58×)"
+  },
+  "rows": [
+    {
+      "metric": "species_OH",
+      "gWgsl": 4.3822314453125,
+      "gChem6": 5.048599999999785,
+      "seChem6": 0.013450260032777005,
+      "seWgsl_estimated": 0.06847236633300781,
+      "ratio": 0.8680092392569597,
+      "delta": -0.6663685546872848,
+      "sigma": 9.54944009730507,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 5",
+      "status": "fail"
+    },
+    {
+      "metric": "species_eaq",
+      "gWgsl": 3.69185302734375,
+      "gChem6": 4.097499999999824,
+      "seChem6": 0.011500878315163887,
+      "seWgsl_estimated": 0.057685203552246093,
+      "ratio": 0.9010013489551942,
+      "delta": -0.4056469726560743,
+      "sigma": 6.89635201243963,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 5",
+      "status": "fail"
+    },
+    {
+      "metric": "species_H",
+      "gWgsl": 0.78607666015625,
+      "gChem6": 0.8927999999999622,
+      "seChem6": 0.010263281614324686,
+      "seWgsl_estimated": 0.012282447814941406,
+      "ratio": 0.8804622089564105,
+      "delta": -0.10672333984371218,
+      "sigma": 6.6676896391532505,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 5",
+      "status": "fail"
+    },
+    {
+      "metric": "species_H2",
+      "gWgsl": 0.1274169921875,
+      "gChem6": 0.25079999999998925,
+      "seChem6": 0.00524294619927408,
+      "seWgsl_estimated": 0.0019908905029296874,
+      "ratio": 0.5080422336024938,
+      "delta": -0.12338300781248926,
+      "sigma": 22.000387145384618,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 5",
+      "status": "fail"
+    },
+    {
+      "metric": "species_H2O2",
+      "gWgsl": 0.0305615234375,
+      "gChem6": 0.052999999999997736,
+      "seChem6": 0.0023548788812705604,
+      "seWgsl_estimated": 0.0004775238037109375,
+      "ratio": 0.5766325176887039,
+      "delta": -0.022438476562497735,
+      "sigma": 9.338441489555514,
+      "passBar": "|ratio - 1| < 0.20 AND sigma < 5",
+      "status": "fail"
+    },
+    {
+      "metric": "wgsl_timeline_metadata",
+      "label": "0.1 ps",
+      "t_ns": 0.0001,
+      "n_primaries": 4096,
+      "energyEv": 10000,
+      "status": "informational"
+    },
+    {
+      "metric": "chem6_run_metadata",
+      "rootPath": "/tmp/webgpu-dna-e10c/Gvalue0.root",
+      "chem6_nEvents": 100,
+      "status": "informational"
+    }
+  ]
+}

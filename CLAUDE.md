@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (15 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (16 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -150,7 +150,15 @@ per-level `protocol.md` files for hypotheses + pass bars.
   ≥100× kernel-fusion thesis. End-to-end pre-DNA pipeline only 1.48×
   because IRT chemistry on CPU is the bottleneck — GPU-accelerated
   chemistry is the next obvious win. [E15b]
-- **L3, L5** — protocols only.
+- **L3 — Pre-chemistry (1 of 1 attempted, fail honest-negative).**
+  E9 G(species) @ 0.1 ps vs Geant4 11.4.1 chem6 at matched 10 keV
+  (uses the cache populated by E10 with the freshly-added 0.1 ps
+  checkpoint in public/irt-worker.js; chem6 ROOT from E10c). OH
+  0.868× (9.5σ), eaq 0.901× (6.9σ), H 0.880× (6.7σ), H₂ 0.508×
+  (22.0σ), H₂O₂ 0.577× (9.3σ). **Localizes the E10c 1 μs deficit
+  to pre-chemistry, not IRT reaction rates.** See PHYSICS_DIAGNOSIS.md
+  for the propagation table + concrete fix candidates. [E9]
+- **L5** — protocol only.
 
 **Seven substantive findings now in the research ledger** (would NOT
 be visible without the protocol):

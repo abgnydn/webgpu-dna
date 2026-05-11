@@ -412,9 +412,11 @@ self.onmessage = function(e) {
   const tbirth = new Float64Array(CAP);  // birth time (ns) for diffusion sync
   const heap = new MinHeap(CAP * 8);
 
-  // Timeline accumulators
-  const checkpoints = [0.001, 0.01, 0.1, 1, 10, 100, 1000];
-  const labels = ['1 ps', '10 ps', '100 ps', '1 ns', '10 ns', '100 ns', '1 us'];
+  // Timeline accumulators. 0.1 ps added 2026-05-11 to align with Geant4 chem6's
+  // earliest checkpoint (chem6 default macro records 0.1 ps too), enabling
+  // E9 pre-chemistry G-value comparison.
+  const checkpoints = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000];
+  const labels = ['0.1 ps', '1 ps', '10 ps', '100 ps', '1 ns', '10 ns', '100 ns', '1 us'];
   const nCP = checkpoints.length;
   const tl_oh = new Float64Array(nCP);
   const tl_eaq = new Float64Array(nCP);

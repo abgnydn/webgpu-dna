@@ -7,6 +7,25 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L3 stage 1: pre-chemistry diagnosis (2026-05-11)
+
+- **0.1 ps checkpoint** added to `public/irt-worker.js` timeline (was
+  starting at 1 ps). The chem6 default macro records 0.1 ps; aligning
+  enables the matched-time pre-chemistry comparison.
+- **E9** — G(species) @ 0.1 ps vs Geant4 11.4.1 chem6 at matched 10 keV.
+  Uses the WGSL IRT cache populated by E10 (with new 0.1 ps timepoint)
+  and the chem6 ROOT from E10c. **Fail (honest negative):** OH 0.868×
+  (9.5σ), eaq 0.901× (6.9σ), H 0.880× (6.7σ), **H₂ 0.508× (22.0σ),
+  H₂O₂ 0.577× (9.3σ)** — uniformly ~10-15% deficit on primary species,
+  ~50% deficit on H₂/H₂O₂ molecular products.
+- **PHYSICS_DIAGNOSIS.md** added — living document tracking standing
+  discrepancies surfaced by the research-grade ledger, candidate root
+  causes, and follow-up experiments. The H₂/H₂O₂ deficit is now
+  conclusively localized to pre-chemistry (the IRT reaction rates are
+  line-for-line identical to chem6's macro); concrete WGSL fix
+  candidates are listed (B1A1 branching ratio, DEA H₂ channel, HO₂°
+  tracking).
+
 ### Added — L4 expansion: chem6 head-to-head + V-shape bootstrap (2026-05-11)
 
 - **E10b** — Bootstrap σ-significance for the G(e⁻aq) V-shape at 1→3 keV.

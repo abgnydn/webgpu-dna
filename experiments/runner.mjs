@@ -18,6 +18,7 @@ import { runE7 } from './level-2-track-structure/E7-ions-per-primary-cascade.mjs
 import { runE10 } from './level-4-chemistry/E10-irt-vs-karamitros.mjs';
 import { runE10b } from './level-4-chemistry/E10b-vshape-bootstrap-sigma.mjs';
 import { runE10c } from './level-4-chemistry/E10c-vs-chem6-at-10keV.mjs';
+import { runE9 } from './level-3-prechemistry/E9-prechem-vs-chem6.mjs';
 import { runE15 } from './level-6-performance/E15-phase-a-alpha-beta.mjs';
 import { runE15b } from './level-6-performance/E15b-vs-geant4-single-thread.mjs';
 import { runB0 } from './level-0-env/B0-browser-env.mjs';
@@ -45,6 +46,9 @@ const REGISTRY = {
   E10:  { run: runE10,  level: 'level-4', id: 'E10-irt-vs-karamitros' },
   E10b: { run: runE10b, level: 'level-4', id: 'E10b-vshape-bootstrap-sigma' },
   E10c: { run: runE10c, level: 'level-4', id: 'E10c-vs-chem6-at-10keV' },
+
+  // Level 3 — pre-chemistry
+  E9:   { run: runE9,   level: 'level-3', id: 'E9-prechem-vs-chem6' },
 
   // Level 6 — performance
   E15:  { run: runE15,  level: 'level-6', id: 'E15-phase-a-alpha-beta' },
