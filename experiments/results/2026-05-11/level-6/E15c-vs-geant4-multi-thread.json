@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "protocol": "E15c-vs-geant4-multi-thread",
+    "hypothesis": "For matched 10 keV × N=4096 primaries × DNA_Opt2 physics, the WebGPU Phase A + Phase B wall-clock is ≥ 50× faster than Geant4 11.4.1 multi-threaded (MT=8) on the same machine (M2 Pro). E15b reported 455× vs single-thread; the MT comparison gives a fairer \"production realistic\" speedup number.",
+    "passBar": "speedup_AB_vs_geant4_MT8 = T_geant4_MT8_median / T_wgsl_phaseAB ≥ 50.",
+    "seed": "E15_DISPATCH=0x50455201",
+    "warmup": 0,
+    "trials": 3,
+    "sources": {
+      "geant4Bin": "~/Downloads/dnaphysics-v11.4.1-build/dnaphysics",
+      "geant4Macro": "validation/run_validation_mt8.mac",
+      "wgslPhaseAB": "dumps/manifest.json",
+      "e15bReference": "experiments/results/2026-05-11/level-6/E15b-vs-geant4-single-thread.json"
+    },
+    "config": {
+      "nThreads": 8,
+      "nPrimaries": 4096,
+      "primaryEnergyEv": 10000
+    }
+  },
+  "env": {
+    "gitSha": "865026dabeebf665ff4c82b540d6f261d1634c0e",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T10:37:42.146Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "nThreads": 8,
+    "nPrimaries": 4096,
+    "primaryEnergyEv": 10000,
+    "geant4MT_medianSec": 177.962,
+    "wgslPhaseABMs": 635,
+    "speedupMt8": 280.2551181102362,
+    "speedupSt": 455.2425196850394,
+    "mtScalingFactor": 1.6243861048987989,
+    "headline": "Geant4 MT-8 median 178.0 s (1.6× faster than ST). WGSL Phase A+B = 635 ms → **280× speedup vs MT-8** (was 455× vs ST)."
+  },
+  "rows": [
+    {
+      "metric": "speedup_vs_geant4_mt8",
+      "scope": "WebGPU Phase A+B (635 ms) vs Geant4 11.4.1 MT-8 single run wall-clock",
+      "t_geant4_mt8_median_ms": 177962,
+      "t_wgsl_phaseAB_ms": 635,
+      "speedup": 280.2551181102362,
+      "passBar": "speedup ≥ 50",
+      "status": "pass"
+    },
+    {
+      "metric": "geant4_trial_distribution_mt8",
+      "trialsSec": [
+        183.704,
+        177.962,
+        177.776
+      ],
+      "median_sec": 177.962,
+      "mean_sec": 179.814,
+      "std_sec": 3.3701222529754062,
+      "nThreads": 8,
+      "status": "informational"
+    },
+    {
+      "metric": "mt_scaling_vs_st",
+      "g4_st_median_sec": 289.079,
+      "g4_mt8_median_sec": 177.962,
+      "mt_speedup_over_st": 1.6243861048987989,
+      "note": "MT-8 should be ~8× faster than ST in the ideal case (perfect parallelism). Observed 1.62× — sub-linear due to E-core scheduling, memory-bus contention, and Geant4's per-event task overhead.",
+      "status": "informational"
+    },
+    {
+      "metric": "speedup_decomposition",
+      "speedup_vs_st": 455.2425196850394,
+      "speedup_vs_mt8": 280.2551181102362,
+      "note": "E15b reports the ST headline number for the kernel-fusion thesis. E15c reports the MT-8 number for \"what real users see\". Both are honest depending on use case.",
+      "status": "informational"
+    }
+  ]
+}

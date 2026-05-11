@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (21 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (22 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -145,7 +145,7 @@ per-level `protocol.md` files for hypotheses + pass bars.
   consistently low (0.18-0.30×). GPU runs in 14.2 s vs IRT's 194 s
   (13.6× faster but inaccurate at long times) — quantifies why
   DEFAULT_CHEM_BACKEND='worker'. [E11]
-- **L6 — Performance (3 of 3 attempted, 1 pass + 2 honest-negative).**
+- **L6 — Performance (4 of 4 attempted, 2 pass + 2 honest-negative).**
   E15 Phase A α/β decomposition via WebGPU + Playwright N-sweep
   (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 + T=20 with
   `onSubmittedWorkDone()` sync). α = 10527.8 μs (single-workgroup
@@ -160,6 +160,12 @@ per-level `protocol.md` files for hypotheses + pass bars.
   ≥100× claim *vs Geant4 single-thread*. End-to-end pre-DNA pipeline
   only 1.48× because IRT chemistry on CPU is the bottleneck —
   GPU-accelerated chemistry is the next obvious win. [E15b]
+  **E15c WGSL vs Geant4 MT-8 (production-realistic baseline):** Geant4
+  MT-8 median 178.0 s → **280× speedup vs WGSL Phase A+B**. Geant4's
+  MT scaling is only 1.6× over ST on this workload, well below the
+  theoretical 8× (per-event task scheduling + memory contention limit
+  parallel efficiency). The 280× number is the "what production users
+  see" speedup; 455× is the within-protocol vs-ST number. [E15c]
   **E16 within-WebGPU fused-vs-naive: 40× speedup** (T_fused 17.75 ms
   vs modeled T_naive 414 × 1.70 = 704 ms). **L6 protocol's "≥100×
   kernel-fusion thesis" falsified at the measured magnitude** — the

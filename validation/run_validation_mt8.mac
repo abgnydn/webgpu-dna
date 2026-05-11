@@ -1,0 +1,23 @@
+# WebGPU Geant4-DNA validation macro — MULTI-THREADED variant.
+# Identical to run_validation.mac except /run/numberOfThreads = 8, which
+# is roughly the "realistic production" setup for a Geant4 user on an
+# M2 Pro (6 P-cores + 4 E-cores). Used by E15c to measure the WGSL speedup
+# vs a multi-threaded baseline rather than the artificially conservative
+# single-thread baseline E15b uses.
+
+/tracking/verbose 0
+/run/verbose 0
+/control/verbose 0
+
+/run/numberOfThreads 8
+
+/dna/test/setMat G4_WATER
+/dna/test/setSize 30 um
+/dna/test/addPhysics DNA_Opt2
+
+/run/initialize
+
+/gun/particle e-
+/gun/energy 10 keV
+
+/run/beamOn 4096

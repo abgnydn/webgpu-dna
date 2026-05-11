@@ -7,6 +7,23 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L6 stage 4: E15c WGSL vs Geant4 MT-8 (2026-05-11)
+
+- Adds `validation/run_validation_mt8.mac` (identical to run_validation.mac
+  except `/run/numberOfThreads = 8` — roughly "what real Geant4 users run"
+  on an M2 Pro: 6 P-cores + 2 of the 4 E-cores).
+- **E15c** times Geant4 MT-8 over 3 trials and computes the
+  production-realistic WGSL speedup. Result: pass.
+  - Geant4 MT-8 median: 178.0 s (vs ST 289.1 s from E15b)
+  - MT scaling: 1.6× over ST — well below the theoretical 8×; per-event
+    task scheduling + memory-bus contention on this workload.
+  - WGSL Phase A+B: 635 ms
+  - **Speedup vs Geant4 MT-8: 280×**
+
+  E15b's 455× is the within-protocol-bar single-thread number; E15c's
+  280× is the honest "what production users see" speedup. Both are real;
+  call them out separately depending on use case.
+
 ### Added — L5 stage 2: E13 indirect/direct SSB ratio (2026-05-11)
 
 - **E13** compares the indirect/direct SSB ratio at 10 keV to the
