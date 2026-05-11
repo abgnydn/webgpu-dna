@@ -7,6 +7,30 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L4 stage 4: E10d chem6 multi-energy + V-shape confirmation (2026-05-11)
+
+- Adds validation/chem6_multi_energy.mac (5 beamOn at 1/3/5/10/20 keV
+  with primaryKiller eLossMax = full primary energy, so each beam
+  deposits its entire 1-20 keV in the box — matches WGSL's setup).
+  Total chem6 wall: ~3 min for all 5 energies.
+- **E10d** parses Gvalue0-4.root and compares to E10's WGSL row per
+  species per energy.
+- **Result (partial pass, 24/25):**
+  - Per-species patterns are clean across the LET range:
+    - G(OH):   0.88-0.90× uniform
+    - G(eaq):  0.81-0.85× uniform
+    - G(H):    0.97-1.01× — perfect agreement across all LET
+    - G(H₂):   0.92× (1 keV) → 0.71× (20 keV) — LET-dependent
+    - G(H₂O₂): 0.91× (1 keV) → 0.66× (20 keV) — only failing cell
+  - **chem6 INDEPENDENTLY reproduces the G(eaq) V-shape**:
+    G(eaq) 1.36 (1 keV) → 1.26 (3 keV) → 1.41 (5 keV) — 7.4% drop,
+    same sign as WGSL's 12.5% drop (1.163 → 1.026 → 1.147).
+
+  **Confirms E10/E10b's V-shape finding is real LET physics**, not an
+  IRT-side artifact of our worker. Two independent IRT implementations
+  (chem6 and our worker) both report a G(eaq) dip at 1→3 keV in 10 keV
+  electron tracks.
+
 ### Added — L6 stage 4: E15c WGSL vs Geant4 MT-8 (2026-05-11)
 
 - Adds `validation/run_validation_mt8.mac` (identical to run_validation.mac

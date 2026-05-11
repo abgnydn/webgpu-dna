@@ -1,0 +1,61 @@
+# Geant4 chem6 macro — G(species) at 5 primary energies (1/3/5/10/20 keV)
+# matched to E10's WGSL IRT timeline. Each /run/beamOn writes a fresh
+# Gvalue<runID>.root (runID = 0..4). E10d parses all five and compares to
+# the WGSL IRT G-values per energy to test whether the V-shape surfaced
+# in E10 (G(eaq) drop at 1→3 keV) is also visible in chem6 — confirming
+# real LET physics vs an IRT-side artifact.
+
+/run/numberOfThreads 1
+/chem/phys/registerPhysics G4EmDNAPhysics_option2
+/process/dna/e-SolvationSubType Meesungnoen2002
+/process/chem/TimeStepModel IRT
+/run/initialize
+
+/scheduler/verbose 0
+/tracking/verbose 0
+
+/scorer/species/addTimeToRecord 0.1 ps
+/scorer/species/addTimeToRecord 1 ps
+/scorer/species/addTimeToRecord 10 ps
+/scorer/species/addTimeToRecord 100 ps
+/scorer/species/addTimeToRecord 1 ns
+/scorer/species/addTimeToRecord 10 ns
+/scorer/species/addTimeToRecord 100 ns
+/scorer/species/addTimeToRecord 1 microsecond
+
+/scheduler/endTime 1 microsecond
+/scorer/species/fileName Gvalue
+
+/gun/particle e-
+/gun/position 0 0 0
+/gun/direction 0 0 1
+
+# 1 keV
+/primaryKiller/eLossMin 1 keV
+/primaryKiller/eLossMax 1.001 keV
+/gun/energy 1 keV
+/run/beamOn 100
+
+# 3 keV
+/primaryKiller/eLossMin 3 keV
+/primaryKiller/eLossMax 3.001 keV
+/gun/energy 3 keV
+/run/beamOn 100
+
+# 5 keV
+/primaryKiller/eLossMin 5 keV
+/primaryKiller/eLossMax 5.001 keV
+/gun/energy 5 keV
+/run/beamOn 100
+
+# 10 keV
+/primaryKiller/eLossMin 10 keV
+/primaryKiller/eLossMax 10.001 keV
+/gun/energy 10 keV
+/run/beamOn 100
+
+# 20 keV
+/primaryKiller/eLossMin 20 keV
+/primaryKiller/eLossMax 20.001 keV
+/gun/energy 20 keV
+/run/beamOn 50

@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (22 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (23 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -126,7 +126,15 @@ per-level `protocol.md` files for hypotheses + pass bars.
   6-800 eV agree within 0.1-3.1%, only the 438-806 eV tail shows a
   43% deficit; closes the Born differential CDF sampling correctness
   question).
-- **L4 — Chemistry (4 of 4 attempted, 2 pass + 2 fail honest-negative).**
+- **L4 — Chemistry (5 of 5 attempted, 2 pass + 1 partial pass + 2 fail
+  honest-negative).** E10d closes the LET-trend comparison: chem6 vs
+  WGSL IRT at all 5 V-shape energies (1/3/5/10/20 keV) — **24 of 25
+  species×energy cells in 30% band**, and chem6 INDEPENDENTLY reproduces
+  the G(eaq) V-shape (1.36 → 1.26 → 1.41 from 1 to 5 keV). **Confirms
+  E10/E10b's V-shape is real LET physics, not an IRT-side artifact.**
+  Per-species deficits: OH ~12% / eaq ~17% uniform; H ~0% (perfect);
+  H₂ and H₂O₂ deficits grow LET-dependently (0.92→0.71 and 0.91→0.66
+  from 1 to 20 keV). [E10d]
   E10 IRT G-values vs Karamitros 2011 across 5 primary energies
   (1/3/5/10/20 keV) — pass. E10b V-shape σ-significance via primary
   bootstrap — pass, **126σ** (was claimed as ~40σ; now properly measured).

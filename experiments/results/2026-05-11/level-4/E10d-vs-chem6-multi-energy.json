@@ -1,0 +1,353 @@
+{
+  "meta": {
+    "protocol": "E10d-vs-chem6-multi-energy",
+    "hypothesis": "WGSL IRT G(species, 1 μs) agrees with Geant4 11.4.1 chem6 within 30% at every species × every energy ∈ {1, 3, 5, 10, 20} keV, AND chem6 reproduces the WGSL G(e⁻aq) V-shape direction at 1→3 keV (G drops from 1 keV to 3 keV, recovers at 5 keV). Confirms the V-shape is real LET physics rather than an IRT-side artifact.",
+    "passBar": "Per species × per energy: |G_wgsl - G_chem6| / G_chem6 < 0.30. AND chem6 G(eaq) drops from 1 keV to 3 keV (V-shape sign).",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "chem6Bin": "~/Downloads/chem6-build/chem6",
+      "macro": "validation/chem6_multi_energy.mac",
+      "wgslReference": "experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json"
+    },
+    "config": {
+      "energies": [
+        1000,
+        3000,
+        5000,
+        10000,
+        20000
+      ],
+      "nPrimariesPerEnergy": "100 (50 at 20 keV)"
+    }
+  },
+  "env": {
+    "gitSha": "d42efb044e51b050451b1370707bad0753f8bc18",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T10:53:20.134Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "1/25 species×energy cells outside 30% band",
+  "summary": {
+    "energies": [
+      1000,
+      3000,
+      5000,
+      10000,
+      20000
+    ],
+    "nPassed": 24,
+    "nFailed": 1,
+    "chem6_walltime_sec": 61.964,
+    "vshape_chem6_reproduces": true,
+    "chem6_eaq": {
+      "1keV": 1.3649999999999969,
+      "3keV": 1.264999999999996,
+      "5keV": 1.4061999999999728
+    },
+    "headline": "24/25 species×energy cells in 30% band. chem6 V-shape: REPRODUCED (eaq 1keV 1.36 → 3keV 1.26 → 5keV 1.41)"
+  },
+  "rows": [
+    {
+      "metric": "species_OH_at_E1000",
+      "eEv": 1000,
+      "species": "OH",
+      "gWgsl": 0.967431640625,
+      "gChem6": 1.1029999999999975,
+      "seChem6": 0.03063156752915076,
+      "ratio": 0.8770912426337282,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E1000",
+      "eEv": 1000,
+      "species": "eaq",
+      "gWgsl": 1.166259765625,
+      "gChem6": 1.3649999999999969,
+      "seChem6": 0.030230595245361844,
+      "ratio": 0.8544027586996357,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E1000",
+      "eEv": 1000,
+      "species": "H",
+      "gWgsl": 0.7173828125,
+      "gChem6": 0.7319999999999979,
+      "seChem6": 0.026472016862484807,
+      "ratio": 0.9800311646174892,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E1000",
+      "eEv": 1000,
+      "species": "H2",
+      "gWgsl": 0.6609130859375,
+      "gChem6": 0.7179999999999983,
+      "seChem6": 0.024010940267412555,
+      "ratio": 0.9204917631441526,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E1000",
+      "eEv": 1000,
+      "species": "H2O2",
+      "gWgsl": 0.941943359375,
+      "gChem6": 1.0329999999999977,
+      "seChem6": 0.026857461390146897,
+      "ratio": 0.9118522356001956,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_OH_at_E3000",
+      "eEv": 3000,
+      "species": "OH",
+      "gWgsl": 1.0989095052083333,
+      "gChem6": 1.2376666666666638,
+      "seChem6": 0.027826845551253282,
+      "ratio": 0.8878881000875323,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E3000",
+      "eEv": 3000,
+      "species": "eaq",
+      "gWgsl": 1.0267578125,
+      "gChem6": 1.264999999999996,
+      "seChem6": 0.023202495124931406,
+      "ratio": 0.8116662549407142,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E3000",
+      "eEv": 3000,
+      "species": "H",
+      "gWgsl": 0.69736328125,
+      "gChem6": 0.6916666666666649,
+      "seChem6": 0.015200677815827937,
+      "ratio": 1.008236069277111,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E3000",
+      "eEv": 3000,
+      "species": "H2",
+      "gWgsl": 0.6251546223958333,
+      "gChem6": 0.7236666666666643,
+      "seChem6": 0.014239375703537243,
+      "ratio": 0.8638709660006937,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E3000",
+      "eEv": 3000,
+      "species": "H2O2",
+      "gWgsl": 0.7791178385416667,
+      "gChem6": 0.9386666666666639,
+      "seChem6": 0.015032475133589133,
+      "ratio": 0.8300261064009258,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_OH_at_E5000",
+      "eEv": 5000,
+      "species": "OH",
+      "gWgsl": 1.27470703125,
+      "gChem6": 1.4749999999999717,
+      "seChem6": 0.027158160036453338,
+      "ratio": 0.8642081567796775,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E5000",
+      "eEv": 5000,
+      "species": "eaq",
+      "gWgsl": 1.1489306640625,
+      "gChem6": 1.4061999999999728,
+      "seChem6": 0.023307682870848605,
+      "ratio": 0.8170464116502079,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E5000",
+      "eEv": 5000,
+      "species": "H",
+      "gWgsl": 0.705634765625,
+      "gChem6": 0.7165999999999864,
+      "seChem6": 0.01180328665065659,
+      "ratio": 0.9846982495464882,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E5000",
+      "eEv": 5000,
+      "species": "H2",
+      "gWgsl": 0.5655078125,
+      "gChem6": 0.7015999999999868,
+      "seChem6": 0.009829578122208714,
+      "ratio": 0.8060259585233904,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E5000",
+      "eEv": 5000,
+      "species": "H2O2",
+      "gWgsl": 0.7010009765625,
+      "gChem6": 0.8905999999999824,
+      "seChem6": 0.010706195695140093,
+      "ratio": 0.7871109101308262,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_OH_at_E10000",
+      "eEv": 10000,
+      "species": "OH",
+      "gWgsl": 1.5546728515625,
+      "gChem6": 1.7675999999999248,
+      "seChem6": 0.01877894802402026,
+      "ratio": 0.8795388388563963,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E10000",
+      "eEv": 10000,
+      "species": "eaq",
+      "gWgsl": 1.408349609375,
+      "gChem6": 1.7264999999999266,
+      "seChem6": 0.018804885997359584,
+      "ratio": 0.8157252298726093,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E10000",
+      "eEv": 10000,
+      "species": "H",
+      "gWgsl": 0.7060498046875,
+      "gChem6": 0.7142999999999694,
+      "seChem6": 0.008418660129963397,
+      "ratio": 0.988449957563391,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E10000",
+      "eEv": 10000,
+      "species": "H2",
+      "gWgsl": 0.4676513671875,
+      "gChem6": 0.614399999999974,
+      "seChem6": 0.008052002699623206,
+      "ratio": 0.7611513137817705,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E10000",
+      "eEv": 10000,
+      "species": "H2O2",
+      "gWgsl": 0.60281005859375,
+      "gChem6": 0.8354999999999643,
+      "seChem6": 0.007430995691675359,
+      "ratio": 0.7214961802438968,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_OH_at_E20000",
+      "eEv": 20000,
+      "species": "OH",
+      "gWgsl": 1.802376708984375,
+      "gChem6": 2.0123999999999076,
+      "seChem6": 0.03383581003635371,
+      "ratio": 0.8956354149197265,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E20000",
+      "eEv": 20000,
+      "species": "eaq",
+      "gWgsl": 1.658514404296875,
+      "gChem6": 1.985999999999909,
+      "seChem6": 0.02809204985945306,
+      "ratio": 0.8351029226067226,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E20000",
+      "eEv": 20000,
+      "species": "H",
+      "gWgsl": 0.6890673828125,
+      "gChem6": 0.7123999999999675,
+      "seChem6": 0.008660536817032546,
+      "ratio": 0.9672478703151761,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E20000",
+      "eEv": 20000,
+      "species": "H2",
+      "gWgsl": 0.386807861328125,
+      "gChem6": 0.5469999999999751,
+      "seChem6": 0.009753073822112985,
+      "ratio": 0.7071441706181767,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E20000",
+      "eEv": 20000,
+      "species": "H2O2",
+      "gWgsl": 0.52052734375,
+      "gChem6": 0.7927999999999641,
+      "seChem6": 0.01023116487472788,
+      "ratio": 0.6565682943365585,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "fail"
+    },
+    {
+      "metric": "chem6_vshape_check",
+      "chem6_eaq_1keV": 1.3649999999999969,
+      "chem6_eaq_3keV": 1.264999999999996,
+      "chem6_eaq_5keV": 1.4061999999999728,
+      "drop_1_to_3": 0.10000000000000098,
+      "vshape_dropAt1to3": true,
+      "vshape_recoveryAt3to5": true,
+      "passBar": "chem6 G(eaq) drops 1→3 keV AND recovers 3→5 keV",
+      "status": "pass",
+      "note": "If chem6 reproduces the V-shape, it confirms the WGSL finding (E10/E10b) is real LET physics, not an IRT-side artifact."
+    },
+    {
+      "metric": "chem6_run_metadata",
+      "walltimeSec": 61.964,
+      "nEnergies": 5,
+      "status": "informational"
+    }
+  ]
+}
