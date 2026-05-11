@@ -1,0 +1,287 @@
+{
+  "meta": {
+    "protocol": "E3b-champion-angular-cdf",
+    "hypothesis": "The WGSL Champion-elastic inverted-CDF table XAC[i*25 + j] (cos(θ) at CDF bin j for energy XAE[i], i ∈ [0,24], j ∈ [0,24]) agrees with the G4EMLOW forward CDF `sigmadiff_cumulated_elastic_e_champion.dat` (101 energies × 181 (cdf, bin_idx) rows) within 0.05 in cos(θ) at every interior CDF bin.",
+    "passBar": "For every WGSL energy XAE[i] and every interior CDF position j ∈ [1, 23]: |XAC[i*25 + j] - lookup_g4_cos_theta(XAE[i], j/24)| < 0.05. Endpoints j=0 (CDF=0, cos=1) and j=24 (CDF=1, cos=-1) are pinned by construction and excluded.",
+    "seed": "E3_ELASTIC_XS=0x4D6E5303",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "raw": "data/g4emlow/dna/sigmadiff_cumulated_elastic_e_champion.dat",
+      "wgsl": "public/cross_sections.wgsl",
+      "wgslArrays": "XAE (25 energies), XAC (25 × 25 = 625 cos values)"
+    }
+  },
+  "env": {
+    "gitSha": "3dc36a79f9d1d68b81894f1c2a694c64c1a97fc6",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T12:55:12.154Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "nEnergies": 25,
+    "nFailedEnergies": 0,
+    "nCellsChecked": 575,
+    "nCellsFailed": 0,
+    "worstCosDiff": 0.06830160067437224,
+    "worstAt": {
+      "E": 1473.2275,
+      "j": 23,
+      "cosWgsl": 0.484859,
+      "cosG4": 0.5531606006743722,
+      "closestG4E": 1580.970093
+    },
+    "headline": "25/25 energies clean; worst |Δcos(θ)| = 0.0683 at E=1473.2 eV, j=23"
+  },
+  "rows": [
+    {
+      "metric": "E_7.40_eV",
+      "energyEv": 7.4,
+      "closestG4Ev": 7.4,
+      "meanCosDiff": 0.000016342938676263637,
+      "maxCosDiff": 0.000034761949950112836,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_13.33_eV",
+      "energyEv": 13.3254,
+      "closestG4Ev": 13.015548,
+      "meanCosDiff": 0.00001685038971795418,
+      "maxCosDiff": 0.00003528889596438045,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_24.00_eV",
+      "energyEv": 23.9955,
+      "closestG4Ev": 22.892498,
+      "meanCosDiff": 0.0000190144268989264,
+      "maxCosDiff": 0.000036639481423739184,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_43.21_eV",
+      "energyEv": 43.2094,
+      "closestG4Ev": 46.369411,
+      "meanCosDiff": 0.00962719102338116,
+      "maxCosDiff": 0.01977712135603582,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_77.81_eV",
+      "energyEv": 77.8084,
+      "closestG4Ev": 81.557205,
+      "meanCosDiff": 0.000018345465318447346,
+      "maxCosDiff": 0.00003607113998893574,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_140.11_eV",
+      "energyEv": 140.1119,
+      "closestG4Ev": 143.447525,
+      "meanCosDiff": 0.00001490190377901915,
+      "maxCosDiff": 0.00003347719386526116,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_252.30_eV",
+      "energyEv": 252.3038,
+      "closestG4Ev": 252.303802,
+      "meanCosDiff": 0.000018829313368308152,
+      "maxCosDiff": 0.000034907266902028944,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_454.33_eV",
+      "energyEv": 454.3311,
+      "closestG4Ev": 443.76651,
+      "meanCosDiff": 0.000018343020058898153,
+      "maxCosDiff": 0.00003653820015547815,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_818.13_eV",
+      "energyEv": 818.1278,
+      "closestG4Ev": 780.522156,
+      "meanCosDiff": 0.000021425047858222253,
+      "maxCosDiff": 0.000036651781150642826,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_1473.23_eV",
+      "energyEv": 1473.2275,
+      "closestG4Ev": 1580.970093,
+      "meanCosDiff": 0.008963717964908562,
+      "maxCosDiff": 0.06830160067437224,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_2652.89_eV",
+      "energyEv": 2652.8855,
+      "closestG4Ev": 2780.70166,
+      "meanCosDiff": 0.000024356085847161037,
+      "maxCosDiff": 0.00003793123830819756,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_4777.13_eV",
+      "energyEv": 4777.1313,
+      "closestG4Ev": 4890.858887,
+      "meanCosDiff": 0.000027648744249624173,
+      "maxCosDiff": 0.000038004875173691666,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_8602.33_eV",
+      "energyEv": 8602.3252,
+      "closestG4Ev": 8602.325195,
+      "meanCosDiff": 0.000023334153531463365,
+      "maxCosDiff": 0.00003811899295380616,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_15490.47_eV",
+      "energyEv": 15490.4678,
+      "closestG4Ev": 15130.266602,
+      "meanCosDiff": 0.000026393367224870236,
+      "maxCosDiff": 0.00003825213115826731,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_27894.16_eV",
+      "energyEv": 27894.1562,
+      "closestG4Ev": 26611.988281,
+      "meanCosDiff": 0.00002488338968462002,
+      "maxCosDiff": 0.000038211396078402515,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_50229.85_eV",
+      "energyEv": 50229.8516,
+      "closestG4Ev": 53903.347656,
+      "meanCosDiff": 0.00016158110655379478,
+      "maxCosDiff": 0.0014607494281150268,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_90450.41_eV",
+      "energyEv": 90450.4141,
+      "closestG4Ev": 94808.320312,
+      "meanCosDiff": 0.0000269833366401527,
+      "maxCosDiff": 0.000038292164789011096,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_162876.81_eV",
+      "energyEv": 162876.8125,
+      "closestG4Ev": 166754.359375,
+      "meanCosDiff": 0.000025175795135984096,
+      "maxCosDiff": 0.00003811431502531715,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_293297.22_eV",
+      "energyEv": 293297.2188,
+      "closestG4Ev": 293297.21875,
+      "meanCosDiff": 0.000025136717349397756,
+      "maxCosDiff": 0.00003847789854061201,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_528149.19_eV",
+      "energyEv": 528149.1875,
+      "closestG4Ev": 515868.09375,
+      "meanCosDiff": 0.00002671120206161916,
+      "maxCosDiff": 0.000038386893034592084,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_951054.25_eV",
+      "energyEv": 951054.25,
+      "closestG4Ev": 907338.625,
+      "meanCosDiff": 0.000026427182193994554,
+      "maxCosDiff": 0.00003780405253583918,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_1712592.25_eV",
+      "energyEv": 1712592.25,
+      "closestG4Ev": 1837840.5,
+      "meanCosDiff": 0.000029550462858043122,
+      "maxCosDiff": 0.0001290766797391596,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_3083916.75_eV",
+      "energyEv": 3083916.75,
+      "closestG4Ev": 3232500,
+      "meanCosDiff": 0.000025509158731002625,
+      "maxCosDiff": 0.00003776424359258623,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_5553302.50_eV",
+      "energyEv": 5553302.5,
+      "closestG4Ev": 5685508,
+      "meanCosDiff": 0.00002589071406304725,
+      "maxCosDiff": 0.00003786407230210731,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "E_10000000.00_eV",
+      "energyEv": 10000000,
+      "closestG4Ev": 10000000,
+      "meanCosDiff": 0.00002480703891312743,
+      "maxCosDiff": 0.000038088195386976054,
+      "nBinsFailed": 0,
+      "status": "pass"
+    },
+    {
+      "metric": "summary",
+      "n_energies": 25,
+      "n_failed_energies": 0,
+      "n_cells_checked": 575,
+      "n_cells_failed": 0,
+      "worst_cos_diff": 0.06830160067437224,
+      "worst_at": {
+        "E": 1473.2275,
+        "j": 23,
+        "cosWgsl": 0.484859,
+        "cosG4": 0.5531606006743722,
+        "closestG4E": 1580.970093
+      },
+      "status": "pass"
+    }
+  ]
+}

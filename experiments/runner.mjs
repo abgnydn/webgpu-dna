@@ -12,6 +12,7 @@ import { runE1c } from './level-1-cross-sections/E1c-shell-fraction-closure.mjs'
 import { runE2 } from './level-1-cross-sections/E2-exc-xs-match.mjs';
 import { runE2b } from './level-1-cross-sections/E2b-per-level-exc-xs.mjs';
 import { runE3 } from './level-1-cross-sections/E3-elastic-xs-match.mjs';
+import { runE3b } from './level-1-cross-sections/E3b-champion-angular-cdf.mjs';
 import { runE4 } from './level-1-cross-sections/E4-vib-xs-match.mjs';
 import { runE4b } from './level-1-cross-sections/E4b-vib-mode-fractions.mjs';
 import { runE5 } from './level-2-track-structure/E5-csda-vs-g4-ntuple.mjs';
@@ -46,6 +47,7 @@ const REGISTRY = {
   E2:  { run: runE2,  level: 'level-1', id: 'E2-exc-xs-match' },
   E2b: { run: runE2b, level: 'level-1', id: 'E2b-per-level-exc-xs' },
   E3:  { run: runE3,  level: 'level-1', id: 'E3-elastic-xs-match' },
+  E3b: { run: runE3b, level: 'level-1', id: 'E3b-champion-angular-cdf' },
   E4:  { run: runE4,  level: 'level-1', id: 'E4-vib-xs-match' },
   E4b: { run: runE4b, level: 'level-1', id: 'E4b-vib-mode-fractions' },
 

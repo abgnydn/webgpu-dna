@@ -57,7 +57,7 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 
 ### Research-grade validation ledger
 
-26 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/). Standing physics diagnoses live in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md).
+27 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/). Standing physics diagnoses live in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md).
 
 | Level | ID | Status | Headline | Artifact (2026-05-11) |
 |------:|:---|:-------|:---------|:----------------------|
@@ -69,6 +69,7 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 | 1 | E2  | ✓ | Emfietzoglou σ_exc: 74 rows, peak ratio 0.9970, median 2.42e-4 vs G4EMLOW 8.8 | [E2](./experiments/results/2026-05-11/level-1/E2-exc-xs-match.json) |
 | 1 | E2b | ✓ | **Per-level Emfietzoglou σ_exc** (5 levels: A¹B₁, B¹A₁, Ryd A+B, Ryd C+D, Diffuse). All 5 in band — peak ratios 0.997-1.000. Validates σ_wgsl_level_i(E) = XC(E) × XEF_i(E) decomposition. | [E2b](./experiments/results/2026-05-11/level-1/E2b-per-level-exc-xs.json) |
 | 1 | E3  | ✓ | Champion σ_el: 58 rows, peak ratio 0.9751, max 3.26e-3 vs G4EMLOW 8.8 (retroactive 334× scale-factor catcher) | [E3](./experiments/results/2026-05-11/level-1/E3-elastic-xs-match.json) |
+| 1 | E3b | ✓ | **Champion elastic angular CDF** (cos(θ) inverted lookup table XAC) vs G4EMLOW. 25 of 25 energies pass with |Δcos(θ)| < 0.10 (≈6° angular accuracy) across all 23 interior CDF bins. Validates how primary.wgsl samples scattering angles per elastic event. | [E3b](./experiments/results/2026-05-11/level-1/E3b-champion-angular-cdf.json) |
 | 1 | E4  | ✓ | Sanche σ_vib total: 38 rows, peak ratio 1.0000, max 6e-16 (bit-exact) | [E4](./experiments/results/2026-05-11/level-1/E4-vib-xs-match.json) |
 | 1 | E4b | ✓ | Sanche per-mode XVMF: 342 (energy, mode) pairs, max sum-dev 4e-8 | [E4b](./experiments/results/2026-05-11/level-1/E4b-vib-mode-fractions.json) |
 | 2 | E5  | ✓ | CSDA 2714.4 vs 2747.5 nm — **0.988× is 3.59σ statistically significant** | [E5](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |

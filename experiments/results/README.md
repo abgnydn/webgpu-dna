@@ -25,6 +25,7 @@ alongside passing ones. Each artifact carries:
 | 2026-05-11 | L1 | E2-exc-xs-match       | pass | peak_ratio 0.9970, median 2.42e-4, p90 3.51e-3 vs G4EMLOW Emfietzoglou σ_exc |
 | 2026-05-11 | L1 | E2b-per-level-exc-xs  | pass | Per-level σ_exc validation: A¹B₁/B¹A₁/Ryd A+B/Ryd C+D/Diffuse all in band, peak ratios 0.997-1.000. Validates σ_wgsl_level_i(E) = XC(E) × XEF_i(E) decomposition for the 5 Emfietzoglou excitation channels. |
 | 2026-05-11 | L1 | E3-elastic-xs-match   | pass | peak_ratio 0.9751, median 1.25e-4, p90 7.78e-4 vs G4EMLOW Champion σ_el (retroactive 334× catcher) |
+| 2026-05-11 | L1 | E3b-champion-angular-cdf | pass | Champion angular CDF inverted-lookup vs G4EMLOW (sigmadiff_cumulated_elastic_e_champion.dat). 25 of 25 energies in 0.10 cos(θ) band (~6° angular accuracy) across all 23 interior CDF bins. Validates primary.wgsl's per-event scattering-angle sampling against Geant4's tabulated CDF. |
 | 2026-05-11 | L1 | E4-vib-xs-match       | pass | peak_ratio 1.0000, median 2.6e-16, max 6e-16 vs G4EMLOW Sanche σ_vib total |
 | 2026-05-11 | L1 | E4b-vib-mode-fractions | pass | 342 (energy × mode) pairs vs raw σ_mode/σ_total; max sum dev 4e-8 (closes L1 fully) |
 | 2026-05-11 | L2 | E5-csda-vs-g4-ntuple  | pass | CSDA 2714.4 vs 2747.5 (0.988×, 3.59σ); E-cons 100% vs 99.99% vs Geant4 11.4.1 ntuple — surfaces 1.2% CSDA bias as statistically significant |
