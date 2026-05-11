@@ -22,6 +22,7 @@ alongside passing ones. Each artifact carries:
 | 2026-05-11 | L1 | E1-ion-xs-match       | pass | peak_ratio 0.9987, median 8.46e-4, p90 1.78e-2 vs G4EMLOW Born σ_ion |
 | 2026-05-11 | L1 | E1b-per-shell-ion-xs  | pass | Per-shell σ_ion validation: 1b₁/3a₁/1b₂/2a₁/1a₁ all in band, peak ratios 0.997-1.000. Validates σ_wgsl_shell_i(E) = XI(E) × XSF_i(E) decomposition. |
 | 2026-05-11 | L1 | E2-exc-xs-match       | pass | peak_ratio 0.9970, median 2.42e-4, p90 3.51e-3 vs G4EMLOW Emfietzoglou σ_exc |
+| 2026-05-11 | L1 | E2b-per-level-exc-xs  | pass | Per-level σ_exc validation: A¹B₁/B¹A₁/Ryd A+B/Ryd C+D/Diffuse all in band, peak ratios 0.997-1.000. Validates σ_wgsl_level_i(E) = XC(E) × XEF_i(E) decomposition for the 5 Emfietzoglou excitation channels. |
 | 2026-05-11 | L1 | E3-elastic-xs-match   | pass | peak_ratio 0.9751, median 1.25e-4, p90 7.78e-4 vs G4EMLOW Champion σ_el (retroactive 334× catcher) |
 | 2026-05-11 | L1 | E4-vib-xs-match       | pass | peak_ratio 1.0000, median 2.6e-16, max 6e-16 vs G4EMLOW Sanche σ_vib total |
 | 2026-05-11 | L1 | E4b-vib-mode-fractions | pass | 342 (energy × mode) pairs vs raw σ_mode/σ_total; max sum dev 4e-8 (closes L1 fully) |

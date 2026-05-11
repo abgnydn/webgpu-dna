@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (24 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (25 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -110,12 +110,13 @@ per-level `protocol.md` files for hypotheses + pass bars.
   (apple/metal-3, headless Chromium, maxBuffer 4 GB). B1 webgpu-dna
   harness liveness via Playwright + headless Chromium WebGPU (E=100 eV
   first row, CSDA=15.7 nm in 2.9 s on the 2026-05-11 run). [B0, B1]
-- **L1 — Cross sections (6 of 6 passing).** E1 Born σ_ion total, E1b
+- **L1 — Cross sections (7 of 7 passing).** E1 Born σ_ion total, E1b
   per-shell σ_ion (5 shells: 1b₁/3a₁/1b₂/2a₁/1a₁, all in band), E2
-  Emfietzoglou excitation, E3 Champion elastic (retroactive 334×
-  scale-factor catcher per memory/cross_section_fix.md), E4 Sanche
-  vibrational total, E4b Sanche per-mode XVMF fractions. All six WGSL
-  cross-section tables bit-match their G4EMLOW source data.
+  Emfietzoglou σ_exc total, E2b per-level σ_exc (5 levels: A¹B₁/B¹A₁/
+  Ryd A+B/Ryd C+D/Diffuse, all in band), E3 Champion elastic
+  (retroactive 334× scale-factor catcher per memory/cross_section_fix.md),
+  E4 Sanche vibrational total, E4b Sanche per-mode XVMF fractions.
+  All seven WGSL cross-section tables bit-match their G4EMLOW source data.
 - **L2 — Track structure (5 of 5 attempted, 3 pass / 1 honest-negative
   / 1 partial pass).** E5 CSDA + E-cons @ 10 keV vs Geant4 11.4.1
   ntuple (pass). E6 MFP across 6 energy bins (-5.0% to -10.7% deviation,
