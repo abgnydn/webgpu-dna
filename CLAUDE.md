@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (17 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (18 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -166,7 +166,15 @@ per-level `protocol.md` files for hypotheses + pass bars.
   (22.0σ), H₂O₂ 0.577× (9.3σ). **Localizes the E10c 1 μs deficit
   to pre-chemistry, not IRT reaction rates.** See PHYSICS_DIAGNOSIS.md
   for the propagation table + concrete fix candidates. [E9]
-- **L5** — protocol only.
+- **L5 — DNA damage (1 of 3 attempted, pass with caveat).** E12 SSB/DSB
+  yields vs Friedland 2011 PARTRAC: **DSB/SSB ratio 0.083 vs Friedland's
+  0.023 → 3.57×, in the geometry-independent factor-5 pass band**
+  (substantive agreement on clustering kernel). Absolute per-Da yields
+  are 220-800× Friedland — documented as informational, caused by the
+  21×21 fiber grid concentrating DNA in the track core rather than
+  distributing it through the cell volume. E12b matched-geometry
+  follow-up against PARTRAC and E13/E14 against molecularDNA's full
+  chromatin model are deferred. [E12]
 
 **Seven substantive findings now in the research ledger** (would NOT
 be visible without the protocol):

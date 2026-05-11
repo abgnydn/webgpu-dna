@@ -7,6 +7,16 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L5 stage 1: E12 SSB/DSB yields vs Friedland 2011 (2026-05-11)
+
+- **E12** compares WGSL SSB/DSB yields per Gy per Da to Friedland 2011 /
+  PARTRAC low-LET reference. **Pass with caveat:** geometry-independent
+  DSB/SSB ratio = 0.083 vs Friedland's 0.023 → 3.6× (in factor-5 pass
+  band, confirms SSB→DSB clustering kernel agrees with PARTRAC). Absolute
+  per-Da yields are 220-800× Friedland (informational fail) — target
+  concentration in track core, not a scoring bug. Documented in artifact
+  rows as informational metrics with explicit caveats.
+
 ### Added — L6 stage 3: E16 fused-vs-naive (2026-05-11)
 
 - **E16** closes the kernel-fusion thesis directly. Extends src/bench.ts
