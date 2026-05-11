@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "protocol": "E1b-per-shell-ion-xs",
+    "hypothesis": "For each of the 5 ionization shells (1b₁, 3a₁, 1b₂, 2a₁, 1a₁), σ_wgsl_shell_i(E) = XI(E) × XSFi(E) matches the i-th column of sigma_ionisation_e_born.dat × 2.993e-5 nm² with peak ratio in [0.95, 1.05], median rel_err < 5e-3, p90 rel_err < 0.15, and max rel_err < 0.4 (looser than E1 total because the per-shell CDF is a derived quantity).",
+    "passBar": "Per shell: peak ratio ∈ [0.95, 1.05] AND median rel_err < 5e-3 AND p90 rel_err < 0.15 AND max rel_err < 0.4.",
+    "seed": "E1_ION_XS=0x4D6E5301",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "raw": "data/g4emlow/dna/sigma_ionisation_e_born.dat",
+      "wgsl": "public/cross_sections.wgsl",
+      "wgslArrays": "XE, XI, XSF0..XSF4",
+      "scaleFactor": 0.00002993
+    }
+  },
+  "env": {
+    "gitSha": "2420632a1f389f0cd9ba02a2e4e09e7e641310cc",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T10:59:33.361Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "nShells": 5,
+    "nPassed": 5,
+    "nFailed": 0,
+    "headline": "1b1:✓(peak 1.000)  3a1:✓(peak 0.997)  1b2:✓(peak 1.000)  2a1:✓(peak 1.000)  1a1:✓(peak 0.998)"
+  },
+  "rows": [
+    {
+      "metric": "shell_1b1",
+      "shellIdx": 0,
+      "bindingEv": 10.79,
+      "peakRatio": 0.999618928852625,
+      "medianRelErr": 0.0007271519117688181,
+      "p90RelErr": 0.019482521907526137,
+      "maxRelErrMeaningful": 0.07257740259875363,
+      "nMeaningful": 55,
+      "peakOk": true,
+      "medianOk": true,
+      "p90Ok": true,
+      "maxOk": true,
+      "status": "pass"
+    },
+    {
+      "metric": "shell_3a1",
+      "shellIdx": 1,
+      "bindingEv": 13.39,
+      "peakRatio": 0.9974427988069909,
+      "medianRelErr": 0.0008321703184162234,
+      "p90RelErr": 0.02272825926455454,
+      "maxRelErrMeaningful": 0.1256995635144369,
+      "nMeaningful": 52,
+      "peakOk": true,
+      "medianOk": true,
+      "p90Ok": true,
+      "maxOk": true,
+      "status": "pass"
+    },
+    {
+      "metric": "shell_1b2",
+      "shellIdx": 2,
+      "bindingEv": 16.05,
+      "peakRatio": 0.9997406444759849,
+      "medianRelErr": 0.0010190540597612837,
+      "p90RelErr": 0.02687200785256811,
+      "maxRelErrMeaningful": 0.34515989778679274,
+      "nMeaningful": 48,
+      "peakOk": true,
+      "medianOk": true,
+      "p90Ok": true,
+      "maxOk": true,
+      "status": "pass"
+    },
+    {
+      "metric": "shell_2a1",
+      "shellIdx": 3,
+      "bindingEv": 32.3,
+      "peakRatio": 0.9997340771564084,
+      "medianRelErr": 0.00046323562320885366,
+      "p90RelErr": 0.010756704390321982,
+      "maxRelErrMeaningful": 0.1365971063670828,
+      "nMeaningful": 37,
+      "peakOk": true,
+      "medianOk": true,
+      "p90Ok": true,
+      "maxOk": true,
+      "status": "pass"
+    },
+    {
+      "metric": "shell_1a1",
+      "shellIdx": 4,
+      "bindingEv": 539,
+      "peakRatio": 0.9975216944688454,
+      "medianRelErr": 0.0017440751720403012,
+      "p90RelErr": 0.02680551935217346,
+      "maxRelErrMeaningful": 0.05814348653503557,
+      "nMeaningful": 15,
+      "peakOk": true,
+      "medianOk": true,
+      "p90Ok": true,
+      "maxOk": true,
+      "status": "pass"
+    }
+  ]
+}

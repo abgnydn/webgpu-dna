@@ -57,13 +57,14 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 
 ### Research-grade validation ledger
 
-23 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/). Standing physics diagnoses live in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md).
+24 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/). Standing physics diagnoses live in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md).
 
 | Level | ID | Status | Headline | Artifact (2026-05-11) |
 |------:|:---|:-------|:---------|:----------------------|
 | 0 | B0  | ✓ | Browser env capture: apple/metal-3, headless Chromium, maxBuffer 4 GB | [B0](./experiments/results/2026-05-11/level-0/B0-browser-env.json) |
 | 0 | B1  | ✓ | Harness liveness: vite + Playwright + WebGPU, first row (E=100 eV, CSDA=15.7 nm) in 2.9s | [B1](./experiments/results/2026-05-11/level-0/B1-harness-liveness.json) |
 | 1 | E1  | ✓ | Born σ_ion: 58 rows, peak ratio 0.9987, median 8.46e-4 vs G4EMLOW 8.8 | [E1](./experiments/results/2026-05-11/level-1/E1-ion-xs-match.json) |
+| 1 | E1b | ✓ | **Per-shell Born σ_ion** vs G4EMLOW (5 shells: 1b₁, 3a₁, 1b₂, 2a₁, 1a₁). All 5 shells in pass band — peak ratios 0.997-1.000. Validates σ_wgsl_shell_i(E) = XI(E) × XSF_i(E) decomposition against the per-column G4EMLOW data. | [E1b](./experiments/results/2026-05-11/level-1/E1b-per-shell-ion-xs.json) |
 | 1 | E2  | ✓ | Emfietzoglou σ_exc: 74 rows, peak ratio 0.9970, median 2.42e-4 vs G4EMLOW 8.8 | [E2](./experiments/results/2026-05-11/level-1/E2-exc-xs-match.json) |
 | 1 | E3  | ✓ | Champion σ_el: 58 rows, peak ratio 0.9751, max 3.26e-3 vs G4EMLOW 8.8 (retroactive 334× scale-factor catcher) | [E3](./experiments/results/2026-05-11/level-1/E3-elastic-xs-match.json) |
 | 1 | E4  | ✓ | Sanche σ_vib total: 38 rows, peak ratio 1.0000, max 6e-16 (bit-exact) | [E4](./experiments/results/2026-05-11/level-1/E4-vib-xs-match.json) |

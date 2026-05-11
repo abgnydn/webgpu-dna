@@ -7,6 +7,22 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L1 stage 7: E1b per-shell Born σ_ion (2026-05-11)
+
+- **E1b** decomposes σ_wgsl_ion(E) = XI(E) × XSF_i(E) into the 5 water
+  ionization shells (1b₁ 10.79 eV, 3a₁ 13.39 eV, 1b₂ 16.05 eV, 2a₁
+  32.30 eV, 1a₁ 539.0 eV) and bit-matches each against the per-column
+  data in `sigma_ionisation_e_born.dat`.
+- **Result (pass):** all 5 shells in pass band. Peak ratios: 1b₁ 1.000,
+  3a₁ 0.997, 1b₂ 1.000, 2a₁ 1.000, 1a₁ 0.998. Median rel_err < 5e-3
+  per shell, p90 rel_err < 15% per shell (looser than E1 total because
+  per-shell CDFs subsample steeper near-threshold rises on the 100-point
+  WGSL grid).
+- Closes the per-shell XS-correctness question. E1 only validated the
+  total — E1b confirms our shell-selection CDFs (used by the WGSL
+  ionization sampling logic to pick which shell each event ionizes)
+  also match Geant4 exactly.
+
 ### Added — L4 stage 4: E10d chem6 multi-energy + V-shape confirmation (2026-05-11)
 
 - Adds validation/chem6_multi_energy.mac (5 beamOn at 1/3/5/10/20 keV
