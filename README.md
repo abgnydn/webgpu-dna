@@ -56,7 +56,7 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 
 ### Research-grade validation ledger
 
-16 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/). Standing physics diagnoses live in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md).
+17 falsifiable experiments shipped as committed JSON artifacts under [`experiments/results/`](./experiments/results/). See [RESEARCH.md](./RESEARCH.md) for the protocol; per-experiment specs under [`experiments/level-N-*/protocol.md`](./experiments/). Standing physics diagnoses live in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md).
 
 | Level | ID | Status | Headline | Artifact (2026-05-11) |
 |------:|:---|:-------|:---------|:----------------------|
@@ -77,6 +77,7 @@ All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW
 | 4 | E10c | ✗ fail (honest negative) | **G(species) at MATCHED 10 keV LET vs Geant4 11.4.1 chem6** (closes the "is the 0.62× vs Karamitros real LET physics or our chemistry bug?" question). Result: G(OH) 0.91× / G(eaq) 0.83× / G(H) 1.00× / **G(H₂) 0.75× / G(H₂O₂) 0.71×**. The 0.6× deficit vs Karamitros was confounding ~30% LET-deficit (real physics) with ~10-29% chemistry deficit (real implementation gap, biggest on H₂ and H₂O₂). | [E10c](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
 | 6 | E15 | ✗ fail (honest negative) | Phase A α/β decomposition via WebGPU timestamp-disciplined N-sweep — **α = 10.5 ms (single-workgroup compute floor, not pure dispatch overhead — original [10, 500] μs hypothesis falsified)**, β = 1.207 μs/primary, R² = 0.908. **Peak throughput 538,947 primaries/sec at N=16384, 10 keV** on apple/metal-3. Diagnosis + revised two-regime pass bar in [level-6-performance/protocol.md](./experiments/level-6-performance/protocol.md). | [E15](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | 6 | E15b | ✓ | Same-machine head-to-head vs Geant4 11.4.1 single-thread (3 trials, M2 Pro) — **455× speedup** on matched-scope physics tracking (Phase A+B 635 ms vs Geant4 median 289.1 s); end-to-end pre-DNA pipeline (Phase A+B+IRT chem) only 1.48× because IRT chemistry on CPU is the bottleneck | [E15b](./experiments/results/2026-05-11/level-6/E15b-vs-geant4-single-thread.json) |
+| 6 | E16 | ✗ fail (honest negative) | **Kernel-fusion thesis closure**: T_fused = 17.75 ms vs modeled T_naive = 414 steps × 1.70 ms/step = 704 ms → **40× speedup**. **L6 protocol's "≥100×" hypothesis falsified at the measured magnitude.** The thesis is still supported in spirit (40× is substantial) and consistent with kernelfusion.dev's 71× Apple Silicon benchmark, but the absolute factor for this physics kernel is roughly half the protocol's claim. | [E16](./experiments/results/2026-05-11/level-6/E16-fused-vs-naive.json) |
 
 Run any experiment via `npm run experiments -- <id>` (e.g. `E1`, `E10`, `B1`, `E15`, `E15b`).
 

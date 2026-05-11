@@ -36,6 +36,14 @@ interface BenchOpts {
   boxNm?: number;
   ceEV?: number;
   seed?: number;
+  /**
+   * Max primary steps per inner loop iteration in primary.wgsl. Default 65536
+   * (full thermalization in one dispatch — the fused production setting).
+   * Set to 1 for E16's "naive per-step" baseline (each dispatch advances every
+   * primary by exactly one step). Intermediate values trace the α/β curve at
+   * partial fusion levels.
+   */
+  ms?: number;
 }
 
 interface BenchPerN {
@@ -53,6 +61,7 @@ interface BenchResult {
   boxNm: number;
   ceEV: number;
   seed: number;
+  ms: number;
   adapter: {
     vendor: string;
     architecture: string;
@@ -78,6 +87,7 @@ function writePrimaryParams(
   boxNm: number,
   ceEV: number,
   energyEv: number,
+  ms: number,
 ): void {
   const pbuf = new ArrayBuffer(64);
   const pu = new Uint32Array(pbuf);
@@ -85,7 +95,7 @@ function writePrimaryParams(
   pu[0] = np;
   pf[1] = boxNm;
   pf[2] = ceEV;
-  pu[3] = 65536;
+  pu[3] = ms;
   pf[4] = energyEv;
   pu[5] = MAX_SEC;
   pu[6] = VC;
@@ -161,6 +171,7 @@ async function runPhaseABench(opts: BenchOpts): Promise<BenchResult> {
   const boxNm = opts.boxNm ?? 15000;
   const ceEV = opts.ceEV ?? 7.4;
   const seed = opts.seed ?? 0x50455201; // E15_DISPATCH
+  const ms = opts.ms ?? 65536;
   const maxN = Math.max(...opts.Ns);
 
   if (!cached || cached.npAlloc < maxN) {
@@ -181,7 +192,7 @@ async function runPhaseABench(opts: BenchOpts): Promise<BenchResult> {
     // Warmups (discard)
     for (let w = 0; w < opts.warmups; w++) {
       seedPrimaryRNG(device, buffers.rng, N, seed + w);
-      writePrimaryParams(device, buffers.params, N, boxNm, ceEV, opts.energyEv);
+      writePrimaryParams(device, buffers.params, N, boxNm, ceEV, opts.energyEv, ms);
       device.queue.writeBuffer(buffers.counters, 0, new Uint32Array(8));
       device.queue.writeBuffer(buffers.dbg, 0, new Uint32Array(8));
       device.queue.writeBuffer(buffers.secStats, 0, new Uint32Array(8));
@@ -192,13 +203,13 @@ async function runPhaseABench(opts: BenchOpts): Promise<BenchResult> {
     const trialsMs: number[] = [];
     for (let t = 0; t < opts.trials; t++) {
       seedPrimaryRNG(device, buffers.rng, N, seed + 1000 + t);
-      writePrimaryParams(device, buffers.params, N, boxNm, ceEV, opts.energyEv);
+      writePrimaryParams(device, buffers.params, N, boxNm, ceEV, opts.energyEv, ms);
       device.queue.writeBuffer(buffers.counters, 0, new Uint32Array(8));
       device.queue.writeBuffer(buffers.dbg, 0, new Uint32Array(8));
       device.queue.writeBuffer(buffers.secStats, 0, new Uint32Array(8));
       device.queue.writeBuffer(buffers.dose, 0, new Uint32Array(doseSize));
-      const ms = await dispatchOnce(device, pipelines, N);
-      trialsMs.push(ms);
+      const elapsedMs = await dispatchOnce(device, pipelines, N);
+      trialsMs.push(elapsedMs);
     }
 
     perN.push({ N, trialsMs, ...stats(trialsMs) });
@@ -209,6 +220,7 @@ async function runPhaseABench(opts: BenchOpts): Promise<BenchResult> {
     boxNm,
     ceEV,
     seed,
+    ms,
     adapter: {
       vendor: adapterInfo.vendor ?? '',
       architecture: adapterInfo.architecture ?? '',

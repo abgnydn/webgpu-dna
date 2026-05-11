@@ -100,7 +100,7 @@ G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
 because that reference is for ~1 MeV low-LET radiation, where track-core radical
 recombination is lower. See `validation/compare.py` for the full side-by-side.
 
-### Research-grade validation ledger (16 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+### Research-grade validation ledger (17 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
 
 The prose claims above are now backed by falsifiable JSON artifacts
 under `experiments/results/`. See `RESEARCH.md` for the protocol and
@@ -135,7 +135,7 @@ per-level `protocol.md` files for hypotheses + pass bars.
   effect (closed by E10c being well above 0.62×) + ~10-29% real
   WGSL-vs-chem6 implementation gap, biggest on H₂ and H₂O₂.
   E11 GPU vs IRT backend deferred — needs browser runner infrastructure.
-- **L6 — Performance (2 of 2 attempted, 1 pass + 1 honest-negative).**
+- **L6 — Performance (3 of 3 attempted, 1 pass + 2 honest-negative).**
   E15 Phase A α/β decomposition via WebGPU + Playwright N-sweep
   (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 + T=20 with
   `onSubmittedWorkDone()` sync). α = 10527.8 μs (single-workgroup
@@ -147,9 +147,17 @@ per-level `protocol.md` files for hypotheses + pass bars.
   **E15b vs Geant4 11.4.1 single-thread on the same M2 Pro:** 455×
   speedup on matched-scope physics tracking (Phase A+B 635 ms vs
   Geant4 median 289.1 s over 3 trials), satisfies the L6 protocol's
-  ≥100× kernel-fusion thesis. End-to-end pre-DNA pipeline only 1.48×
-  because IRT chemistry on CPU is the bottleneck — GPU-accelerated
-  chemistry is the next obvious win. [E15b]
+  ≥100× claim *vs Geant4 single-thread*. End-to-end pre-DNA pipeline
+  only 1.48× because IRT chemistry on CPU is the bottleneck —
+  GPU-accelerated chemistry is the next obvious win. [E15b]
+  **E16 within-WebGPU fused-vs-naive: 40× speedup** (T_fused 17.75 ms
+  vs modeled T_naive 414 × 1.70 = 704 ms). **L6 protocol's "≥100×
+  kernel-fusion thesis" falsified at the measured magnitude** — the
+  thesis is supported in spirit (40× is substantial and consistent
+  with kernelfusion.dev's 71× Apple Silicon benchmark) but the
+  absolute factor for this particular physics kernel is roughly half
+  the protocol's claim. The 455× E15b speedup decomposes into ~10×
+  from GPU vs CPU + ~40× from kernel fusion (multiplicative). [E16]
 - **L3 — Pre-chemistry (1 of 1 attempted, fail honest-negative).**
   E9 G(species) @ 0.1 ps vs Geant4 11.4.1 chem6 at matched 10 keV
   (uses the cache populated by E10 with the freshly-added 0.1 ps

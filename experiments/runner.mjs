@@ -21,6 +21,7 @@ import { runE10c } from './level-4-chemistry/E10c-vs-chem6-at-10keV.mjs';
 import { runE9 } from './level-3-prechemistry/E9-prechem-vs-chem6.mjs';
 import { runE15 } from './level-6-performance/E15-phase-a-alpha-beta.mjs';
 import { runE15b } from './level-6-performance/E15b-vs-geant4-single-thread.mjs';
+import { runE16 } from './level-6-performance/E16-fused-vs-naive.mjs';
 import { runB0 } from './level-0-env/B0-browser-env.mjs';
 import { runB1 } from './level-0-env/B1-harness-liveness.mjs';
 
@@ -53,6 +54,7 @@ const REGISTRY = {
   // Level 6 — performance
   E15:  { run: runE15,  level: 'level-6', id: 'E15-phase-a-alpha-beta' },
   E15b: { run: runE15b, level: 'level-6', id: 'E15b-vs-geant4-single-thread' },
+  E16:  { run: runE16,  level: 'level-6', id: 'E16-fused-vs-naive' },
 };
 
 const REPO_ROOT = join(import.meta.dirname, '..');

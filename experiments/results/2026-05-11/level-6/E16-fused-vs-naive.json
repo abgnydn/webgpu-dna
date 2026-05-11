@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "protocol": "E16-fused-vs-naive",
+    "hypothesis": "The production fused primary-tracking dispatch is ≥ 100× faster than a naive baseline that submits one dispatch per physics step. At N=4096 primaries, E=10 keV, the naive total wall-clock = mean_steps_per_primary × T(ms=1, N=4096), where mean_steps_per_primary = 414 from the Geant4 11.4.1 ntuple.",
+    "passBar": "speedup_naive_over_fused = (414 × T_single_step) / T_fused ≥ 100 at N=4096, 10 keV.",
+    "seed": "E16_FUSED_VS_NAIVE=0x50455202",
+    "warmup": 5,
+    "trials": 20,
+    "sources": {
+      "harness": "src/bench.ts (extended 2026-05-11 with ms parameter)",
+      "driver": "experiments/level-6-performance/E16-fused-vs-naive.mjs",
+      "nStepsReference": "validation/g4_per_event.csv (derived: primary trackID=1 step count)"
+    },
+    "config": {
+      "Ns": [
+        4096
+      ],
+      "energyEv": 10000,
+      "meanStepsPerPrimary": 414,
+      "msFused": 65536,
+      "msNaive": 1
+    }
+  },
+  "env": {
+    "gitSha": "3993d0ad6c540778e217cad99fc4ee64cbe44adc",
+    "gitDirty": true,
+    "timestamp": "2026-05-11T10:01:16.068Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184,
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": "",
+      "description": ""
+    },
+    "limits": {
+      "maxBufferSize": 4294967292,
+      "maxStorageBufferBindingSize": 4294967292
+    }
+  },
+  "status": "fail",
+  "diagnosis": "speedup 39.7× < 100× at N=4096, 10 keV",
+  "summary": {
+    "N": 4096,
+    "energyEv": 10000,
+    "meanStepsPerPrimary": 414,
+    "t_fused_ms": 17.750000000931323,
+    "t_naive_single_step_ms": 1.700000001117587,
+    "t_naive_total_ms_modeled": 703.800000462681,
+    "speedup_naive_over_fused": 39.650704249338226,
+    "headline": "T_fused=17.75 ms vs modeled T_naive=704 ms (414 steps × 1.70 ms/step) → 40× speedup"
+  },
+  "rows": [
+    {
+      "metric": "speedup_at_N4096",
+      "N": 4096,
+      "t_fused_ms_median": 17.750000000931323,
+      "t_naive_per_step_ms_median": 1.700000001117587,
+      "mean_steps_per_primary": 414,
+      "t_naive_total_ms_modeled": 703.800000462681,
+      "speedup_naive_over_fused": 39.650704249338226,
+      "passBar": "speedup ≥ 100 (L6 thesis)",
+      "status": "fail"
+    },
+    {
+      "metric": "trial_distribution_fused",
+      "ms": 65536,
+      "median": 17.750000000931323,
+      "mean": 18.28500000014901,
+      "std": 2.6915608855036726,
+      "min": 16.5,
+      "max": 29.40000000037253,
+      "status": "informational"
+    },
+    {
+      "metric": "trial_distribution_naive_per_step",
+      "ms": 1,
+      "median": 1.700000001117587,
+      "mean": 1.7599999997764826,
+      "std": 0.32831307273413546,
+      "min": 1.299999998882413,
+      "max": 2.900000000372529,
+      "status": "informational"
+    },
+    {
+      "metric": "naive_model_assumption",
+      "mean_steps_per_primary_at_10keV": 414,
+      "source": "Geant4 11.4.1 dnaphysics ntuple, primary trackID=1 step count, 4096 events",
+      "note": "The modeled naive wall-clock = N_steps × T(ms=1). This assumes per-dispatch overhead dominates each step (consistent with E15: α ≈ 10.5 ms vs β·N ≈ 5 ms at N=4096). A real per-step implementation would also need a primary-state buffer to persist between dispatches, costing an additional read/write per step; the modeled number is a LOWER bound on the actual naive cost.",
+      "status": "informational"
+    }
+  ]
+}

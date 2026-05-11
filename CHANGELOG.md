@@ -7,6 +7,24 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — L6 stage 3: E16 fused-vs-naive (2026-05-11)
+
+- **E16** closes the kernel-fusion thesis directly. Extends src/bench.ts
+  to support an `ms` parameter (overrides the primary kernel's max
+  inner-loop iterations per dispatch). Runs N=4096 at 10 keV with
+  ms=65536 (fused, full thermalization in one dispatch) vs ms=1 (naive,
+  one step per dispatch); models the full naive cost as
+  `mean_steps × T(ms=1)` where mean_steps = 414 is sourced from the
+  Geant4 11.4.1 ntuple's primary-track step count.
+- **Result (fail, honest negative):** T_fused = 17.75 ms vs modeled
+  T_naive = 414 × 1.70 = 704 ms → **40× speedup**. **L6 protocol's
+  ≥100× pass bar falsified at the measured magnitude.** The thesis
+  is still supported in spirit (40× is substantial and consistent
+  with kernelfusion.dev's 71× Apple Silicon benchmark) but the
+  absolute factor for this physics kernel is roughly half the
+  protocol's claim. The 455× E15b speedup decomposes as ~10× from
+  GPU-vs-CPU + ~40× from kernel fusion (multiplicative).
+
 ### Added — L3 stage 1: pre-chemistry diagnosis (2026-05-11)
 
 - **0.1 ps checkpoint** added to `public/irt-worker.js` timeline (was
