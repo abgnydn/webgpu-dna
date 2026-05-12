@@ -154,10 +154,12 @@ def main():
         fill=TX2,
     )
 
-    # Metric strip at bottom
+    # Metric strip at bottom \u2014 keep in sync with README \u00a7 Numbers
+    # (single source of truth). Update whenever a headline number
+    # changes upstream.
     metrics = [
-        ("CSDA",       "0.985\u00d7"),
-        ("IONS/PRIM",  "1.00\u00d7"),
+        ("CSDA",       "0.988\u00d7"),
+        ("IONS/PRIM",  "0.73\u00d7"),
         ("E-CONS",     "100.0%"),
         ("TESTS",      "46 / 46"),
     ]
