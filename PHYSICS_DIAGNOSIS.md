@@ -119,10 +119,15 @@ chem6 tracks but we don't, e.g. HO₂°).
      a one-shot Onsager check at t=0 separation. Geant4's
      `G4DNAElectronHoleRecombination` integrates over the chemistry
      timestep — H₂O+ has a finite lifetime to drift and react. Could
-     give higher effective recomb rate. **Quantitative estimate**: if
-     Geant4's effective P_recomb is ~0.30 vs our ~0.15, H₂ from ion
-     recomb goes from 7.6 → 15.3 H₂/primary at 10 keV (≈ closes the
-     0.1 ps deficit). Plausible mechanism, untested.
+     give higher effective recomb rate. **QUANTIFIED by E10g
+     (2026-05-12)**: linear sweep of "post-hoc convert X fraction of
+     non-recombed ionizations to H₂Ovib decCh1 (2OH+H₂)" shows that
+     **x ≈ 0.035 closes the G(H₂)@0.1ps gap to chem6 0.251**. Since
+     each deterministic conversion gives 1 H₂ vs Geant4's 13.65%
+     probabilistic decCh1, the equivalent additional effective recomb
+     fraction is ~**25%** above our baseline. Implementation: track
+     H₂O+ as a discrete species with finite lifetime, let it find eaqs
+     during diffusion. Non-trivial WGSL refactor.
    - **27% cascade-ion deficit** (E7) contributes too: 27% fewer
      ionizations → ~27% fewer H₂Ovib events. But this is partially
      compensated by the σ_exc inflation (more B1A1 events → more B1A1
