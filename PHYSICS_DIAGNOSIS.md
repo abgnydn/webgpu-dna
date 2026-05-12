@@ -83,20 +83,36 @@ chem6 tracks but we don't, e.g. HO₂°).
    reactions, but those only affect t > 1 ps. At 0.1 ps, option1 and
    option3 should produce the same G(H₂). **The 0.508× deficit at
    0.1 ps must come from elsewhere.**
-4. **Leading new hypothesis — cross-event recombination.** Geant4's
-   `G4DNAElectronHoleRecombination` finds the **nearest eaq within
-   10×r_Onsager** of each H₂O+ (see
-   `G4DNAElectronHoleRecombination.cc:248-308`), not just the geminate
-   pair. In dense ionization clusters (track ends, low-E primaries),
-   multiple eaqs can cluster near one H₂O+; Geant4 picks the closest
-   and recombines with that. Our WGSL only checks the geminate pair
-   (the eaq from the SAME ionization event). At 10 keV the track is
-   sparse, but at sub-1 keV (where the V-shape lives) clusters are
-   tighter. This naturally produces fewer H₂Ovib events in WGSL
-   relative to Geant4 → fewer H₂.
-   **Test:** synthetic experiment with a JS post-processor over rad_buf
-   that re-evaluates recomb using nearest-eaq lookup before chemistry
-   starts. Would bound the contribution.
+4. ~~Leading new hypothesis — cross-event recombination.~~ **REFUTED by
+   E10e (2026-05-12).** Synthetic Node experiment over
+   `dumps/rad_E10000_N4096.bin`: for each non-recombed ionization site
+   (OH + H3O+ co-located, 371.9 sites/primary matching E7 cascade count),
+   computed `r_nearest` across all eaqs in the same primary track.
+   - Mean P_recomb_nearest = 0.230
+   - Mean P_recomb_geminate point estimate (r=2.84 nm Meesungnoen mean) = 0.221
+   - ΔP = +0.0086 → +0.44 H₂/primary
+   The 12.4 H₂/primary deficit gets only ~3.5% of explanation from this
+   mechanism. At 10 keV the primary tracks are sparse enough that the
+   geminate eaq IS the nearest one in ~98% of cases. Cross-event lookup
+   adds essentially nothing.
+5. **New leading hypotheses (E10e refuted #4).** The deficit must come
+   from one of:
+   - **Per-primary IRT partitioning** (Hypothesis B above): our IRT runs
+     chemistry per primary, chem6 runs all primaries together. At early
+     times (t < 1 ps), primaries emitted from a common origin still have
+     overlapping cluster structure. Test: run our IRT on the full
+     concatenated rad_buf (no per-primary partitioning) and compare
+     G(H₂) at 0.1 ps.
+   - **W_sec distribution differences.** Our Born differential CDF gives
+     a specific W_sec distribution. If chem6's W_sec distribution shifts
+     more energy to sub-cutoff (more geminate recomb), chem6 fires more
+     H₂Ovib events. Tied to E8's 43% deficit in the 438-806 eV
+     secondary KE band.
+   - **Different recomb formula or e-h time integration.** Our recomb is
+     a one-shot Onsager check at t=0 separation. Geant4's
+     `G4DNAElectronHoleRecombination` integrates over the chemistry
+     timestep — H₂O+ has a finite lifetime to drift and react. Could
+     give higher effective recomb rate.
 5. Add HO₂° tracking + a HO₂°-mediated H₂O₂ pathway. Would help close
    the H₂O₂ deficit specifically (H + HO₂° → H₂O₂ at k=1e10 M⁻¹s⁻¹
    per option3 line 241-246).
