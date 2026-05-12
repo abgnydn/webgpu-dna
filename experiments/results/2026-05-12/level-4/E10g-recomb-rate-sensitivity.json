@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "protocol": "E10g-recomb-rate-sensitivity",
+    "hypothesis": "PHYSICS_DIAGNOSIS §1 candidate #5: our WGSL one-shot Onsager check at t=0 underestimates Geant4's effective P_recomb (which integrates over the chem timestep). Post-hoc convert a tunable fraction X of non-recombed ionization sites to H₂Ovib products (2OH+H₂ branch) and find the X that lands G(H₂) at chem6's 0.251 at 0.1 ps.",
+    "passBar": "At least one X ∈ (0, 0.5] lands G(H₂)@0.1ps within 5% of chem6 0.251 → supports candidate #5; otherwise → ambiguous.",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "radBin": "dumps/rad_E10000_N4096.bin",
+      "irtTool": "tools/run_irt.cjs",
+      "chem6Reference": "0.251 at 0.1 ps (from E9 / Gvalue0.root)"
+    },
+    "config": {
+      "energy_eV": 10000,
+      "n_primaries_sample": 256,
+      "x_sweep": [
+        0,
+        0.1,
+        0.2,
+        0.35,
+        0.5
+      ]
+    }
+  },
+  "env": {
+    "gitSha": "69785888941647b418f4400dcd828a76d0997fab",
+    "gitDirty": true,
+    "timestamp": "2026-05-12T09:03:39.889Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "noisy",
+  "diagnosis": "Best X=0.00 → G(H₂)=0.124 (still 50.6% from chem6). Either need larger X or another mechanism.",
+  "summary": {
+    "chem6_target": 0.251,
+    "best_x": 0,
+    "best_g_h2": 0.12390625,
+    "best_err": 0.12709375,
+    "sweep_gh2_by_x": [
+      {
+        "x": 0,
+        "g_h2": 0.12390625
+      },
+      {
+        "x": 0.1,
+        "g_h2": 0.491015625
+      },
+      {
+        "x": 0.2,
+        "g_h2": 0.8598828125
+      },
+      {
+        "x": 0.35,
+        "g_h2": 1.4116796875
+      },
+      {
+        "x": 0.5,
+        "g_h2": 1.9682421875
+      }
+    ],
+    "headline": "x=0.00:G(H2)=0.124 | x=0.10:G(H2)=0.491 | x=0.20:G(H2)=0.860 | x=0.35:G(H2)=1.412 | x=0.50:G(H2)=1.968"
+  },
+  "rows": [
+    {
+      "metric": "x_0.00_G_H2_0p1ps",
+      "value": 0.12390625,
+      "chem6_target": 0.251,
+      "err": 0.12709375,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.10_G_H2_0p1ps",
+      "value": 0.491015625,
+      "chem6_target": 0.251,
+      "err": 0.240015625,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.20_G_H2_0p1ps",
+      "value": 0.8598828125,
+      "chem6_target": 0.251,
+      "err": 0.6088828125,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.35_G_H2_0p1ps",
+      "value": 1.4116796875,
+      "chem6_target": 0.251,
+      "err": 1.1606796875,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.50_G_H2_0p1ps",
+      "value": 1.9682421875,
+      "chem6_target": 0.251,
+      "err": 1.7172421875000001,
+      "status": "informational"
+    }
+  ]
+}
