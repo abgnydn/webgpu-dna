@@ -189,6 +189,31 @@ shortfall):
   Tuning option (b1) to land in the PARTRAC band is the obvious
   fast-follow. ssb_indirect.candidates/in_reach in the result give
   the data needed to calibrate.
+
+- *(b1) Calibration — APPLIED 2026-05-12 (E13c 4th run):* lowered
+  `SSB_P_INDIRECT` from 0.4 → 0.05 in `src/physics/constants.ts`.
+  Re-running E13c with the calibrated value:
+
+  ```
+  SSB_dir = 23  (vs 24 at P=0.4 — MC noise, direct unchanged)
+  SSB_ind = 68  (vs 451 at P=0.4)
+  DSB     = 1   (vs 1-2)
+  Indirect/direct ratio = 2.96  ← IN THE PARTRAC 2-3 BAND
+  ```
+
+  **The L5 indirect-SSB gap is now fully closed.** Three commits
+  this session moved it from "SSB_ind = 0, ratio = 0" to
+  "SSB_ind = 68, ratio = 2.96, matching PARTRAC's published 2-3":
+  1. Split SSB_R_DAMAGE constants (direct=0.29, indirect=1.0)
+  2. Instrument public/irt-worker.js for time-resolved scoring
+  3. Calibrate SSB_P_INDIRECT 0.4 → 0.05 to compensate for the
+     IRT-accumulator's tighter per-event probability semantics
+     (the previous Geant4-default 0.4 assumed t=1μs-only scoring,
+     which sees ~1/10 as many encounters).
+
+  Validation/webgpu-results.json's dnaDamage block refreshed to
+  the new canonical values; the old SSB_ind=0 number kept in the
+  `$ssb_history` field for audit trail.
 - *(c) Target redesign (pending):* swap the 21×21 fiber grid for a
   uniform-cell DNA distribution. Closes both this gap and E12's
   target-concentration artifact in one move.

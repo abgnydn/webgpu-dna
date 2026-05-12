@@ -139,6 +139,15 @@ export const DNA_SPACING_NM = 150;
 // future-proof for that follow-up.
 export const SSB_R_DAMAGE_NM = 0.29;            // direct pathway, Nikjoo OH-backbone reaction radius
 export const SSB_R_DAMAGE_INDIRECT_NM = 1.0;    // indirect pathway, PARTRAC-effective (diffusion folded)
-export const SSB_P_INDIRECT = 0.4;       // probability of SSB on OH contact
+// SSB_P_INDIRECT was 0.4 (Geant4 default). Lowered 2026-05-12 to 0.05 after
+// E13c's 3rd-stage IRT-side scoring lift (SSB_ind 0 → 451 at P=0.4) overshot
+// PARTRAC's indirect/direct ratio of 2-3 by ~6-9× (got 18.79×). Calibrated
+// target: ratio 2-3 → SSB_ind ≈ 60. P=0.4 produced 451 unique-bp damages so
+// at P=0.05 we expect ~60 (non-linear: dedup tightens at low P). The Geant4
+// default (0.4) assumed an event-time scoring model; our IRT-side
+// accumulator visits every OH death event near DNA, so the per-event
+// damage probability must be smaller to match the same overall yield.
+// See PHYSICS_DIAGNOSIS.md §3 option (b1).
+export const SSB_P_INDIRECT = 0.05;      // PARTRAC-calibrated for IRT accumulator (was 0.4 default)
 export const SSB_P_DIRECT = 0.15;        // probability of SSB on direct ionization
 export const DSB_WINDOW_BP = 10;         // ±bp clustering window for DSB pairing

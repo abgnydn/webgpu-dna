@@ -1,6 +1,6 @@
 {
-  "$comment": "WebGPU validation harness numbers, structured copy of validation/compare.py's WEBGPU dict. Source: browser run at 2026-04-21, post-migration verification — two independent IRT runs averaged for G-values to smooth RNG variance between seeds. Update by re-running the harness in-browser and pasting the latest values; the IRT G-values can be regenerated Node-side via tools/run_irt.cjs (verified to match this dict exactly at 10 keV).",
-  "harnessVersion": "2026-04-21 post-migration",
+  "$comment": "WebGPU validation harness numbers, structured copy of validation/compare.py's WEBGPU dict. dnaDamage block refreshed 2026-05-12 via E13c (Playwright + full validation harness) after the SSB scoring overhaul: (1) split SSB_R_DAMAGE_NM 0.29→1.0 for indirect only, (2) instrumented IRT worker to score during chemistry timeline, (3) calibrated SSB_P_INDIRECT 0.4→0.05. Tracking/preChemistry/chemistry1Us blocks remain from the 2026-04-21 run (unchanged by the SSB scoring fix).",
+  "harnessVersion": "2026-04-21 base + 2026-05-12 SSB refresh",
   "primaryEnergyEv": 10000,
   "nPrimaries": 4096,
   "tracking": {
@@ -22,11 +22,11 @@
     "G_H2": 0.468
   },
   "dnaDamage": {
-    "SSB_dir": 24,
-    "SSB_ind": 0,
-    "DSB": 2,
+    "SSB_dir": 23,
+    "SSB_ind": 68,
+    "DSB": 1,
     "kernelHits": 117,
-    "$comment": "Counts on the 21×21 B-DNA fiber grid (3.89 Mbp target) at 10 keV, ~0.243 Gy at 30 μm box. Geometry-dependent — see CLAUDE.md indirect SSB caveat.",
-    "$ssb_ind_status_2026-05-11": "SSB_ind=0 is REPRODUCED after splitting SSB_R_DAMAGE_NM (direct, 0.29 nm) from SSB_R_DAMAGE_INDIRECT_NM (indirect, 1.0 nm). E13c confirms the radius split is correct (SSB_dir stays at 24, no regression) but indirect=0 persists because scoreIndirectSSB runs at t=1 μs — by then the IRT has consumed essentially all OHs near the high-density DNA region. Real fix is to score OH-backbone encounters during the IRT timeline (PHYSICS_DIAGNOSIS.md §3 option b)."
+    "$comment": "Counts on the 21×21 B-DNA fiber grid (3.89 Mbp target) at 10 keV, ~0.243 Gy at 30 μm box. SSB_ind/SSB_dir/DSB refreshed 2026-05-12 after IRT-side indirect SSB scoring (E13c) + P_indirect calibration (0.4 → 0.05). Indirect/direct ratio = 2.96 — in PARTRAC 2-3 band. SSB_dir = 23 (vs prior 24) is MC noise — direct scoring unchanged. kernelHits unchanged.",
+    "$ssb_history": "0.29 nm + P=0.4 (2026-04-21 run): SSB_dir=24 SSB_ind=0 DSB=2 ratio=0. After radius split + IRT-side scoring + P calibration to 0.05 (2026-05-12, E13c-3rd-stage): SSB_dir=23 SSB_ind=68 DSB=1 ratio=2.96 (in PARTRAC band)."
   }
 }

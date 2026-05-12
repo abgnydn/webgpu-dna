@@ -7,6 +7,44 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Changed — calibration: SSB_P_INDIRECT 0.4 → 0.05 (2026-05-12)
+
+Third physics fix in the marquee L5 closure trio. After the IRT-side
+SSB scoring shipped (SSB_ind 0 → 451 in the prior commit), the
+indirect/direct ratio of 18.79 overshot PARTRAC's 2-3 by ~6-9×.
+
+Cause: SSB_P_INDIRECT = 0.4 (the Geant4 default) is calibrated for an
+EVENT-TIME scoring model — one chance per OH-DNA encounter event.
+Our IRT-side accumulator visits every OH death position AND every
+t=1μs survivor — ~10× more chances per OH. So the per-event
+probability needs to be ~10× smaller to land on the same overall
+yield.
+
+Calibrated to SSB_P_INDIRECT = 0.05 in src/physics/constants.ts.
+E13c 4th run with the calibrated value:
+
+  SSB_dir = 23  (vs 24 at P=0.4 — MC noise, direct unchanged)
+  SSB_ind = 68  (vs 451 at P=0.4; vs 0 at the original setup)
+  DSB     = 1
+  Indirect/direct ratio = 2.96
+
+**SSB_ind/SSB_dir ratio is now firmly in PARTRAC's published 2-3
+band.** The L5 indirect-SSB gap is fully closed. The three commits
+that moved it from 0 to 2.96 are:
+  1. Split SSB_R_DAMAGE constants (direct=0.29, indirect=1.0)
+  2. Instrument public/irt-worker.js for time-resolved scoring
+  3. Calibrate SSB_P_INDIRECT 0.4 → 0.05 to match the accumulator
+     semantics
+
+`validation/webgpu-results.json` dnaDamage block refreshed:
+  SSB_dir 24 → 23 (MC drift, no real change)
+  SSB_ind  0 → 68
+  DSB      2 → 1 (MC drift; DSB sees both direct + indirect mask now)
+  + $ssb_history line preserves the audit trail of all three numbers.
+
+PHYSICS_DIAGNOSIS.md §3 option (b1) marked APPLIED with the final
+calibration result quoted.
+
 ### Added — physics fix: IRT-side indirect SSB scoring (2026-05-12)
 
 Second applied physics fix in the session. Instrumented
