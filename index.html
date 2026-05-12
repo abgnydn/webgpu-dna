@@ -420,6 +420,7 @@
     <div class="links">
       <a href="#what">What</a>
       <a href="#compare">Compare</a>
+      <a href="#feature-scope" class="hide-sm">Scope</a>
       <a href="#features">Physics</a>
       <a href="#related" class="hide-sm">Related</a>
       <a href="#viewer">Viewer</a>
@@ -541,6 +542,114 @@
 
   <p class="sublead" style="margin-top:20px;font-size:13px">
     Bottom line: a faithful-enough version of the tool that used to require a PhD and a compute cluster, now one click away from anyone.
+  </p>
+</section>
+
+<section id="feature-scope">
+  <h2>Feature scope: what we ported, and what we didn't</h2>
+  <p class="sublead">Geant4-DNA is a large toolkit — decades of accumulated physics models for radiobiology. This project ports the <em>electron-only, water-only, Born + Emfietzoglou + Champion + Sanche + Melton + Karamitros option1</em> slice. Heavier ions, alternative low-energy models, the option3 reaction set, and full-cell chromatin geometry are explicitly out of scope. Honest picture below — backed by source-tree inspection of Geant4 11.4.1.</p>
+
+  <div class="compare">
+    <table>
+      <colgroup>
+        <col class="c-aspect">
+        <col class="c-old">
+        <col class="c-new">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th class="old">Geant4-DNA 11.4.1</th>
+          <th class="new">WebGPU-DNA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="aspect">Primary particle</td>
+          <td class="old">e⁻, p⁺, α, Li, Be, B, C, N, O ions (light + heavy)</td>
+          <td class="new"><strong>e⁻ only</strong> · 7.4 eV – 30 keV (validated at 8 ESTAR energies)</td>
+        </tr>
+        <tr>
+          <td class="aspect">Target medium</td>
+          <td class="old">Liquid water; some support for amorphous ice (PTB), DNA bases (PTB)</td>
+          <td class="new"><strong>Liquid water only.</strong> 33.4 molecules/nm³, 298 K</td>
+        </tr>
+        <tr>
+          <td class="aspect">Ionization (e⁻)</td>
+          <td class="old">Born (5 shells, 11 eV–1 MeV), Emfietzoglou (5 shells, 11 eV–10 keV), CPA100 (11 eV–256 keV)</td>
+          <td class="new"><strong>Born</strong> (5 shells, data-driven differential CDF) — matches Geant4 11.4.1 σ_ion within 6.1% mean over 6 energy bins <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E1, E6b]</a></td>
+        </tr>
+        <tr>
+          <td class="aspect">Excitation (e⁻)</td>
+          <td class="old">Born, Emfietzoglou, CPA100, Dingfelder, Miller-Green, Quinn plasmon, Dirac-RMatrix, RPWBA</td>
+          <td class="new"><strong>Emfietzoglou</strong> (5 levels: A¹B₁, B¹A₁, Ryd A+B, Ryd C+D, Diffuse) with data-driven branching · σ_exc partially scaled (joint fix SIGMA_EXC_SCALE = 0.5) <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E2, E2b]</a></td>
+        </tr>
+        <tr>
+          <td class="aspect">Elastic scattering (e⁻)</td>
+          <td class="old">Champion (tabulated, &lt; 1 keV), Uehara-Screened Rutherford, Screened Rutherford, CPA100, ELSEPA</td>
+          <td class="new"><strong>Champion</strong> tabulated angular CDF (&lt; 200 eV) + <strong>Screened Rutherford</strong> analytical (&gt; 200 eV) · σ_el 5.7% high vs Geant4 mean <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E3, E3b, E6b]</a></td>
+        </tr>
+        <tr>
+          <td class="aspect">Vibrational excitation</td>
+          <td class="old">Sanche (9 modes, 2–100 eV)</td>
+          <td class="new"><strong>Sanche</strong> (9 modes, bit-exact match to G4EMLOW) <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E4, E4b]</a></td>
+        </tr>
+        <tr>
+          <td class="aspect">Dissociative attachment</td>
+          <td class="old">Melton (4–13 eV)</td>
+          <td class="new"><strong>Melton</strong> (4–13 eV, σ matches G4EMLOW)</td>
+        </tr>
+        <tr>
+          <td class="aspect">Heavy-particle physics</td>
+          <td class="old">Rudd ionization (p⁺, α), Dingfelder charge exchange, ion elastic, multiple/double/triple/quadruple ionization, ion charge inc/decrease</td>
+          <td class="new"><strong>Out of scope.</strong> Electron-only port.</td>
+        </tr>
+        <tr>
+          <td class="aspect">Solvation / thermalization</td>
+          <td class="old">Meesungnoen 2002, Ritchie 1994, Terrisol 1990, Kreipl 2009, Meesungnoen amorphous</td>
+          <td class="new"><strong>Meesungnoen 2002</strong> (13-coefficient polynomial fit, e⁻aq at 1.7 eV — Geant4's autoionization default)</td>
+        </tr>
+        <tr>
+          <td class="aspect">Pre-chemistry</td>
+          <td class="old">2 nm mother displacement · per-species product displacement · Onsager e-h recombination with time-integration during the chemistry step</td>
+          <td class="new"><strong>2 nm mother</strong> · species-specific displacement · Onsager geminate recomb (one-shot at t=0, with RECOMB_BOOST = 2.0 approximating time-integration) · B1A1 / L2-4 branching matches G4ChemDissociationChannels_option1 bit-identical <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E9, E10e-i]</a></td>
+        </tr>
+        <tr>
+          <td class="aspect">Radiolysis chemistry</td>
+          <td class="old"><strong>option1</strong> — Karamitros 2011 (9 reactions, 7 species: OH, e⁻aq, H, H₃O⁺, OH⁻, H₂, H₂O₂) · <strong>option2</strong> — extended pulse · <strong>option3</strong> — full set with HO₂°, HO₂⁻, O, O⁻, O₂, O₂⁻, O₃, O₃⁻ (25+ reactions)</td>
+          <td class="new"><strong>option1 only</strong> — Karamitros 2011 9-reaction table, line-for-line match to chem6's <code>/chem/reaction/add</code> macro · TDC + Onsager-screened PDC types · runs in a dedicated Web Worker <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E10c, E11]</a></td>
+        </tr>
+        <tr>
+          <td class="aspect">Chemistry solver</td>
+          <td class="old">IRT, IRT_syn (synchronized IRT), SBS (step-by-step), Gillespie direct method, Smoluchowski reaction model</td>
+          <td class="new"><strong>IRT</strong> only (Independent Reaction Time) · per-primary partitioning · 8 time checkpoints from <strong>0.1 ps to 1 μs</strong></td>
+        </tr>
+        <tr>
+          <td class="aspect">DNA target geometry</td>
+          <td class="old"><code>molecularDNA</code> full chromatin cell (8.7 × 10¹² Da) · <code>dsbandrepair</code> · arbitrary GDML user geometry</td>
+          <td class="new"><strong>21 × 21 parallel B-DNA fiber grid</strong> × 3 μm × 150 nm spacing = 3.89 Mbp target. Full-cell chromatin is deferred (E14, planned).</td>
+        </tr>
+        <tr>
+          <td class="aspect">DNA damage scoring</td>
+          <td class="old">SSB (direct + indirect), DSB clustering, complex damage classification (PARTRAC-style)</td>
+          <td class="new"><strong>Event-level direct SSB</strong> (rad_buf ionization sites) · <strong>IRT-time indirect SSB</strong> (scored during chemistry timeline, not post-hoc) · greedy ±10 bp DSB clustering · kernel-level backbone counter as cross-check <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E13c]</a></td>
+        </tr>
+        <tr>
+          <td class="aspect">Output / analysis</td>
+          <td class="old">ROOT ntuples (G4VAnalysisManager) · HDF5 · custom score managers</td>
+          <td class="new"><strong>JSON artifacts</strong> per experiment under <code>experiments/results/&lt;date&gt;/</code> · in-browser results table · dose XY/YZ projections (log-magma colormap)</td>
+        </tr>
+        <tr>
+          <td class="aspect">Validation discipline</td>
+          <td class="old">Comparison plots vs measured data in published papers</td>
+          <td class="new"><strong>Falsifiable JSON artifact per metric</strong> with named seed, pass bar, σ-significance, status (pass/fail/noisy). 30+ experiments shipped. <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a> is the single source of truth.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="sublead" style="margin-top:20px;font-size:13px">
+    Read this as: <strong>Geant4-DNA is the reference for the full radiobiology problem space</strong>; this project covers a specific, well-validated <em>slice</em> (e⁻, water, 7.4 eV – 30 keV, option1 chemistry, fiber grid) with browser-level accessibility. Use Geant4 for production clinical or published research. Use this for teaching, method exploration, prototyping, and reading the source code with no install pain.
   </p>
 </section>
 
