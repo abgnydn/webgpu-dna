@@ -63,14 +63,43 @@ B1A1 excitation dissociation channels (or a missing pre-chem species
 chem6 tracks but we don't, e.g. HO₂°).
 
 **Concrete fix candidates** (each is a discrete WGSL/JS edit):
-1. Inspect the B1A1 dissociative branching ratio for the H₂-producing
-   channel in primary.wgsl line 248-256. Compare to Geant4-DNA's
-   `G4DNAEmfietzoglouExcitationModel`. If the WGSL constant is lower,
-   raise it.
-2. The dissociative-electron-attachment (DEA) channel may need its
-   own H₂-producer branch.
-3. Add HO₂° tracking + the HO₂° + HO₂° → H₂O₂ + O₂ channel to recover
-   the H₂O₂ deficit cleanly.
+1. ~~Inspect the B1A1 dissociative branching ratio for the H₂-producing
+   channel in primary.wgsl line 248-256.~~ **CHECKED 2026-05-12**:
+   WGSL B1A1 branching (17.5% relax / 3.25% 2OH+H₂ / 50% autoion /
+   25.35% OH+H / 3.9% 2H+O) is **bit-identical** to Geant4 11.4.1's
+   `G4ChemDissociationChannels_option1.cc:254-281`. H₂Ovib recomb
+   branches (13.65% / 35.75% / 15.6% / 35%) also bit-identical
+   (lines 437-457). Pre-chem branching is not the gap.
+2. The DEA channel already produces H₂ + OH + OH⁻ (primary.wgsl line
+   634-650), matching Geant4. DEA contribution is small at 10 keV
+   primary (σ_DEA only nonzero in 4-13 eV).
+3. **Reference confound — CHECKED 2026-05-12**: chem6 uses
+   `G4EmDNAChemistry_option3`, NOT option1. **Critically, option3
+   inherits dissociation channels from option1** (see
+   `G4EmDNAChemistry_option3.cc:84,91` — calls
+   `G4ChemDissociationChannels_option1::ConstructDissociationChannels()`),
+   so the pre-chem step is identical. The IRT side adds many more
+   species (HO₂°, HO₂⁻, O, O⁻, O₂, O₂⁻, O₃, O₃⁻) and ~16 extra
+   reactions, but those only affect t > 1 ps. At 0.1 ps, option1 and
+   option3 should produce the same G(H₂). **The 0.508× deficit at
+   0.1 ps must come from elsewhere.**
+4. **Leading new hypothesis — cross-event recombination.** Geant4's
+   `G4DNAElectronHoleRecombination` finds the **nearest eaq within
+   10×r_Onsager** of each H₂O+ (see
+   `G4DNAElectronHoleRecombination.cc:248-308`), not just the geminate
+   pair. In dense ionization clusters (track ends, low-E primaries),
+   multiple eaqs can cluster near one H₂O+; Geant4 picks the closest
+   and recombines with that. Our WGSL only checks the geminate pair
+   (the eaq from the SAME ionization event). At 10 keV the track is
+   sparse, but at sub-1 keV (where the V-shape lives) clusters are
+   tighter. This naturally produces fewer H₂Ovib events in WGSL
+   relative to Geant4 → fewer H₂.
+   **Test:** synthetic experiment with a JS post-processor over rad_buf
+   that re-evaluates recomb using nearest-eaq lookup before chemistry
+   starts. Would bound the contribution.
+5. Add HO₂° tracking + a HO₂°-mediated H₂O₂ pathway. Would help close
+   the H₂O₂ deficit specifically (H + HO₂° → H₂O₂ at k=1e10 M⁻¹s⁻¹
+   per option3 line 241-246).
 
 **Hypothesis B — H₂ from inter-primary recombination.** Geant4 chem6
 runs all primaries in one big chemistry space; our IRT worker groups
