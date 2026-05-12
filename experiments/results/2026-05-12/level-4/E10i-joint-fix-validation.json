@@ -18,9 +18,16 @@
     }
   },
   "env": {
-    "gitSha": "d41f94bc49cc5f843959f72145575475f011312a",
+    "gitSha": "4d68ec244adf03dc5d34d468a54c0cef813c8053",
     "gitDirty": true,
-    "timestamp": "2026-05-12T10:01:55.853Z",
+    "shaderHashes": {
+      "helpers_wgsl": "2dcbe219e54a7f985cf170627e90c6f2bd903953",
+      "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
+      "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
+    },
+    "timestamp": "2026-05-12T13:03:32.465Z",
     "runner": "node",
     "nodeVersion": "v24.5.0",
     "platform": "darwin",
@@ -47,21 +54,21 @@
       "G_H2O2": 0.031
     },
     "measured_at_0p1ps": {
-      "G_OH": 4.129,
-      "G_eaq": 3.335,
+      "G_OH": 4.128,
+      "G_eaq": 3.334,
       "G_H": 1.003,
       "G_H2O2": 0.041,
       "G_H2": 0.197
     },
     "measured_at_1us": {
       "G_OH": 1.53,
-      "G_eaq": 1.381,
+      "G_eaq": 1.38,
       "G_H": 0.778,
-      "G_H2O2": 0.589,
-      "G_H2": 0.535
+      "G_H2O2": 0.59,
+      "G_H2": 0.537
     },
     "rms_dev_baseline_pct": 30.260449227534476,
-    "rms_dev_fixed_pct": 19.000862945346768,
+    "rms_dev_fixed_pct": 19.009443266407946,
     "csda_ratios": {
       "100": 0.7363601678748569,
       "300": 0.8103592314118631,
@@ -73,24 +80,24 @@
       "20000": 0.995503616894967
     },
     "page_errors": [],
-    "headline": "0.1ps G(OH)=4.129 G(eaq)=3.335 G(H)=1.003 G(H2)=0.197 G(H2O2)=0.041 | RMS 19.0% (was 30.3%) | CSDA@100eV=0.74×"
+    "headline": "0.1ps G(OH)=4.128 G(eaq)=3.334 G(H)=1.003 G(H2)=0.197 G(H2O2)=0.041 | RMS 19.0% (was 30.3%) | CSDA@100eV=0.74×"
   },
   "rows": [
     {
       "metric": "0p1ps_G_OH",
-      "value": 4.129,
+      "value": 4.128,
       "chem6": 5.049,
       "baseline": 4.382,
-      "ratio_to_chem6": 0.8177857001386412,
+      "ratio_to_chem6": 0.8175876411170528,
       "improved": false,
       "status": "fail"
     },
     {
       "metric": "0p1ps_G_eaq",
-      "value": 3.335,
+      "value": 3.334,
       "chem6": 4.097,
       "baseline": 3.694,
-      "ratio_to_chem6": 0.8140102514034658,
+      "ratio_to_chem6": 0.8137661703685622,
       "improved": false,
       "status": "fail"
     },

@@ -31,16 +31,16 @@
     }
   },
   "env": {
-    "gitSha": "116b2d66638940606a353affe65bfc11913a69ee",
+    "gitSha": "4d68ec244adf03dc5d34d468a54c0cef813c8053",
     "gitDirty": true,
     "shaderHashes": {
-      "helpers_wgsl": "91ede5819c5669702436bad084fd2efa3da4192a",
+      "helpers_wgsl": "2dcbe219e54a7f985cf170627e90c6f2bd903953",
       "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
       "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
       "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
       "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
     },
-    "timestamp": "2026-05-12T12:09:36.299Z",
+    "timestamp": "2026-05-12T13:00:40.836Z",
     "runner": "node",
     "nodeVersion": "v24.5.0",
     "platform": "darwin",

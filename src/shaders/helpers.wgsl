@@ -1,19 +1,25 @@
 const PI=3.14159265;
 const NW=33.4;  // molecules/nm³ in liquid water
 
-// JOINT-FIX SCALES (see PHYSICS_DIAGNOSIS §1 + E10h):
-// - SIGMA_EXC_SCALE: scales the Emfietzoglou σ_exc total. Original Emfietzoglou
-//   is 2.39-2.76× larger than Geant4's Born σ_exc (intentional to recover
-//   correct initial G(H) ≈ 0.5 per Karamitros). E5b shows this inflation
-//   shortens CSDA at sub-keV by up to 41%; E7 shows it shortens cascade ions
-//   by 27%. 0.7× partial reduction recovers most of the cascade physics
-//   while keeping the H-producing channels active.
-// - RECOMB_BOOST: scales the Onsager P_recomb in the e-h recombination check
-//   to approximate Geant4's process-step time-integrated recomb (our one-shot
-//   check at t=0 separation underestimates). E10g found ~25% additional
-//   recomb fraction matches chem6 G(H₂)@0.1ps; E10h showed 15% is the sweet
-//   spot when paired with proper H₂Ovib branching, since G(eaq) starts taking
-//   collateral damage above that.
+// JOINT-FIX SCALES (2026-05-12, see PHYSICS_DIAGNOSIS §1 + E10h + E7c):
+// - SIGMA_EXC_SCALE: scales the Emfietzoglou σ_exc total. Original
+//   Emfietzoglou is 2.39-2.76× larger than Geant4's Born σ_exc
+//   (intentional inflation to recover correct initial G(H) ≈ 0.5 per
+//   Karamitros). E5b showed this inflation shortens CSDA at sub-keV
+//   by up to 41%; E7 showed it shortens cascade ions by 27%. 0.5×
+//   partial reduction (≈ Geant4 Born level) closes most of the CSDA
+//   deficit — E5d measured 8/8 energies monotonic improvement.
+// - RECOMB_BOOST: scales the Onsager P_recomb in EVERY e-h recombination
+//   check (sub-cutoff, autoionization, tracked-secondary alike) to
+//   approximate Geant4's process-step time-integrated recomb (our
+//   one-shot check at t=0 separation underestimates). E7c tested the
+//   asymmetric variant (boost only sub-cutoff / autoion, leave tracked-
+//   secondary at un-boosted Onsager) and found that recovers cascade
+//   ions but reverts chemistry to near-baseline (RMS dev 19% → 28%).
+//   The tracked-secondary path is the dominant lever for both effects
+//   — they can't be separated with this knob set. Uniform boost is
+//   the better chemistry choice; cascade-ion regression is the
+//   honest tradeoff documented in E7b / E7c.
 const SIGMA_EXC_SCALE:f32=0.5;
 const RECOMB_BOOST:f32=2.0;
 

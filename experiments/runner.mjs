@@ -24,6 +24,7 @@ import { runE6b } from './level-2-track-structure/E6b-sigma-per-process-vs-g4.mj
 import { runE6c } from './level-2-track-structure/E6c-effective-sigma-post-joint-fix.mjs';
 import { runE7 } from './level-2-track-structure/E7-ions-per-primary-cascade.mjs';
 import { runE7b } from './level-2-track-structure/E7b-l2-post-joint-fix-cascade.mjs';
+import { runE7c } from './level-2-track-structure/E7c-asymmetric-recomb-boost-attempt.mjs';
 import { runE8 } from './level-2-track-structure/E8-secondary-ke-spectrum.mjs';
 import { runE10 } from './level-4-chemistry/E10-irt-vs-karamitros.mjs';
 import { runE10b } from './level-4-chemistry/E10b-vshape-bootstrap-sigma.mjs';
@@ -75,6 +76,7 @@ const REGISTRY = {
   E6c: { run: runE6c, level: 'level-2', id: 'E6c-effective-sigma-post-joint-fix' },
   E7:  { run: runE7,  level: 'level-2', id: 'E7-ions-per-primary-cascade' },
   E7b: { run: runE7b, level: 'level-2', id: 'E7b-l2-post-joint-fix-cascade' },
+  E7c: { run: runE7c, level: 'level-2', id: 'E7c-asymmetric-recomb-boost-attempt' },
   E8:  { run: runE8,  level: 'level-2', id: 'E8-secondary-ke-spectrum' },
 
   // Level 4 — chemistry

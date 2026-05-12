@@ -134,6 +134,38 @@ chem6 tracks but we don't, e.g. HO₂°).
      direct H₂). Net contribution to H₂ deficit is unclear without
      decomposition.
 
+**Asymmetric RECOMB_BOOST attempt — REFUTED (E7c, 2026-05-12).** The
+"obvious" physics-motivated third knob: apply RECOMB_BOOST only to
+sub-cutoff + autoionization recomb branches, leaving tracked-secondary
+recomb at un-boosted Onsager. Rationale: tracked-secondary eaq
+thermalizes 5-10 nm from the H₂O+, so time-integrated recomb has
+little dwell-time advantage there compared to sub-cutoff (Meesungnoen
+σ ≈ 2.84 nm). Expected outcome: preserve chemistry G-value benefit
+while recovering cascade ions.
+
+Live measurement (v2 shaders, applied + reverted):
+
+|                              | Pre-fix | v1 (uniform) | **v2 (asymmetric)** |
+|------------------------------|--------:|-------------:|--------------------:|
+| Cascade ions / primary (10 keV) | 371.9 | 344.6        | **381.1**           |
+| W-value (eV)                 | 26.89   | 29.02        | **26.24**           |
+| RMS dev vs chem6 @ 0.1 ps    | 30.3%   | **19.0%**    | 27.9%               |
+| G(H₂) @ 0.1 ps               | 0.127   | **0.197**    | 0.150               |
+| CSDA @ 100 eV ratio          | 0.587×  | 0.736×       | 0.733×              |
+
+The asymmetric variant DOES recover cascade ions and W-value, but
+chemistry reverts close to baseline. **The tracked-secondary recomb
+branch is the dominant lever for BOTH chemistry and cascade effects
+— they are NOT separable with selective application of this knob.**
+Genuine third knob has to be physics-driven: H₂O+ tracking with
+proper time integration, where recomb fires only on actual encounter
+events during the chem timestep regardless of which branch spawned
+the eaq.
+
+Production shaders kept at v1 (uniform RECOMB_BOOST=2.0) because
+the chemistry-vs-chem6 closure is the project's marquee thesis.
+Cascade-ion regression is an honest tradeoff documented in E7b.
+
 **Final synthesis from E10e/f/g/h (2026-05-12).** The pattern of pre-chem
 deficits (OH 0.87×, eaq 0.90×, H 0.88×, H₂ 0.51×, H₂O₂ 0.58×) cannot
 be closed by any **single** mechanism:
