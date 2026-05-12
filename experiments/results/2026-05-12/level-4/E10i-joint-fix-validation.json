@@ -1,0 +1,165 @@
+{
+  "meta": {
+    "protocol": "E10i-joint-fix-validation",
+    "hypothesis": "Joint application of SIGMA_EXC_SCALE=0.7 (close E5b/E7) and RECOMB_BOOST=1.2 (close pre-chem H₂/H₂O₂) lands all 5 G-values at 0.1 ps within ±15% of chem6 AND lifts E5b low-E CSDA ratios from <0.85× toward ≥0.85×.",
+    "passBar": "Joint fix passes iff (a) all 5 G-values at 0.1 ps within ±15% of chem6 AND (b) low-E CSDA ratios (100, 300 eV) ≥ 0.75× (substantial improvement from baseline 0.587/0.705×).",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "shaders": "src/shaders/{helpers,primary,secondary}.wgsl with SIGMA_EXC_SCALE=0.7 + RECOMB_BOOST=1.2",
+      "harness": "src/app.ts → runValidation() at N=4096",
+      "chem6_reference": "E9 0.1 ps row (Gvalue0.root)"
+    },
+    "config": {
+      "n_primaries": 4096,
+      "sigma_exc_scale": 0.5,
+      "recomb_boost": 2
+    }
+  },
+  "env": {
+    "gitSha": "d41f94bc49cc5f843959f72145575475f011312a",
+    "gitDirty": true,
+    "timestamp": "2026-05-12T10:01:55.853Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "noisy",
+  "diagnosis": "Joint fix is partial: G-values RMS 19.0% (baseline 30.3%); low-E CSDA 100eV=0.74× 300eV=0.81×. Tune the two scales further.",
+  "summary": {
+    "chem6_targets": {
+      "G_OH": 5.049,
+      "G_eaq": 4.097,
+      "G_H": 0.893,
+      "G_H2": 0.251,
+      "G_H2O2": 0.053
+    },
+    "baseline_at_0p1ps": {
+      "G_OH": 4.382,
+      "G_eaq": 3.694,
+      "G_H": 0.786,
+      "G_H2": 0.127,
+      "G_H2O2": 0.031
+    },
+    "measured_at_0p1ps": {
+      "G_OH": 4.129,
+      "G_eaq": 3.335,
+      "G_H": 1.003,
+      "G_H2O2": 0.041,
+      "G_H2": 0.197
+    },
+    "measured_at_1us": {
+      "G_OH": 1.53,
+      "G_eaq": 1.381,
+      "G_H": 0.778,
+      "G_H2O2": 0.589,
+      "G_H2": 0.535
+    },
+    "rms_dev_baseline_pct": 30.260449227534476,
+    "rms_dev_fixed_pct": 19.000862945346768,
+    "csda_ratios": {
+      "100": 0.7363601678748569,
+      "300": 0.8103592314118631,
+      "500": 0.8570834200124818,
+      "1000": 0.9123117803365812,
+      "3000": 0.9831847133757962,
+      "5000": 0.98359161349134,
+      "10000": 0.9936669699727024,
+      "20000": 0.995503616894967
+    },
+    "page_errors": [],
+    "headline": "0.1ps G(OH)=4.129 G(eaq)=3.335 G(H)=1.003 G(H2)=0.197 G(H2O2)=0.041 | RMS 19.0% (was 30.3%) | CSDA@100eV=0.74×"
+  },
+  "rows": [
+    {
+      "metric": "0p1ps_G_OH",
+      "value": 4.129,
+      "chem6": 5.049,
+      "baseline": 4.382,
+      "ratio_to_chem6": 0.8177857001386412,
+      "improved": false,
+      "status": "fail"
+    },
+    {
+      "metric": "0p1ps_G_eaq",
+      "value": 3.335,
+      "chem6": 4.097,
+      "baseline": 3.694,
+      "ratio_to_chem6": 0.8140102514034658,
+      "improved": false,
+      "status": "fail"
+    },
+    {
+      "metric": "0p1ps_G_H",
+      "value": 1.003,
+      "chem6": 0.893,
+      "baseline": 0.786,
+      "ratio_to_chem6": 1.1231802911534152,
+      "improved": false,
+      "status": "pass"
+    },
+    {
+      "metric": "0p1ps_G_H2",
+      "value": 0.197,
+      "chem6": 0.251,
+      "baseline": 0.127,
+      "ratio_to_chem6": 0.7848605577689244,
+      "improved": true,
+      "status": "fail"
+    },
+    {
+      "metric": "0p1ps_G_H2O2",
+      "value": 0.041,
+      "chem6": 0.053,
+      "baseline": 0.031,
+      "ratio_to_chem6": 0.7735849056603774,
+      "improved": true,
+      "status": "fail"
+    },
+    {
+      "metric": "csda_100_eV",
+      "ratio": 0.7363601678748569,
+      "status": "informational"
+    },
+    {
+      "metric": "csda_300_eV",
+      "ratio": 0.8103592314118631,
+      "status": "informational"
+    },
+    {
+      "metric": "csda_500_eV",
+      "ratio": 0.8570834200124818,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_1000_eV",
+      "ratio": 0.9123117803365812,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_3000_eV",
+      "ratio": 0.9831847133757962,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_5000_eV",
+      "ratio": 0.98359161349134,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_10000_eV",
+      "ratio": 0.9936669699727024,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_20000_eV",
+      "ratio": 0.995503616894967,
+      "status": "pass"
+    }
+  ]
+}

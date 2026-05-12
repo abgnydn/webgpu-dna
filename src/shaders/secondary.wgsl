@@ -211,7 +211,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
       let rdx_t=epx_t-spx;let rdy_t=epy_t-spy;let rdz_t=epz_t-spz;
       let r_sep_t=max(sqrt(rdx_t*rdx_t+rdy_t*rdy_t+rdz_t*rdz_t),1e-6);
       let r_onsager_t:f32=0.711;
-      let p_recomb_t=1.0-exp(-r_onsager_t/r_sep_t);
+      let p_recomb_t=min(1.0,RECOMB_BOOST*(1.0-exp(-r_onsager_t/r_sep_t)));
       let r_recomb_t=rf(&s);
       if(r_recomb_t<p_recomb_t){
         let r_vd=rf(&s);
@@ -313,7 +313,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         let sabdx=sbex-sbpx;let sabdy=sbey-sbpy;let sabdz=sbez-sbpz;
         let sabr_sep=max(sqrt(sabdx*sabdx+sabdy*sabdy+sabdz*sabdz),1e-6);
         let sab_onsager:f32=0.711;
-        let sabp_recomb=1.0-exp(-sab_onsager/sabr_sep);
+        let sabp_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-sab_onsager/sabr_sep)));
         let sabrr=rf(&s);
         if(sabrr<sabp_recomb){
           let sabvd=rf(&s);
@@ -380,7 +380,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         let sahdx=shex-shpx;let sahdy=shey-shpy;let sahdz=shez-shpz;
         let sahr_sep=max(sqrt(sahdx*sahdx+sahdy*sahdy+sahdz*sahdz),1e-6);
         let sah_onsager:f32=0.711;
-        let sahp_recomb=1.0-exp(-sah_onsager/sahr_sep);
+        let sahp_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-sah_onsager/sahr_sep)));
         let sahrr=rf(&s);
         if(sahrr<sahp_recomb){
           let sahvd=rf(&s);

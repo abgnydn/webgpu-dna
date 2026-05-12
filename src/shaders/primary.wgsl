@@ -240,7 +240,7 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
           let rdx=epx-mpx;let rdy=epy-mpy;let rdz=epz-mpz;
           let r_sep=max(sqrt(rdx*rdx+rdy*rdy+rdz*rdz),1e-6);
           let r_onsager:f32=0.711;  // q1*q2 * e^2/(4πε₀ε_r kT) at 298 K, ε=78
-          let p_recomb=1.0-exp(-r_onsager/r_sep);
+          let p_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-r_onsager/r_sep)));
           let r_recomb=rf(&s);
           if(r_recomb<p_recomb){
             // Electron-hole recombination: H2O+ + eaq → H2Ovib → dissociation
@@ -307,7 +307,7 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
           let r_tail=meesungnoen_sigma(min(W_sec,7.4));
           let r_sep_est=max(r_track+r_tail,1e-3);
           let r_onsager_t:f32=0.711;
-          let p_recomb_t=1.0-exp(-r_onsager_t/r_sep_est);
+          let p_recomb_t=min(1.0,RECOMB_BOOST*(1.0-exp(-r_onsager_t/r_sep_est)));
           let r_recomb_t=rf(&s);
           if(r_recomb_t<p_recomb_t){
             let r_vd=rf(&s);
@@ -489,7 +489,7 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
           let abdx=aex-bpx;let abdy=aey-bpy;let abdz=aez-bpz;
           let abr_sep=max(sqrt(abdx*abdx+abdy*abdy+abdz*abdz),1e-6);
           let ab_onsager:f32=0.711;
-          let abp_recomb=1.0-exp(-ab_onsager/abr_sep);
+          let abp_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-ab_onsager/abr_sep)));
           let abrr=rf(&s);
           if(abrr<abp_recomb){
             let abvd=rf(&s);
@@ -576,7 +576,7 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
           let ahdx=hex-hpx;let ahdy=hey-hpy;let ahdz=hez-hpz;
           let ahr_sep=max(sqrt(ahdx*ahdx+ahdy*ahdy+ahdz*ahdz),1e-6);
           let ah_onsager:f32=0.711;
-          let ahp_recomb=1.0-exp(-ah_onsager/ahr_sep);
+          let ahp_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-ah_onsager/ahr_sep)));
           let ahrr=rf(&s);
           if(ahrr<ahp_recomb){
             let ahvd=rf(&s);

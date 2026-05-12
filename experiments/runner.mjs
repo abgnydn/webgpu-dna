@@ -29,6 +29,7 @@ import { runE10e } from './level-4-chemistry/E10e-cross-event-recomb-synthetic.m
 import { runE10f } from './level-4-chemistry/E10f-per-primary-partitioning.mjs';
 import { runE10g } from './level-4-chemistry/E10g-recomb-rate-sensitivity.mjs';
 import { runE10h } from './level-4-chemistry/E10h-time-integrated-recomb-prediction.mjs';
+import { runE10i } from './level-4-chemistry/E10i-joint-fix-validation.mjs';
 import { runE9 } from './level-3-prechemistry/E9-prechem-vs-chem6.mjs';
 import { runE15 } from './level-6-performance/E15-phase-a-alpha-beta.mjs';
 import { runE15b } from './level-6-performance/E15b-vs-geant4-single-thread.mjs';
@@ -76,6 +77,7 @@ const REGISTRY = {
   E10f: { run: runE10f, level: 'level-4', id: 'E10f-per-primary-partitioning' },
   E10g: { run: runE10g, level: 'level-4', id: 'E10g-recomb-rate-sensitivity' },
   E10h: { run: runE10h, level: 'level-4', id: 'E10h-time-integrated-recomb-prediction' },
+  E10i: { run: runE10i, level: 'level-4', id: 'E10i-joint-fix-validation' },
   E11:  { run: runE11,  level: 'level-4', id: 'E11-gpu-chem-vs-irt' },
 
   // Level 3 — pre-chemistry

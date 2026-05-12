@@ -1,6 +1,22 @@
 const PI=3.14159265;
 const NW=33.4;  // molecules/nm³ in liquid water
 
+// JOINT-FIX SCALES (see PHYSICS_DIAGNOSIS §1 + E10h):
+// - SIGMA_EXC_SCALE: scales the Emfietzoglou σ_exc total. Original Emfietzoglou
+//   is 2.39-2.76× larger than Geant4's Born σ_exc (intentional to recover
+//   correct initial G(H) ≈ 0.5 per Karamitros). E5b shows this inflation
+//   shortens CSDA at sub-keV by up to 41%; E7 shows it shortens cascade ions
+//   by 27%. 0.7× partial reduction recovers most of the cascade physics
+//   while keeping the H-producing channels active.
+// - RECOMB_BOOST: scales the Onsager P_recomb in the e-h recombination check
+//   to approximate Geant4's process-step time-integrated recomb (our one-shot
+//   check at t=0 separation underestimates). E10g found ~25% additional
+//   recomb fraction matches chem6 G(H₂)@0.1ps; E10h showed 15% is the sweet
+//   spot when paired with proper H₂Ovib branching, since G(eaq) starts taking
+//   collateral damage above that.
+const SIGMA_EXC_SCALE:f32=0.5;
+const RECOMB_BOOST:f32=2.0;
+
 // Cross sections (XE, XI, XC, XL, XSF*, XAE, XAC, XWE, XWS*) plus
 // their log-space indexing constants (LOG_XE0, INV_LOG_XE_STEP, ...)
 // are prepended to this shader at load time by fetching
@@ -14,14 +30,14 @@ const EX=array<f32,5>(8.22,10.00,11.24,12.61,13.77);
 
 fn xs_all(E:f32)->vec3<f32>{
   if(E<=XE[0]){return vec3<f32>(0.0,0.0,XL[0]);}
-  if(E>=XE[XN-1u]){return vec3<f32>(XI[XN-1u],XC[XN-1u],XL[XN-1u]);}
+  if(E>=XE[XN-1u]){return vec3<f32>(XI[XN-1u],XC[XN-1u]*SIGMA_EXC_SCALE,XL[XN-1u]);}
   let t=(log(E)-LOG_XE0)*INV_LOG_XE_STEP;
   let i=u32(clamp(floor(t),0.0,f32(XN-2u)));
   let f=t-f32(i);
   let j=i+1u;
   return vec3<f32>(
     max(0.0,XI[i]+(XI[j]-XI[i])*f),
-    max(0.0,XC[i]+(XC[j]-XC[i])*f),
+    max(0.0,XC[i]+(XC[j]-XC[i])*f)*SIGMA_EXC_SCALE,
     max(0.0,XL[i]+(XL[j]-XL[i])*f)
   );
 }
