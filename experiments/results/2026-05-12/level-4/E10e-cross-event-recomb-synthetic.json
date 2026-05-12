@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "protocol": "E10e-cross-event-recomb-synthetic",
+    "hypothesis": "PHYSICS_DIAGNOSIS §1 candidate #4: Geant4's G4DNAElectronHoleRecombination uses nearest-eaq within 10·r_Onsager of each H₂O+, not just the geminate pair. In dense ionization clusters, the nearest eaq is often NOT the geminate one — closer than r_geminate (Meesungnoen σ ≈ 1.78 nm at 1.7 eV) → higher P_recomb → more H₂Ovib events → more H₂/H₂O₂. Quantify the additional H₂Ovib events/primary under nearest-eaq lookup at 10 keV.",
+    "passBar": "Mean (P_recomb_nearest − P_recomb_geminate) > 0.03 per non-recombined ionization → hypothesis supported. Below 0.01 → refuted. In between → ambiguous/weak.",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "radBin": "dumps/rad_E10000_N4096.bin",
+      "onsagerRef": "G4DNAElectronHoleRecombination.cc:248-308"
+    },
+    "config": {
+      "energy_eV": 10000,
+      "n_primaries": 4096,
+      "r_onsager": 0.711,
+      "r_search": 7.109999999999999
+    }
+  },
+  "env": {
+    "gitSha": "134fc4c01b4dc41fb0b48f54d94b39eace21d779",
+    "gitDirty": true,
+    "timestamp": "2026-05-12T08:23:08.822Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": "Cross-event recomb adds ~2.00 H₂/primary under nearest-eaq model — supports PHYSICS_DIAGNOSIS §1 candidate #4.",
+  "summary": {
+    "n_primaries_with_data": 4096,
+    "total_h2op_sites": 1523204,
+    "sites_per_primary": 371.8759765625,
+    "mean_p_recomb_geminate": 0.19077978173862853,
+    "mean_p_recomb_nearest": 0.23008829593052332,
+    "mean_p_recomb_delta": 0.039308514191894794,
+    "additional_h2ovib_per_site": 0.039308514191894794,
+    "additional_h2_per_primary": 1.9953422719682865,
+    "h2_deficit_per_primary_target": 12.4,
+    "nearest_dist_stats_nm": {
+      "mean": 4.052457699104932,
+      "p10": 1.2963427581086502,
+      "p50": 2.9577080671410574,
+      "p90": 8.202897337616784,
+      "max": 45.07317522505721
+    },
+    "geminate_dist_stats_nm": {
+      "mean": 3.7610341466826416,
+      "p10": 2.223570859677559,
+      "p50": 3.690460006889464,
+      "p90": 5.34,
+      "max": 5.34
+    },
+    "headline": "delta_P=0.0393 sites/pri=371.9 extra_H2/pri=2.00 (target=12.4)"
+  },
+  "rows": [
+    {
+      "metric": "mean_p_recomb_geminate",
+      "value": 0.19077978173862853,
+      "status": "informational"
+    },
+    {
+      "metric": "mean_p_recomb_nearest",
+      "value": 0.23008829593052332,
+      "status": "informational"
+    },
+    {
+      "metric": "mean_p_recomb_delta",
+      "value": 0.039308514191894794,
+      "threshold_pass": 0.03,
+      "status": "pass"
+    },
+    {
+      "metric": "h2op_sites_per_primary",
+      "value": 371.8759765625,
+      "status": "informational"
+    },
+    {
+      "metric": "additional_h2_per_primary_model",
+      "value": 1.9953422719682865,
+      "status": "informational",
+      "note": "Model: nearest-eaq within 10·r_Onsager. Compare to E9 deficit of 12.4 H₂/primary."
+    },
+    {
+      "metric": "nearest_dist_nm_median",
+      "value": 2.9577080671410574,
+      "status": "informational"
+    },
+    {
+      "metric": "nearest_dist_nm_p10",
+      "value": 1.2963427581086502,
+      "status": "informational"
+    },
+    {
+      "metric": "geminate_dist_nm_median",
+      "value": 3.690460006889464,
+      "status": "informational"
+    }
+  ]
+}
