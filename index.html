@@ -497,23 +497,23 @@
       <tbody>
         <tr>
           <td class="aspect">Install</td>
-          <td class="old">50+ GB toolkit · 2–4 hr C++ compile · CMake, ROOT, Xerces, GDML dependencies · data files from CERN</td>
-          <td class="new"><strong>None.</strong> Open a URL. 94 KB of JavaScript, 1.3 MB of cross-section data, served over CDN.</td>
+          <td class="old">Multi-GB toolkit · ~1–4 hr C++ compile · CMake, ROOT, Xerces, GDML dependencies · data files from CERN</td>
+          <td class="new"><strong>None.</strong> Open a URL. ~100 KB of JavaScript (~50 KB gzipped), 1.2 MB of cross-section data, served over CDN.</td>
         </tr>
         <tr>
           <td class="aspect">Hardware</td>
-          <td class="old">Linux workstation or HPC cluster · typically 16–64 CPU cores to be usable</td>
-          <td class="new">Any laptop or phone with a WebGPU-capable browser. Tested down to Apple M1 and Intel integrated graphics.</td>
+          <td class="old">Linux / macOS / Windows workstation; HPC cluster for production-scale runs (Geant4 MT scales modestly — E15c shows MT-8 is only 1.6× faster than single-thread on this workload)</td>
+          <td class="new">Any laptop or phone with a WebGPU-capable browser. Validated on Apple M2 Pro (Metal-3) — see <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[B0]</a>.</td>
         </tr>
         <tr>
           <td class="aspect">Time to first result</td>
           <td class="old">Hours of setup, then minutes to hours per 10 keV run depending on primaries &amp; core count</td>
-          <td class="new"><strong>~10 seconds</strong> from page load to full 8-energy validation sweep at 4096 primaries.</td>
+          <td class="new"><strong>~50 ms</strong> for primary tracking at 4096 × 10 keV (the fused Phase A dispatch). The full 8-energy harness with IRT radiolysis chemistry at 10 keV is <strong>~3 min</strong> end-to-end — IRT on CPU is the bottleneck.</td>
         </tr>
         <tr>
           <td class="aspect">Physics fidelity @ 10 keV</td>
           <td class="old">Reference (by construction)</td>
-          <td class="new">CSDA <strong>0.988×</strong> @ 10 keV · energy conservation <strong>100.0%</strong> · cascade ions/primary 0.730× · chemistry G-values 0.71×–1.00× vs Geant4 chem6 (matched LET, joint fix applied) · indirect/direct SSB ratio <strong>2.96</strong> (PARTRAC 2-3 band)<div class="hint">All numbers backed by JSON artifacts — see <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a> for the falsifiable source of truth</div></td>
+          <td class="new">CSDA <strong>0.988×</strong> @ 10 keV · energy conservation <strong>100.0%</strong> · cascade ions/primary 0.730× · chemistry G-values 0.71×–1.00× vs Geant4 chem6 at matched 10 keV LET · indirect/direct SSB ratio <strong>2.96</strong> (PARTRAC 2-3 band)<div class="hint">All numbers backed by JSON artifacts — see <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a> for the falsifiable source of truth</div></td>
         </tr>
         <tr>
           <td class="aspect">Reproducibility</td>
