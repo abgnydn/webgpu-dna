@@ -1,0 +1,95 @@
+{
+  "meta": {
+    "protocol": "E10f-per-primary-partitioning",
+    "hypothesis": "PHYSICS_DIAGNOSIS §1 hypothesis B (newly promoted to lead post-E10e): our per-primary IRT partitioning loses cross-primary recombination chemistry that chem6 captures. Routing all 4096 primaries through one chemistry call should close part of the G(H₂) and G(H₂O₂) pre-chem deficits.",
+    "passBar": "ΔG(H₂) ≥ 0.06 at 0.1 ps (closes half of E9 deficit of 0.124) → strong support; ΔG(H₂) ≤ 0.02 → refuted; mid-range → ambiguous.",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "radBin": "dumps/rad_E10000_N4096.bin",
+      "irtTool": "tools/run_irt.cjs (shimmed WebWorker)",
+      "worker": "public/irt-worker.js"
+    },
+    "config": {
+      "energy_eV": 10000,
+      "n_primaries_total": 4096,
+      "n_primaries_sample": 128
+    }
+  },
+  "env": {
+    "gitSha": "7eed67ecd9c82535d503f695cb6af872310e8823",
+    "gitDirty": true,
+    "timestamp": "2026-05-12T08:45:56.816Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "ΔG(H₂) = 0.000 at 0.1 ps — partitioning is NOT the major source of the deficit.",
+  "summary": {
+    "G_H2_partitioned_0p1ps": null,
+    "G_H2_no_partition_0p1ps": null,
+    "delta_G_H2_0p1ps": 0,
+    "delta_G_H2O2_0p1ps": 0,
+    "delta_G_OH_0p1ps": 0,
+    "delta_G_eaq_0p1ps": 0,
+    "delta_G_H_0p1ps": 0,
+    "G_H2_partitioned_1us": null,
+    "G_H2_no_partition_1us": null,
+    "target_deficit": 0.124,
+    "headline": "dG(H2)@0.1ps=0.000 dG(H2O2)@0.1ps=0.000 (target=0.124/0.022)"
+  },
+  "rows": [
+    {
+      "metric": "G_H2_at_0p1ps_partitioned",
+      "value": null,
+      "status": "informational"
+    },
+    {
+      "metric": "G_H2_at_0p1ps_no_partition",
+      "value": null,
+      "status": "informational"
+    },
+    {
+      "metric": "delta_G_H2_at_0p1ps",
+      "value": 0,
+      "threshold_pass": 0.06,
+      "status": "fail"
+    },
+    {
+      "metric": "delta_G_H2O2_at_0p1ps",
+      "value": 0,
+      "status": "informational"
+    },
+    {
+      "metric": "delta_G_OH_at_0p1ps",
+      "value": 0,
+      "status": "informational"
+    },
+    {
+      "metric": "delta_G_eaq_at_0p1ps",
+      "value": 0,
+      "status": "informational"
+    },
+    {
+      "metric": "delta_G_H_at_0p1ps",
+      "value": 0,
+      "status": "informational"
+    },
+    {
+      "metric": "G_H2_at_1us_partitioned",
+      "value": null,
+      "status": "informational"
+    },
+    {
+      "metric": "G_H2_at_1us_no_partition",
+      "value": null,
+      "status": "informational"
+    }
+  ]
+}
