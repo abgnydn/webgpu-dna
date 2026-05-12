@@ -151,7 +151,13 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
 
     if (wantDump && r.rad_buf_final) {
       const dumpName = `rad_E${r.E}_N${np}.bin`;
-      const blob = new Blob([r.rad_buf_final.buffer], { type: 'application/octet-stream' });
+      // Copy into a fresh ArrayBuffer to dodge TS's
+      // SharedArrayBuffer-vs-ArrayBuffer discriminated union on
+      // typed-array .buffer — runtime cost is one memcpy, negligible
+      // compared to the network POST.
+      const ab = new ArrayBuffer(r.rad_buf_final.byteLength);
+      new Float32Array(ab).set(r.rad_buf_final);
+      const blob = new Blob([ab], { type: 'application/octet-stream' });
       try {
         const resp = await fetch(`/dump/${dumpName}`, { method: 'POST', body: blob });
         if (resp.ok) {
