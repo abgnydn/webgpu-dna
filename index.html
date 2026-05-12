@@ -454,9 +454,9 @@
 <section class="stats" id="what">
   <div class="grid">
     <div class="stat">
-      <div class="val">0.985×</div>
+      <div class="val">0.988×</div>
       <div class="lbl">CSDA @ 10 keV</div>
-      <div class="sub">2714.4 nm vs Geant4 2756.5 nm</div>
+      <div class="sub">2714.4 nm vs Geant4 11.4.1 2747.5 nm — <a href="https://github.com/abgnydn/webgpu-dna#numbers">see § Numbers</a></div>
     </div>
     <div class="stat">
       <div class="val">100.0%</div>
@@ -513,7 +513,7 @@
         <tr>
           <td class="aspect">Physics fidelity @ 10 keV</td>
           <td class="old">Reference (by construction)</td>
-          <td class="new">CSDA <strong>0.985×</strong> · energy conservation <strong>100.0%</strong> · ions/primary exact match · chemistry G-values <strong>0.6×–1.2×</strong> Karamitros 2011 (LET-dependent; G(OH)/G(e⁻aq) sit below the low-LET reference as expected at 10 keV)<div class="hint">Verified side-by-side against a Geant4 11.4.1 dnaphysics ntuple</div></td>
+          <td class="new">CSDA <strong>0.988×</strong> @ 10 keV · energy conservation <strong>100.0%</strong> · cascade ions/primary 0.730× · chemistry G-values 0.71×–1.00× vs Geant4 chem6 (matched LET, joint fix applied) · indirect/direct SSB ratio <strong>2.96</strong> (PARTRAC 2-3 band)<div class="hint">All numbers backed by JSON artifacts — see <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a> for the falsifiable source of truth</div></td>
         </tr>
         <tr>
           <td class="aspect">Reproducibility</td>
@@ -567,7 +567,7 @@
       <ul>
         <li>Product tracking: H₂O₂ and OH⁻ with full re-pairing</li>
         <li>7 time checkpoints, 0.1 ps → 1 μs</li>
-        <li>G(H₂) ≈1.1× and G(H) ≈1.2× Karamitros 2011; G(OH)/G(e⁻aq) deficit at 10 keV is expected vs the low-LET (~1 MeV) reference</li>
+        <li>G(H) 1.00× chem6 @ matched 10 keV LET, G(OH)/G(eaq) ~0.9× (mix of real LET physics + implementation gap) — full breakdown in <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a></li>
       </ul>
     </div>
 

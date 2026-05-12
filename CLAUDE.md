@@ -63,229 +63,28 @@ build into `index.html`. `public/geant4dna.html` is a historical monolithic
 reference kept in-repo for bit-identical physics cross-checks — it is not the
 validation target.
 
-### Current validation status (N = 4096 primaries, 10 keV)
+### Current validation status
 
-All Geant4-side numbers below are from a freshly-built **Geant4 11.4.1 / G4EMLOW 8.8**
-install (`~/Downloads/geant4-v11.4.1-install/`) running `dnaphysics` on
-`validation/run_validation.mac`. Every line is backed by a committed artifact
-under `experiments/results/2026-05-11/`; `[E5]` tags point at the JSON.
+**All quantitative claims about this project live in [`README.md` § Numbers](./README.md#numbers).**
+That section is the single source of truth — every artifact link, every ratio, every
+σ-significance figure. Do not introduce new numbers anywhere else (this file, slide
+decks, blog posts, index.html headlines) without first landing them in §Numbers.
 
-- **CSDA** 2714.4 nm vs Geant4 11.4.1 direct 2747.5 nm → **0.988× (3.59σ)** [E5]
-- **Ions / primary (primary track only)** 194.1 (GPU `box_ions` atomic) [E5]
-- **Ions / primary (full cascade, reconstructed)** 371.9 from rad_buf H3O+ records
-  vs Geant4 cascade 509.2 → **0.730× (263σ deficit, ~27%)** [E7]
-- **Energy conservation** 100.0% / 99.99% [E5]
-- **MFP vs Geant4** ratios [0.893, 0.950], median 0.941 across 6 energy bins
-  (-5.0% to -10.7%, all within the 25% pass bar) [E6]
-- **Per-process σ vs Geant4** ion mean 1.061 (range 1.035-1.105), el mean 1.057
-  (1.041-1.104), exc mean 2.55 (2.39-2.76, intentional Emfietzoglou-vs-Born) [E6b]
-- **G(OH) @ 1 μs (10 keV)** 1.551 → 0.621× Karamitros 2011 (low-LET ~1 MeV) [E10]
-- **G(OH) @ 1 μs (10 keV) vs Geant4 chem6 at MATCHED 10 keV** 1.551 / 1.710 → **0.907× (4.8σ)** [E10c]
-- **G(e⁻aq) @ 1 μs (10 keV) vs chem6** 1.406 / 1.694 → **0.830× (9.7σ)** [E10c]
-- **G(H) @ 1 μs (10 keV) vs chem6** 0.708 / 0.710 → 0.997× (no significant deviation) [E10c]
-- **G(H₂O₂) @ 1 μs (10 keV) vs chem6** 0.605 / 0.850 → **0.711× (20.0σ)** [E10c]
-- **G(H₂) @ 1 μs (10 keV) vs chem6** 0.468 / 0.622 → **0.752× (13.8σ)** [E10c]
-- **G(e⁻aq) V-shape (1→3 keV) significance** drop 0.137 (12.5%) at **z = 126σ**
-  (B=20 primary-bootstrap, m/n corrected SE; was claimed as "~40σ" before
-  E10b actually measured it) [E10b]
-- **Phase A wall-clock @ N=4096, 10 keV** 14.4 ms; peak throughput 538,947
-  primaries/sec at N=16384; per-primary marginal cost β = 1.207 μs [E15]
-- **Speedup vs Geant4 11.4.1 single-thread (matched scope, Phase A+B)** 455×
-  (Geant4 median 289.1 s over 3 trials, WGSL Phase A+B = 635 ms) [E15b]
-- **End-to-end pre-DNA pipeline vs Geant4** 1.48× (IRT chemistry on CPU
-  dominates wall-clock — 194 s of 194.6 s end-to-end) [E15b]
-- **46 / 46** unit tests pass across 7 files (`npm run test`, 233 ms)
+When measuring a new ratio: write the protocol → run the experiment → commit the
+JSON artifact under `experiments/results/<UTC-date>/<level>/<id>.json` → add a row
+to §Numbers → only then mention it elsewhere.
 
-G(OH) / G(e⁻aq) at 10 keV are inherently below the Karamitros 2011 reference
-because that reference is for ~1 MeV low-LET radiation, where track-core radical
-recombination is lower. See `validation/compare.py` for the full side-by-side.
+Notable current findings (full descriptions in §Numbers):
 
-### Research-grade validation ledger (30 artifacts, 2026-05-11; all Geant4-side numbers from a fresh Geant4 11.4.1 / G4EMLOW 8.8 install)
+- **L0/L1**: 2 of 2 env + 9 of 9 cross-section bit-matches pass.
+- **L2**: CSDA 0.988× @ 10 keV (3.59σ) [E5]; E5b shows the deficit is energy-dependent (0.587× @ 100 eV → 0.992× @ 20 keV); cascade ions 27% low [E7]; secondary KE spectrum 7/8 bins within 0.1-3.1% [E8].
+- **L3**: G(species) @ 0.1 ps pre-chem vs chem6 — OH/eaq/H all ~12% low, H₂/H₂O₂ ~50% low [E9].
+- **L4**: G-values vs chem6 @ 10 keV — OH 0.91×, eaq 0.83×, H 1.00×, H₂ 0.75×, H₂O₂ 0.71× [E10c]. G(eaq) V-shape 1→3 keV @ 126σ [E10b]. E10e refuted cross-event recomb (3.5% contribution); E10f confirmed per-primary partitioning is 96% of the 1 μs gap; E10i joint fix (σ_exc=0.5, B=2.0) lifts RMS dev 30% → 19% and CSDA @ 100 eV to 0.74×.
+- **L5**: indirect SSB ratio closed 0 → 2.96 (PARTRAC 2-3 band) via 4-stage fix [E13c].
+- **L6**: 455× vs Geant4 ST [E15b], 280× vs Geant4 MT-8 [E15c], 40× kernel-fusion factor [E16].
+- **46/46 unit tests** pass (`npm run test`, ~200 ms).
 
-The prose claims above are now backed by falsifiable JSON artifacts
-under `experiments/results/`. See `RESEARCH.md` for the protocol and
-per-level `protocol.md` files for hypotheses + pass bars.
-
-- **L0 — Browser-runner infra (2 of 2 passing).** B0 browser env capture
-  (apple/metal-3, headless Chromium, maxBuffer 4 GB). B1 webgpu-dna
-  harness liveness via Playwright + headless Chromium WebGPU (E=100 eV
-  first row, CSDA=15.7 nm in 2.9 s on the 2026-05-11 run). [B0, B1]
-- **L1 — Cross sections (9 of 9 passing).** E1 Born σ_ion total, E1b
-  per-shell σ_ion (5 shells: 1b₁/3a₁/1b₂/2a₁/1a₁, all in band), E1c
-  shell-fraction closure (Σ XSF_i = 1.0 within 5e-3 across all 96
-  active energy bins), E2 Emfietzoglou σ_exc total, E2b per-level
-  σ_exc (5 levels: A¹B₁/B¹A₁/Ryd A+B/Ryd C+D/Diffuse, all in band),
-  E3 Champion elastic σ (retroactive 334× scale-factor catcher per
-  memory/cross_section_fix.md), E3b Champion angular CDF (25 of 25
-  energies in 0.10 cos(θ) band, ~6° angular accuracy), E4 Sanche
-  vibrational total, E4b Sanche per-mode XVMF fractions. All nine
-  WGSL cross-section validations pass.
-- **L2 — Track structure (6 of 6 attempted, 3 pass / 2 honest-negative
-  / 1 partial pass).** E5 CSDA + E-cons @ 10 keV vs Geant4 11.4.1
-  ntuple (pass). E6 MFP across 6 energy bins (-5.0% to -10.7% deviation,
-  all within 25% bar, pass). E6b per-process σ decomposition (ion
-  +6.1%, el +5.7%, exc +155% intentional, pass). **E7 cascade ions
-  per primary** (fail — WGSL 371.9 vs Geant4 509.2, 27% deficit, 263σ,
-  real physics gap). **E8 secondary KE spectrum** (partial pass —
-  sec/primary 143.4 vs G4 144.9 (1.0% match), 7 of 8 log-bins in
-  6-800 eV agree within 0.1-3.1%, only the 438-806 eV tail shows a
-  43% deficit; closes the Born differential CDF sampling correctness
-  question). **E5b CSDA at all 8 ESTAR energies** (fail, honest negative
-  — 6/8 outside pass bar): ratio grows monotonically from **0.587× @
-  100 eV → 0.992× @ 20 keV** (0.705× / 0.776× / 0.864× / 0.965× /
-  0.975× / 0.988× / 0.992× at 300/500/1000/3000/5000/10000/20000 eV).
-  **New finding**: the previously-claimed-isolated 0.988× CSDA bias
-  at 10 keV is actually the tail of a much larger low-energy CSDA
-  deficit. Likely tied to the Emfietzoglou σ_exc inflation (finding
-  E6b) — at sub-keV the excitation channel dominates the total cross
-  section more strongly, so more energy is partitioned to excitation
-  (~10 eV per event) and away from the ionization cascade that
-  extends the track. [E5b]
-- **L4 — Chemistry (5 of 5 attempted, 2 pass + 1 partial pass + 2 fail
-  honest-negative).** E10d closes the LET-trend comparison: chem6 vs
-  WGSL IRT at all 5 V-shape energies (1/3/5/10/20 keV) — **24 of 25
-  species×energy cells in 30% band**, and chem6 INDEPENDENTLY reproduces
-  the G(eaq) V-shape (1.36 → 1.26 → 1.41 from 1 to 5 keV). **Confirms
-  E10/E10b's V-shape is real LET physics, not an IRT-side artifact.**
-  Per-species deficits: OH ~12% / eaq ~17% uniform; H ~0% (perfect);
-  H₂ and H₂O₂ deficits grow LET-dependently (0.92→0.71 and 0.91→0.66
-  from 1 to 20 keV). [E10d]
-  E10 IRT G-values vs Karamitros 2011 across 5 primary energies
-  (1/3/5/10/20 keV) — pass. E10b V-shape σ-significance via primary
-  bootstrap — pass, **126σ** (was claimed as ~40σ; now properly measured).
-  E10c G(species) vs Geant4 11.4.1 chem6 at matched 10 keV LET — fail
-  (honest negative): G(OH) 0.91× / G(eaq) 0.83× / G(H) 1.00× /
-  G(H₂) 0.75× / G(H₂O₂) 0.71×. **Closes the previously open question
-  "is the 0.6× vs Karamitros real LET-deficit physics or our chemistry
-  has a bug?"** Answer: both — the deficit decomposes as ~30% real LET
-  effect (closed by E10c being well above 0.62×) + ~10-29% real
-  WGSL-vs-chem6 implementation gap, biggest on H₂ and H₂O₂.
-  **E11 GPU chem backend vs IRT worker on the same rad bin (fail, honest
-  negative):** GPU primary species match IRT within 5% at t ≤ 100 ps; at
-  long times G(OH) and G(eaq) diverge upward (2.33× and 2.19× at 1 μs)
-  because GPU spatial-hash search radius is narrower than diffusion σ at
-  30 ns timestep — more OH/eaq survive. Molecular products (H₂, H₂O₂)
-  consistently low (0.18-0.30×). GPU runs in 14.2 s vs IRT's 194 s
-  (13.6× faster but inaccurate at long times) — quantifies why
-  DEFAULT_CHEM_BACKEND='worker'. [E11]
-- **L6 — Performance (5 of 5 attempted, 3 pass + 2 honest-negative).**
-  E15d extends E15 to all 8 ESTAR energies: β scales monotonically
-  from 0.23 μs/pri @ 100 eV up to 2.05 μs/pri @ 20 keV; peak throughput
-  drops from 2.1M pri/s to 0.29M pri/s across that range. Confirms
-  per-primary compute cost is energy-dependent (longer histories =
-  more inner-loop iterations in the fused kernel). [E15d]
-  E15 Phase A α/β decomposition via WebGPU + Playwright N-sweep
-  (N ∈ {1, 4, 16, 64, 256, 1024, 4096, 16384}, W=5 + T=20 with
-  `onSubmittedWorkDone()` sync). α = 10527.8 μs (single-workgroup
-  compute floor; original [10, 500] μs hypothesis falsified — the
-  fused WGSL primary kernel runs the full per-electron history inside
-  a for-loop, so even at N=1 we pay ~7 ms for one workgroup's worth
-  of physics). β = 1.207 μs/primary, R² = 0.908. Peak throughput
-  538,947 primaries/sec at N=16384 on apple/metal-3. [E15]
-  **E15b vs Geant4 11.4.1 single-thread on the same M2 Pro:** 455×
-  speedup on matched-scope physics tracking (Phase A+B 635 ms vs
-  Geant4 median 289.1 s over 3 trials), satisfies the L6 protocol's
-  ≥100× claim *vs Geant4 single-thread*. End-to-end pre-DNA pipeline
-  only 1.48× because IRT chemistry on CPU is the bottleneck —
-  GPU-accelerated chemistry is the next obvious win. [E15b]
-  **E15c WGSL vs Geant4 MT-8 (production-realistic baseline):** Geant4
-  MT-8 median 178.0 s → **280× speedup vs WGSL Phase A+B**. Geant4's
-  MT scaling is only 1.6× over ST on this workload, well below the
-  theoretical 8× (per-event task scheduling + memory contention limit
-  parallel efficiency). The 280× number is the "what production users
-  see" speedup; 455× is the within-protocol vs-ST number. [E15c]
-  **E16 within-WebGPU fused-vs-naive: 40× speedup** (T_fused 17.75 ms
-  vs modeled T_naive 414 × 1.70 = 704 ms). **L6 protocol's "≥100×
-  kernel-fusion thesis" falsified at the measured magnitude** — the
-  thesis is supported in spirit (40× is substantial and consistent
-  with kernelfusion.dev's 71× Apple Silicon benchmark) but the
-  absolute factor for this particular physics kernel is roughly half
-  the protocol's claim. The 455× E15b speedup decomposes into ~10×
-  from GPU vs CPU + ~40× from kernel fusion (multiplicative). [E16]
-- **L3 — Pre-chemistry (1 of 1 attempted, fail honest-negative).**
-  E9 G(species) @ 0.1 ps vs Geant4 11.4.1 chem6 at matched 10 keV
-  (uses the cache populated by E10 with the freshly-added 0.1 ps
-  checkpoint in public/irt-worker.js; chem6 ROOT from E10c). OH
-  0.868× (9.5σ), eaq 0.901× (6.9σ), H 0.880× (6.7σ), H₂ 0.508×
-  (22.0σ), H₂O₂ 0.577× (9.3σ). **Localizes the E10c 1 μs deficit
-  to pre-chemistry, not IRT reaction rates.** See PHYSICS_DIAGNOSIS.md
-  for the propagation table + concrete fix candidates. [E9]
-- **L5 — DNA damage (4 of 4 attempted, 3 pass / 1 fail → fix applied).**
-  E12 SSB/DSB yields vs Friedland 2011 PARTRAC: DSB/SSB ratio 0.083 vs
-  0.023 → 3.57×, in the geometry-independent factor-5 pass band.
-  E13 indirect/direct SSB ratio failed at 0/24=0 vs PARTRAC 2-3.
-  E13b parametric Node sweep predicted SSB_ind=174 at r=1.0 nm.
-  **E13c three-stage closure (2026-05-12):** (1) first attempt with
-  shared SSB_R_DAMAGE_NM=1.0 nm exploded SSB_dir 24→388 — split into
-  SSB_R_DAMAGE_NM (direct, 0.29) + SSB_R_DAMAGE_INDIRECT_NM (indirect,
-  1.0); (2) re-run after split kept SSB_dir=24 but SSB_ind=0 still →
-  confirmed late-time-scoring root cause; (3) **instrumented
-  public/irt-worker.js to accumulate OH-backbone encounters during
-  the IRT timeline** (PHYSICS_DIAGNOSIS.md §3 option b — passes DNA
-  geometry through postMessage, scores at every OH death event + 1μs
-  survivor). Final E13c: **SSB_ind 0 → 451** (first non-zero). New
-  honest finding: ratio 18.79× overshoots PARTRAC's 2-3 — semantic
-  mismatch between our "OH-at-death-position" check and PARTRAC's
-  "diffusion-path encounter". SSB_P_INDIRECT calibration is the next
-  step. E14 against molecularDNA's full chromatin model deferred.
-  [E12, E13, E13b, E13c]
-
-**Eight substantive findings now in the research ledger** (would NOT
-be visible without the protocol):
-
-1. **G(e⁻aq) is non-monotonic between 1 and 3 keV at z = 126σ** (1.163 at
-   1 keV → 1.026 at 3 keV → 1.147 at 5 keV — 12.5% drop, real track-end /
-   spur-structure physics). Significance measured by E10b via primary-level
-   bootstrap (B=20 unique-pids resamples per energy, with m/n correction
-   for sub-sampling SE). The naive "monotonic LET deficit" framing
-   applies cleanly only to E ≥ 5 keV. Previously claimed as "~40σ"
-   without backing — now properly measured. [E10, E10b]
-2. **The CSDA deficit is energy-dependent — 0.587× @ 100 eV → 0.992×
-   @ 20 keV**, with the previously-isolated 0.988× @ 10 keV being just
-   the high-energy tail. Per-energy ratios (E5b): 0.587 / 0.705 / 0.776
-   / 0.864 / 0.965 / 0.975 / 0.988 / 0.992× at 100/300/500/1000/3000/
-   5000/10000/20000 eV. The low-E deficit is statistically significant
-   (28σ at 100/300/500 eV). Likely tied to finding (4): the Emfietzoglou
-   σ_exc inflation matters most at sub-keV where excitation dominates
-   the total cross section. The fix that closes E5b would also close
-   E7 (the cascade-ion deficit). [E5, E5b]
-3. **MFP is consistently 5.0-10.7% lower than Geant4 across all bins**
-   (median 0.941, range [0.893, 0.950] across 6 bins from 100 eV to
-   10 keV). [E6]
-4. **σ_ion is 6.1% high and σ_el is 5.7% high vs Geant4 11.4.1** (E6b
-   decomposition; ion mean 1.061 / range [1.035, 1.105], el mean 1.057 /
-   range [1.041, 1.104]). Per E6b, the MFP shortfall decomposes as
-   ~49% from σ_ion overestimate, ~31% from σ_el overestimate, ~20%
-   from the (intentional) σ_exc inflation. The σ_exc ratio observed
-   (2.39-2.76×, mean 2.55×) is slightly higher than the "2.2-2.4×
-   larger than Born" documented in `tools/convert_g4data.py` — worth
-   re-deriving when convenient. [E6b]
-5. **WGSL cascade ions/primary is 27% lower than Geant4** (371.9 vs
-   509.2, 263σ statistically significant). Reconstructed from rad_buf
-   H3O+ records (species_code=3) summed across the full cascade, this
-   closes the counting-convention question E5 punted on and surfaces
-   that the 27% gap is a *real physics deficit*, not just a counting
-   artifact. Likely tied to finding (4): Emfietzoglou σ_exc inflation
-   channels energy away from ionization into excitation. [E7]
-6. **WebGPU is 455× faster than Geant4 11.4.1 single-thread on
-   matched-scope physics tracking** (Phase A+B 635 ms vs Geant4
-   median 289.1 s over 3 trials on M2 Pro), but only **1.48×** on
-   the end-to-end pre-DNA pipeline because IRT chemistry on CPU is
-   the bottleneck (194 s of 194.6 s total wall-clock at 10 keV).
-   The 455× number satisfies the L6 protocol's ≥100× kernel-fusion
-   thesis; the 1.48× number is the honest finding pointing at
-   GPU-accelerated chemistry as the next obvious win. [E15b]
-7. **The "G(OH) at 10 keV is 0.62× Karamitros 2011" deficit was
-   confounding two effects** (closed by E10c). At matched LET, our
-   IRT vs Geant4 chem6 G(OH) is 0.907× (4.8σ) and G(eaq) is 0.830×
-   (9.7σ) — so ~70% of the deficit vs Karamitros is REAL LET physics
-   (expected, the Karamitros reference is for ~1 MeV low-LET), and
-   ~30% is a real WGSL-vs-chem6 chemistry gap. **G(H₂) at 0.752×
-   (13.8σ) and G(H₂O₂) at 0.711× (20.0σ) are the biggest implementation
-   gaps** — both molecular products of secondary recombination, which
-   suggests the WGSL IRT under-counts long-time TDC pair reactions
-   relative to chem6. Diagnosis and fix candidates pending. [E10c]
-
+See README.md § Numbers for the falsifiable artifact behind each row.
 Run any experiment via `npm run experiments -- <id>` (e.g. `E10`).
 
 ### What's wired up
