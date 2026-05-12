@@ -133,6 +133,26 @@ chem6 tracks but we don't, e.g. HO₂°).
      compensated by the σ_exc inflation (more B1A1 events → more B1A1
      direct H₂). Net contribution to H₂ deficit is unclear without
      decomposition.
+
+**Final synthesis from E10e/f/g/h (2026-05-12).** The pattern of pre-chem
+deficits (OH 0.87×, eaq 0.90×, H 0.88×, H₂ 0.51×, H₂O₂ 0.58×) cannot
+be closed by any **single** mechanism:
+
+- **Recomb-rate boost alone** (E10h): X = 0.15 reduces overall RMS
+  deviation 30% → 22% but G(eaq) goes from 0.90× → 0.77× (WORSE).
+  Shifts mass from eaq → H₂Ovib products but doesn't lift the
+  *total radical count*, leaving OH/H near baseline.
+- **σ_exc reduction alone** (untested but predictable): would close
+  E5b's low-E CSDA deficit + E7's cascade-ion deficit, lifting all 5
+  species by ~27%. But would reduce G(H) from B1A1 direct, possibly
+  overshooting the current G(H)=1.00× chem6 at 1 μs.
+
+**Joint fix needed**: σ_exc scale to ~0.7× current Emfietzoglou (more
+ionizations) + recomb boost ~15-20% (more H₂Ovib). E10h's best X=0.15
+combined with a ~30% lift on OH/eaq/H from σ_exc fix → all 5 species
+should land in ±10% of chem6. Implementation: 1 WGSL constant for
+σ_exc scale + 4-line P_recomb scale + full re-validation across
+L2-L5 (likely ~1 day round trip).
 5. Add HO₂° tracking + a HO₂°-mediated H₂O₂ pathway. Would help close
    the H₂O₂ deficit specifically (H + HO₂° → H₂O₂ at k=1e10 M⁻¹s⁻¹
    per option3 line 241-246).
