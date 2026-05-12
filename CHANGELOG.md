@@ -7,6 +7,108 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+_Nothing pending. Open a PR or issue to start the next entry._
+
+## [0.3.0] — 2026-05-12
+
+Research-grade closure release. Promotes the prior-version informal "we're
+0.985× CSDA at 10 keV, ions/primary ratio 1.00×" headlines to the honest,
+falsifiable, **all-energy** picture: surfaces the energy-dependent CSDA
+deficit (E5b), closes the L5 indirect-SSB gap into the PARTRAC 2-3 band
+(E13c), and decomposes the H₂/H₂O₂ pre-chem deficit across four hypothesis
+tests (E10e/f/g/h → joint fix in E10i). Consolidates every quantitative
+claim into a single source-of-truth § Numbers section in `README.md`.
+
+### Highlights
+
+- **L5 marquee closure**: SSB indirect/direct ratio 0 → **2.96** (in PARTRAC's
+  published 2-3 band), via 4 stages — split SSB_R_DAMAGE constants
+  (direct=0.29 nm, indirect=1.0 nm), instrument IRT worker for
+  time-resolved scoring, calibrate SSB_P_INDIRECT 0.4 → 0.05. [E13b, E13c]
+- **Joint physics fix** in `src/shaders/`: `SIGMA_EXC_SCALE = 0.5` (partial
+  Emfietzoglou inflation rollback, closes E5b/E7) + `RECOMB_BOOST = 2.0`
+  (approximates Geant4's time-integrated e-h recomb). E10i shows RMS dev
+  vs chem6 drops from 30.3% → 19.0%, CSDA @ 100 eV lifts 0.587× → 0.74×,
+  G(H₂) closure 0.51× → 0.78×.
+- **L2 stage 7 — E5b** surfaces the **energy-dependent CSDA deficit**:
+  0.587× @ 100 eV → 0.992× @ 20 keV (the previously isolated 0.988× @
+  10 keV was the tail of a much larger sub-keV deficit, not an isolated
+  artifact).
+- **L4 stages 6-9 — E10e/f/g/h** decompose the 0.1 ps H₂/H₂O₂ deficit:
+  cross-event recomb REFUTED (3.5% of gap), per-primary IRT partitioning
+  REFUTED at 0.1 ps but CONFIRMED for 96% of the 1 μs gap, recomb-rate
+  sensitivity quantifies the residual at ~25%.
+- **Docs consolidation**: all quantitative claims now live in `README.md`
+  § Numbers. `CLAUDE.md`, `index.html`, and the OG image are summaries
+  that link back — no number lives in two places.
+
+### Added — Joint physics fix in WGSL (2026-05-12)
+
+`src/shaders/helpers.wgsl` introduces two tunable scales:
+- `SIGMA_EXC_SCALE = 0.5` — multiplies Emfietzoglou σ_exc in `xs_all`
+- `RECOMB_BOOST = 2.0` — multiplies Onsager P_recomb in all 7 e-h
+  recombination branches across `primary.wgsl` + `secondary.wgsl` (with
+  `min(1, …)` cap)
+
+E10i Playwright validation at N=4096, 10 keV measures all 5 pre-chem
+G-values vs chem6 at 0.1 ps; new artifact at
+`experiments/results/2026-05-12/level-4/E10i-joint-fix-validation.json`.
+
+### Added — L4 stages 6-9: pre-chem H₂/H₂O₂ deficit decomposition
+
+Four experiments narrow the 0.1 ps G(H₂)=0.51× / G(H₂O₂)=0.58× gap:
+- **E10e** cross-event recomb hypothesis (synthetic): refuted. ΔP=+0.009
+  → only +0.44 H₂/primary (3.5% of the 12.4 target). The geminate eaq is
+  the nearest one in ~98% of cases at 10 keV.
+- **E10f** per-primary IRT partitioning: at 0.1 ps ΔG(H₂)=-0.001
+  (refuted). At 1 μs ΔG(H₂)=+0.149, closing 96% of the E10c 1 μs
+  implementation gap.
+- **E10g** recomb-rate sensitivity sweep: linearly interpolating
+  x ≈ 0.035 closes G(H₂) — equivalent to ~25% additional effective
+  recomb fraction.
+- **E10h** time-integrated recomb with proper Geant4 H₂Ovib branching
+  (13.65/35.75/15.6/35%): best X=0.15 reduces RMS dev 30% → 22% but
+  G(eaq) drops to 0.77× of chem6 — two-knob structural limit.
+
+### Added — L2 stage 7: E5b CSDA at all 8 ESTAR energies (2026-05-12)
+
+Extends E5 from a single-energy CSDA check to the full ESTAR sweep
+(100 eV to 20 keV). Surfaces a strong honest negative: CSDA ratio
+grows monotonically 0.587× @ 100 eV → 0.992× @ 20 keV. The previously
+claimed-as-isolated 0.988× @ 10 keV was the tail of a much larger
+sub-keV deficit driven by σ_exc inflation (now partially addressed by
+the joint fix). Artifact: `experiments/results/2026-05-12/level-2/E5b-csda-multi-energy.json`.
+
+### Added — L5 stage 6: hit-mask passthrough to DSB clusterer (2026-05-12)
+
+IRT worker now returns the per-bp `ssbHits` mask alongside the
+indirect-SSB count. `src/app.ts` feeds that mask directly to
+`clusterDSB` instead of rebuilding from t=1μs chem_pos scan (which
+under-counts because the IRT had already consumed most OHs by then).
+Co-located strand-0 / strand-1 indirect hits now cluster into DSBs
+correctly.
+
+### Changed — docs: single source of truth (2026-05-12)
+
+- `README.md` restructured: hero + quick start + features at top;
+  giant § Numbers section at the bottom owns every quantitative claim
+  (per-level tables L0-L6, headline summary, substantive findings).
+- `CLAUDE.md` slimmed by 220 lines — duplicate validation block
+  replaced with a 9-bullet pointer back to § Numbers.
+- `index.html` updated: stale "CSDA 0.985×" → "0.988×", "G(H₂) 1.1×
+  Karamitros" → matched-LET vs-chem6 ratios. Every numeric phrase
+  links back to README § Numbers.
+- `tools/make_og_image.py` refreshed: `0.985×` → `0.988×`,
+  `1.00×` → `0.73×`; OG PNG regenerated.
+
+### Fixed — build: prebuild fetch URL pinned to demo-v1 tag (2026-05-12)
+
+`tools/fetch-demo.mjs` was pointing at
+`/releases/latest/download/wgdna-default.bin`. `/latest/` resolves to
+v0.1.0 (the source-code release), which does NOT carry the binary
+asset — 404. Pinned the URL to the explicit `/download/demo-v1/` path
+so production builds work end-to-end.
+
 ### Changed — calibration: SSB_P_INDIRECT 0.4 → 0.05 (2026-05-12)
 
 Third physics fix in the marquee L5 closure trio. After the IRT-side
