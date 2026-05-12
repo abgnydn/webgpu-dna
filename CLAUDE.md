@@ -120,7 +120,7 @@ per-level `protocol.md` files for hypotheses + pass bars.
   energies in 0.10 cos(θ) band, ~6° angular accuracy), E4 Sanche
   vibrational total, E4b Sanche per-mode XVMF fractions. All nine
   WGSL cross-section validations pass.
-- **L2 — Track structure (5 of 5 attempted, 3 pass / 1 honest-negative
+- **L2 — Track structure (6 of 6 attempted, 3 pass / 2 honest-negative
   / 1 partial pass).** E5 CSDA + E-cons @ 10 keV vs Geant4 11.4.1
   ntuple (pass). E6 MFP across 6 energy bins (-5.0% to -10.7% deviation,
   all within 25% bar, pass). E6b per-process σ decomposition (ion
@@ -130,7 +130,17 @@ per-level `protocol.md` files for hypotheses + pass bars.
   sec/primary 143.4 vs G4 144.9 (1.0% match), 7 of 8 log-bins in
   6-800 eV agree within 0.1-3.1%, only the 438-806 eV tail shows a
   43% deficit; closes the Born differential CDF sampling correctness
-  question).
+  question). **E5b CSDA at all 8 ESTAR energies** (fail, honest negative
+  — 6/8 outside pass bar): ratio grows monotonically from **0.587× @
+  100 eV → 0.992× @ 20 keV** (0.705× / 0.776× / 0.864× / 0.965× /
+  0.975× / 0.988× / 0.992× at 300/500/1000/3000/5000/10000/20000 eV).
+  **New finding**: the previously-claimed-isolated 0.988× CSDA bias
+  at 10 keV is actually the tail of a much larger low-energy CSDA
+  deficit. Likely tied to the Emfietzoglou σ_exc inflation (finding
+  E6b) — at sub-keV the excitation channel dominates the total cross
+  section more strongly, so more energy is partitioned to excitation
+  (~10 eV per event) and away from the ionization cascade that
+  extends the track. [E5b]
 - **L4 — Chemistry (5 of 5 attempted, 2 pass + 1 partial pass + 2 fail
   honest-negative).** E10d closes the LET-trend comparison: chem6 vs
   WGSL IRT at all 5 V-shape energies (1/3/5/10/20 keV) — **24 of 25
@@ -220,7 +230,7 @@ per-level `protocol.md` files for hypotheses + pass bars.
   step. E14 against molecularDNA's full chromatin model deferred.
   [E12, E13, E13b, E13c]
 
-**Seven substantive findings now in the research ledger** (would NOT
+**Eight substantive findings now in the research ledger** (would NOT
 be visible without the protocol):
 
 1. **G(e⁻aq) is non-monotonic between 1 and 3 keV at z = 126σ** (1.163 at
@@ -230,11 +240,15 @@ be visible without the protocol):
    for sub-sampling SE). The naive "monotonic LET deficit" framing
    applies cleanly only to E ≥ 5 keV. Previously claimed as "~40σ"
    without backing — now properly measured. [E10, E10b]
-2. **The 0.988× CSDA ratio is 3.59σ statistically significant.**
-   The 1.2% systematic underestimate is a real physics gap, not random
-   scatter at N=4096. E5's σ pass bar at 5σ deliberately accommodates
-   this documented bias; tightening to 2σ when the physics is improved
-   is the explicit follow-up. [E5]
+2. **The CSDA deficit is energy-dependent — 0.587× @ 100 eV → 0.992×
+   @ 20 keV**, with the previously-isolated 0.988× @ 10 keV being just
+   the high-energy tail. Per-energy ratios (E5b): 0.587 / 0.705 / 0.776
+   / 0.864 / 0.965 / 0.975 / 0.988 / 0.992× at 100/300/500/1000/3000/
+   5000/10000/20000 eV. The low-E deficit is statistically significant
+   (28σ at 100/300/500 eV). Likely tied to finding (4): the Emfietzoglou
+   σ_exc inflation matters most at sub-keV where excitation dominates
+   the total cross section. The fix that closes E5b would also close
+   E7 (the cascade-ion deficit). [E5, E5b]
 3. **MFP is consistently 5.0-10.7% lower than Geant4 across all bins**
    (median 0.941, range [0.893, 0.950] across 6 bins from 100 eV to
    10 keV). [E6]
