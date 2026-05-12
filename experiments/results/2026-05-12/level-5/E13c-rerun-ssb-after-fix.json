@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "protocol": "E13c-rerun-ssb-after-fix",
+    "hypothesis": "After bumping SSB_R_DAMAGE_NM from 0.29 nm to 1.0 nm in src/physics/constants.ts (2026-05-11, per E13b), re-running the full validation harness at N=4096 primaries / 10 keV produces SSB_ind > 0 and ideally in the 24-72 range (1× - 3× the observed SSB_dir of 24, matching the PARTRAC indirect/direct ratio of 2-3 after chemistry diffusion smearing of E13b's Node-side prediction of 174).",
+    "passBar": "New SSB_ind ≥ SSB_dir (i.e. indirect/direct ratio ≥ 1) AND no page-level errors during the run AND finishes within timeoutMs.",
+    "seed": "E13_INDIRECT_SSB=0x444E4102",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "harness": "src/app.ts → runValidation()",
+      "driver": "experiments/level-5-dna-damage/E13c-rerun-ssb-after-fix.mjs",
+      "damageLineFormat": "src/app.ts:199 — \"DAMAGE: SSB_dir=N1 SSB_ind=N2 DSB=N3\"",
+      "constantsHistory": "src/physics/constants.ts SSB_R_DAMAGE_NM: 0.29 (committed 2026-04-21) → 1.0 (bumped 2026-05-11)"
+    },
+    "config": {
+      "nPrimaries": 4096,
+      "timeoutMs": 600000
+    }
+  },
+  "env": {
+    "gitSha": "0a5ce800adc258322ec9dd280ce0104e998012ed",
+    "gitDirty": true,
+    "timestamp": "2026-05-12T06:47:16.278Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "totalSec": 166.46,
+    "harnessElapsedSec": 164.327,
+    "nPrimaries": 4096,
+    "newSsbDir": 24,
+    "newSsbInd": 451,
+    "newDsb": 2,
+    "previousSsbInd": 0,
+    "e13bNodePrediction": 174,
+    "partracExpectedRange": "[48, 72]",
+    "indirectOverDirectRatio": 18.791666666666668,
+    "diffusionSmearingFactor": 0.3858093126385809,
+    "headline": "SSB_ind: 0 (r=0.29) → 451 (r=1.0); ratio=18.79; PARTRAC target [48, 72]; E13b Node prediction 174"
+  },
+  "rows": [
+    {
+      "metric": "damage_after_fix",
+      "damageLine": "DAMAGE: SSB_dir=24  SSB_ind=451  DSB=2",
+      "ssb_dir": 24,
+      "ssb_ind": 451,
+      "dsb": 2,
+      "previousSsbInd": 0,
+      "ratio": 18.791666666666668,
+      "status": "pass"
+    },
+    {
+      "metric": "logTail",
+      "logTail": "init(OH/eaq/H)=4.93/4.13/0.88 rad_n=1736739 E_cons=99.9%[13:47:21]   E=5000 eV: CSDA=856.0nm (1.25×) ions/pri=106.4 sec/pri=78.1 G_init(OH/eaq/H)=4.75/3.98/0.84 rad_n=2787156 E_cons=100.0%[13:47:22]   [worker] 5298680 radicals, 4096 primaries (max 1568/pri), per-primary IRT...[13:47:42]   [worker]   500/4096 primaries (225712 reactions)...[13:48:01]   [worker]   1000/4096 primaries (451466 reactions)...[13:48:21]   [worker]   1500/4096 primaries (677522 reactions)...[13:48:40]   [worker]   2000/4096 primaries (904885 reactions)...[13:49:00]   [worker]   2500/4096 primaries (1132533 reactions)...[13:49:19]   [worker]   3000/4096 primaries (1359852 reactions)...[13:49:39]   [worker]   3500/4096 primaries (1586203 reactions)...[13:49:58]   [worker]   4000/4096 primaries (1812133 reactions)...[13:50:02]   0.1 ps 4.382 3.692 0.786 0.031 0.127[13:50:02]   1 ps 4.365 3.679 0.784 0.035 0.130[13:50:02]   10 ps 4.261 3.616 0.777 0.060 0.138[13:50:02]   100 ps 3.855 3.391 0.748 0.160 0.162[13:50:02]   1 ns 3.060 2.938 0.709 0.364 0.215[13:50:02]   10 ns 2.350 2.353 0.709 0.511 0.299[13:50:02]   100 ns 1.876 1.808 0.715 0.570 0.392[13:50:02]   1 us 1.554 1.409 0.707 0.603 0.467[13:50:02]   IRT worker: 1855777 reactions in 159.8s (5298680 radicals)[13:50:02]     rxn OH+OH→H2O2 [PDC]: 289068 (σ=0.4400nm rc=0.000nm)[13:50:02]     rxn eaq+OH→OH- [PDC]: 527805 (σ=0.7200nm rc=0.000nm)[13:50:02]     rxn OH+H→H2O [PDC]: 145528 (σ=0.4100nm rc=0.000nm)[13:50:02]     rxn eaq+eaq→2OH-+H2 [TDC]: 54006 (σ=0.1715nm rc=0.711nm)[13:50:02]     rxn eaq+H→OH-+H2 [TDC]: 82099 (σ=0.2776nm rc=0.000nm)[13:50:02]     rxn eaq+H3O+→H [PDC]: 212702 (σ=0.7500nm rc=-0.711nm)[13:50:02]     rxn H+H→H2 [TDC]: 9156 (σ=0.0950nm rc=0.000nm)[13:50:02]     rxn eaq+H2O2→OH-+OH [PDC]: 41895 (σ=0.7100nm rc=0.000nm)[13:50:02]     rxn H3O++OH-→H2O [TDC]: 493518 (σ=1.0117nm rc=-0.711nm)[13:50:02]   IRT-side indirect SSB: 451 (strand0=225 + strand1=226, candidates=1816, in_reach=1570, r=1 nm)[13:50:02]     DAMAGE: SSB_dir=24  SSB_ind=451  DSB=2  (DSB/SSB=0.004)  box_dose=0.243 Gy  target=3.9 Mbp  reach_dir=179 reach_ind=1570  kernel_hits=117[13:50:02]   E=10000 eV: CSDA=2714.4nm (1.08×) ions/pri=194.1 sec/pri=143.2 G_init(OH/eaq/H)=4.51/3.79/0.79 rad_n=5298680 E_cons=100.0%[13:50:02]     chemistry V3b: N=5298680 radicals, 159837ms total[13:50:02]     t          G(OH)  G(eaq)    G(H)  G(H2O2)   G(H2)[13:50:02]     0.1 ps     4.382   3.692   0.786    0.031   0.127[13:50:02]     1 ps       4.365   3.679   0.784    0.035   0.130[13:50:02]     10 ps      4.261   3.616   0.777    0.060   0.138[13:50:02]     100 ps     3.855   3.391   0.748    0.160   0.162[13:50:02]     1 ns       3.060   2.938   0.709    0.364   0.215[13:50:02]     10 ns      2.350   2.353   0.709    0.511   0.299[13:50:02]     100 ns     1.876   1.808   0.715    0.570   0.392[13:50:02]     1 us       1.554   1.409   0.707    0.603   0.467[13:50:02]     Karamitros 2011 reference (1 μs): G(OH)=2.5 G(eaq)=2.5 G(H)=0.57 G(H2O2)=0.73 G(H2)=0.42",
+      "status": "informational"
+    }
+  ]
+}

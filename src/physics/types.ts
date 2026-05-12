@@ -71,6 +71,22 @@ export interface ChemResult {
   deposited_eV?: number;
   /** Filled only when runChemistry is invoked with `dump_snapshots: true`. */
   snapshots?: ChemSnapshot[];
+  /**
+   * Indirect-SSB accumulation during the IRT timeline. Filled when the
+   * worker is given a DNA target via the `dna` + `ssbScoring` options.
+   * Replaces the t=1μs-only scoreIndirectSSB scan in src/scoring/ssb-dsb.ts
+   * (which under-counted because the IRT had already consumed most OHs
+   * near DNA by t=1μs — see E13c).
+   */
+  ssb_indirect?: {
+    ssb0: number;
+    ssb1: number;
+    total: number;
+    candidates: number;
+    in_reach: number;
+    r_indirect: number;
+    p_indirect: number;
+  } | null;
 }
 
 /** Per-species alive snapshot from chemMeasure() */

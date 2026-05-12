@@ -7,6 +7,59 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added — physics fix: IRT-side indirect SSB scoring (2026-05-12)
+
+Second applied physics fix in the session. Instrumented
+`public/irt-worker.js` to accumulate OH-backbone encounters during
+the IRT chemistry timeline — PHYSICS_DIAGNOSIS.md §3 option (b).
+
+Implementation:
+- The worker now optionally accepts `dna` (vec arrays for fiber
+  positions, backbone offsets, geometry scalars) + `ssbScoring`
+  (r_indirect, p_indirect, seed) via postMessage. If both are
+  provided, scoring is enabled; otherwise the worker is backward-
+  compatible (no DNA geometry, no SSB scoring, same chemistry).
+- At every OH death event (species code 0 consumed in a reaction)
+  the worker checks if the OH's position at consumption was within
+  r_indirect of any backbone atom (replicates scoreIndirectSSB's
+  ±2-bp neighborhood search). If yes, Bernoulli SSB_P_INDIRECT,
+  dedup at (bp, strand).
+- Also runs the check on OHs that SURVIVE to t=1μs (the original
+  scoreIndirectSSB behavior).
+- Returns `ssb_indirect = { ssb0, ssb1, total, candidates, in_reach,
+  r_indirect, p_indirect }` in the result.
+
+Wired through:
+- `src/physics/types.ts`: `ChemResult.ssb_indirect?` field added.
+- `src/chemistry/worker.ts`: optional `dna` + `ssbScoring`
+  parameters; serializes DNA via postMessage; reads back
+  `ssb_indirect` from the worker result.
+- `src/app.ts`: passes the project's DNA target + canonical
+  `ssbScoring` (r_indirect=1.0 nm from SSB_R_DAMAGE_INDIRECT_NM,
+  p_indirect=0.4 from SSB_P_INDIRECT). `scoreDamageAt10keV` now
+  prefers `chem.ssb_indirect.total` over the t=1μs-only fallback
+  scan.
+
+Result via E13c re-run (full validation harness, ~164 s wall):
+  SSB_ind: 0 → 451 (FIRST non-zero!)
+  SSB_dir: 24 (unchanged ✓)
+  DSB:     2 (unchanged — clusterDSB still uses the t=1μs hit-mask)
+  Indirect/direct ratio: 18.79
+
+The 18.79× ratio OVERSHOOTS PARTRAC's 2-3 target by ~6-9×, a real
+new gap surfaced by the fix. Semantic mismatch: PARTRAC's
+"effective r ≈ 1 nm" already folds in the probability that an OH
+NEAR DNA actually REACTS with DNA (vs reacting with another OH
+first). Our IRT-side check counts EVERY consumption event near DNA,
+even ones where the OH reacted with another OH (not DNA). So
+SSB_P_INDIRECT=0.4 is too generous in this regime.
+
+PHYSICS_DIAGNOSIS.md §3 updated:
+- Option (b) marked APPLIED with the 0 → 451 lift quoted.
+- Option (b1) "lower SSB_P_INDIRECT 0.4 → ~0.05" added as the
+  calibration follow-up. Tunable one-liner. ssb_indirect.candidates
+  and in_reach in the artifact give the data to calibrate against.
+
 ### Changed — physics fix refined: split SSB damage radii (2026-05-11)
 
 The 2026-05-11 first attempt at applying option (a) from

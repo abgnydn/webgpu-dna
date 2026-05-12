@@ -155,17 +155,40 @@ shortfall):
   confirms SSB_dir is back to 24 (good), but SSB_ind STAYS at 0 even
   at the larger indirect radius — confirming the deeper issue is
   late-time scoring, not radius. Split is correct + future-proof.
-- *(b) Score during IRT timeline — PENDING, now the obvious next fix:*
-  E13c proved that bumping the indirect radius alone doesn't lift
-  SSB_ind from 0 because `scoreIndirectSSB` runs at t=1 μs, by which
-  point the chemistry has consumed essentially all OHs near the
-  high-density DNA-track-core region. The fix is to instrument
-  `public/irt-worker.js`'s per-step chemistry loop to accumulate
-  OH-backbone encounters as they happen during the IRT, returning the
-  hits in the result alongside the final timeline. Estimated effort
-  ~2-3 hours WGSL/JS work. Once this lands, E13b's Node prediction
-  of SSB_ind ~ 50-70 (after diffusion smearing of the 174) should
-  materialize, landing in the PARTRAC indirect/direct = 2-3 band.
+- *(b) Score during IRT timeline — APPLIED 2026-05-12 (E13c-3rd-run):*
+  Instrumented `public/irt-worker.js` to accumulate OH-backbone
+  encounters at every OH death event AND every t=1μs survivor.
+  DNA geometry serialized through the postMessage wire alongside an
+  `ssbScoring` options block (r_indirect, p_indirect, seed); the
+  worker returns `ssb_indirect = { ssb0, ssb1, total, candidates,
+  in_reach }` in its result. src/chemistry/worker.ts + src/app.ts +
+  src/physics/types.ts wired through.
+
+  **Result:** SSB_ind 0 → 451 (a 451-unit lift; previous fixes
+  lifted by 0). Indirect/direct ratio = 18.79.
+
+  **New honest finding surfaced:** the 18.79 ratio overshoots
+  PARTRAC's 2-3 target by ~6-9×. The semantic mismatch: our
+  "OH-at-death-position vs backbone" check counts encounters at
+  events where the OH actually reacts with something (often another
+  OH), even if the partner isn't DNA. PARTRAC's "effective ~1 nm"
+  ALREADY folds in the probability that an OH near DNA actually
+  reacts WITH DNA (vs reacting with another OH first). So our P=0.4
+  is too generous in the IRT-side accumulator regime.
+
+  **Calibration is the next step**, not another architectural fix:
+  - Option (b1): lower SSB_P_INDIRECT 0.4 → ~0.05 (tuned to
+    PARTRAC's 2-3 ratio). One-line, no re-architecture.
+  - Option (b2): track OH diffusion path explicitly and only score
+    when the OH passes within r_indirect during a step, not at
+    consumption. Substantial worker refactor.
+  - Option (b3): split SSB_P_INDIRECT into two — P_per_death_event
+    (small, models the chance the OH's reaction partner was a
+    backbone atom) and use that here. Cleaner abstraction.
+
+  Tuning option (b1) to land in the PARTRAC band is the obvious
+  fast-follow. ssb_indirect.candidates/in_reach in the result give
+  the data needed to calibrate.
 - *(c) Target redesign (pending):* swap the 21×21 fiber grid for a
   uniform-cell DNA distribution. Closes both this gap and E12's
   target-concentration artifact in one move.

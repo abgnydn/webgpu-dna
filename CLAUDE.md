@@ -200,19 +200,25 @@ per-level `protocol.md` files for hypotheses + pass bars.
   (22.0σ), H₂O₂ 0.577× (9.3σ). **Localizes the E10c 1 μs deficit
   to pre-chemistry, not IRT reaction rates.** See PHYSICS_DIAGNOSIS.md
   for the propagation table + concrete fix candidates. [E9]
-- **L5 — DNA damage (3 of 3 attempted, 2 pass / 1 fail honest-negative;
-  fix applied).** E12 SSB/DSB yields vs Friedland 2011 PARTRAC:
-  DSB/SSB ratio 0.083 vs 0.023 → 3.57×, in the geometry-independent
-  factor-5 pass band. E13 indirect/direct SSB ratio (0/24 = 0 vs
-  PARTRAC 2-3) failed at the old SSB_R_DAMAGE_NM = 0.29 nm. **E13b
-  parametric sweep applied the fix:** Node-side replay of
-  scoreIndirectSSB across r ∈ {0.29, 0.5, 1.0, 1.5, 2.0, 3.0} nm
-  predicted SSB_ind = 174 at r=1.0 nm (PARTRAC's effective value).
-  `src/physics/constants.ts` bumped to 1.0 nm 2026-05-11; after
-  chemistry diffusion smearing, expected SSB_ind ≈ 48-72 in the
-  PARTRAC 2-3× ratio band. webgpu-results.json's SSB_ind=0 number
-  is now stale pending a browser harness re-run. E14 against
-  molecularDNA's full chromatin model deferred. [E12, E13, E13b]
+- **L5 — DNA damage (4 of 4 attempted, 3 pass / 1 fail → fix applied).**
+  E12 SSB/DSB yields vs Friedland 2011 PARTRAC: DSB/SSB ratio 0.083 vs
+  0.023 → 3.57×, in the geometry-independent factor-5 pass band.
+  E13 indirect/direct SSB ratio failed at 0/24=0 vs PARTRAC 2-3.
+  E13b parametric Node sweep predicted SSB_ind=174 at r=1.0 nm.
+  **E13c three-stage closure (2026-05-12):** (1) first attempt with
+  shared SSB_R_DAMAGE_NM=1.0 nm exploded SSB_dir 24→388 — split into
+  SSB_R_DAMAGE_NM (direct, 0.29) + SSB_R_DAMAGE_INDIRECT_NM (indirect,
+  1.0); (2) re-run after split kept SSB_dir=24 but SSB_ind=0 still →
+  confirmed late-time-scoring root cause; (3) **instrumented
+  public/irt-worker.js to accumulate OH-backbone encounters during
+  the IRT timeline** (PHYSICS_DIAGNOSIS.md §3 option b — passes DNA
+  geometry through postMessage, scores at every OH death event + 1μs
+  survivor). Final E13c: **SSB_ind 0 → 451** (first non-zero). New
+  honest finding: ratio 18.79× overshoots PARTRAC's 2-3 — semantic
+  mismatch between our "OH-at-death-position" check and PARTRAC's
+  "diffusion-path encounter". SSB_P_INDIRECT calibration is the next
+  step. E14 against molecularDNA's full chromatin model deferred.
+  [E12, E13, E13b, E13c]
 
 **Seven substantive findings now in the research ledger** (would NOT
 be visible without the protocol):

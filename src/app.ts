@@ -22,6 +22,7 @@ import {
   combineHits,
   makeSsbRng,
 } from './scoring/ssb-dsb';
+import { SSB_R_DAMAGE_INDIRECT_NM, SSB_P_INDIRECT } from './physics/constants';
 import { paintDoseProjection } from './ui/canvas';
 import { appendResultRow, clearResults, type DamageRow } from './ui/table';
 import type { ChemResult, LogFn } from './physics/types';
@@ -110,11 +111,20 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
 
   // Chemistry callback is passed into runAtEnergy; dispatch only calls it when
   // E_eV === 10000 and there are radicals to process.
+  // The worker accepts DNA + SSB scoring options to accumulate indirect SSBs
+  // during the chemistry timeline (PHYSICS_DIAGNOSIS.md §3 option b) rather
+  // than the original t=1μs-only scan in scoreIndirectSSB (which under-counted
+  // because by then the IRT had consumed essentially all OHs near DNA).
+  const ssbScoring = {
+    r_indirect: SSB_R_DAMAGE_INDIRECT_NM,
+    p_indirect: SSB_P_INDIRECT,
+    seed: 0x53534231, // 'SSB1'
+  };
   const chemCallback = chemBackend === 'none'
     ? undefined
     : async (radBuf: Float32Array, radN: number, nTherm: number, E_eV: number): Promise<ChemResult | null> => {
         if (chemBackend === 'worker') {
-          return runChemistryWorker(radBuf, radN, nTherm, E_eV, log);
+          return runChemistryWorker(radBuf, radN, nTherm, E_eV, log, undefined, dna ?? undefined, ssbScoring);
         }
         return runChemistryGPU(device, buffers, pipelines, radN, E_eV, nTherm);
       };
@@ -175,17 +185,47 @@ function scoreDamageAt10keV(
   log: LogFn,
   kernelDnaHits: number,
 ): DamageRow {
-  const indirect = chem.chem_pos_final && chem.chem_alive_final
-    ? scoreIndirectSSB(dna, chem.chem_pos_final, chem.chem_alive_final, chem.chem_n, rng)
-    : { hits: new Uint8Array(dna.n_bp * 2), ssb0: 0, ssb1: 0, candidates: 0, in_reach: 0 };
+  // Prefer the IRT-side accumulated SSB count (PHYSICS_DIAGNOSIS.md §3
+  // option b, instrumented 2026-05-12 in public/irt-worker.js). It captures
+  // OH-backbone encounters during the chemistry timeline, not just at
+  // t=1μs survivors — closes the E13c finding that radius alone can't
+  // lift SSB_ind from 0.
+  //
+  // Fallback to the t=1μs scan when:
+  //   • chem.ssb_indirect is missing (older worker / GPU backend), AND
+  //   • chem_pos_final / chem_alive_final are present (otherwise we have
+  //     literally no signal).
+  let ssb_ind: number;
+  let indirectHits: Uint8Array;
+  if (chem.ssb_indirect) {
+    // IRT worker did the scoring. Its hit-set is internal; rebuild the
+    // hit-mask from the counts so the DSB clusterer still gets a per-bp
+    // hit array (DSB needs co-located strand-0 / strand-1 hits, which
+    // we can't perfectly reconstruct here — fall back to the t=1μs
+    // chem_pos scan for the DSB-input mask but use the worker count for
+    // the headline number).
+    ssb_ind = chem.ssb_indirect.total;
+    if (chem.chem_pos_final && chem.chem_alive_final) {
+      const fallback = scoreIndirectSSB(dna, chem.chem_pos_final, chem.chem_alive_final, chem.chem_n, rng);
+      indirectHits = fallback.hits;
+    } else {
+      indirectHits = new Uint8Array(dna.n_bp * 2);
+    }
+  } else if (chem.chem_pos_final && chem.chem_alive_final) {
+    const fallback = scoreIndirectSSB(dna, chem.chem_pos_final, chem.chem_alive_final, chem.chem_n, rng);
+    ssb_ind = fallback.ssb0 + fallback.ssb1;
+    indirectHits = fallback.hits;
+  } else {
+    ssb_ind = 0;
+    indirectHits = new Uint8Array(dna.n_bp * 2);
+  }
 
   const direct = scoreDirectSSB_events(dna, radBuf, radN, rng);
 
-  const hitsCombined = combineHits(direct.hits, indirect.hits);
+  const hitsCombined = combineHits(direct.hits, indirectHits);
   const clust = clusterDSB(dna, hitsCombined);
 
   const ssb_dir = direct.ssb_count;
-  const ssb_ind = indirect.ssb0 + indirect.ssb1;
   const dsb = clust.dsb;
 
   // box_nm is HALF-WIDTH (matches WGSL p.box). Full edge length = 2 × boxNm.
@@ -198,7 +238,7 @@ function scoreDamageAt10keV(
   log(
     `    DAMAGE: SSB_dir=${ssb_dir}  SSB_ind=${ssb_ind}  DSB=${dsb}  ` +
       `(DSB/SSB=${dsbFrac.toFixed(3)})  box_dose=${dose_box_Gy.toFixed(3)} Gy  ` +
-      `target=${(dna.n_bp / 1e6).toFixed(1)} Mbp  reach_dir=${direct.in_reach} reach_ind=${indirect.in_reach}  ` +
+      `target=${(dna.n_bp / 1e6).toFixed(1)} Mbp  reach_dir=${direct.in_reach} reach_ind=${chem.ssb_indirect?.in_reach ?? 0}  ` +
       `kernel_hits=${kernelDnaHits || 0}`,
     'data',
   );

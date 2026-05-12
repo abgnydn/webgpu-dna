@@ -368,8 +368,87 @@ const R_CUT2 = R_CUT * R_CUT;
 // Main worker
 // ============================================================================
 self.onmessage = function(e) {
-  const { rad_buf, rad_n, n_therm, E_eV } = e.data;
+  const { rad_buf, rad_n, n_therm, E_eV, dna, ssbScoring } = e.data;
   const t0 = performance.now();
+
+  // ─── IRT-side indirect-SSB scoring (PHYSICS_DIAGNOSIS.md §3 option b) ───
+  // 2026-05-12: previously scoreIndirectSSB ran in app.ts on chem_pos at
+  // t=1μs, missing all the OH-backbone encounters that happen DURING the
+  // chemistry timeline (E13c surfaced this — SSB_ind = 0 even with the
+  // generous PARTRAC-effective r=1.0 nm). Now: when an OH gets consumed
+  // in a reaction (or survives to 1 μs), check if its position was within
+  // r_indirect of any backbone atom. If yes, Bernoulli P_indirect → SSB
+  // hit (dedup at (bp, strand)).
+  //
+  // DNA geometry is optional — if `dna` is undefined the scoring is
+  // skipped (worker stays backwards-compatible).
+  const ssbEnabled = !!dna && !!ssbScoring;
+  let ssb0 = 0;            // strand-0 SSBs (deduped)
+  let ssb1 = 0;            // strand-1 SSBs (deduped)
+  let ssb_candidates = 0;  // OHs that died/survived within r_indirect of any backbone
+  let ssb_in_reach = 0;    // candidates that actually passed the Bernoulli
+  let ssbHits = null;
+  let dnaSsbCheck = null;  // function(x, y, z) → { hit_bp, hit_strand, in_reach }
+  if (ssbEnabled) {
+    const r_indirect = ssbScoring.r_indirect;
+    const r_indirect2 = r_indirect * r_indirect;
+    const p_indirect = ssbScoring.p_indirect;
+    const ssbSeed = ssbScoring.seed | 0;
+    // Seedable RNG for SSB sampling (independent of chemistry RNG)
+    let ssbRngState = ssbSeed === 0 ? 0x9e3779b9 : ssbSeed >>> 0;
+    const ssbRng = () => {
+      ssbRngState = (ssbRngState + 0x6d2b79f5) >>> 0;
+      let t = ssbRngState;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const { fy, fz, rbb0, rbb1, n_bp_per, grid_N, spacing_nm, x0, x_half, r_bb } = dna;
+    const inv_spacing = 1 / spacing_nm;
+    const rise_inv = 1 / 0.34;
+    const grid_off = -((grid_N - 1) * spacing_nm) * 0.5;
+    const outer2 = (r_bb + r_indirect) * (r_bb + r_indirect);
+    ssbHits = new Uint8Array(n_bp_per * grid_N * grid_N * 2);
+    dnaSsbCheck = (x, y, z) => {
+      if (x < -x_half - r_indirect || x > x_half + r_indirect) return;
+      const fi = Math.round((y - grid_off) * inv_spacing);
+      const fj = Math.round((z - grid_off) * inv_spacing);
+      if (fi < 0 || fi >= grid_N || fj < 0 || fj >= grid_N) return;
+      const fiber_idx = fi * grid_N + fj;
+      const y_rel = y - fy[fiber_idx];
+      const z_rel = z - fz[fiber_idx];
+      const r2 = y_rel * y_rel + z_rel * z_rel;
+      if (r2 > outer2) return;
+      ssb_candidates++;
+      const bp_est = Math.round((x + x_half) * rise_inv);
+      const bp0 = Math.max(0, bp_est - 2);
+      const bp1 = Math.min(n_bp_per - 1, bp_est + 2);
+      let best_d2 = Infinity;
+      let best_bp = -1, best_strand = -1;
+      for (let b = bp0; b <= bp1; b++) {
+        const dx = x - (x0 + b * 0.34);
+        const dy0 = y_rel - rbb0[b * 2 + 0];
+        const dz0 = z_rel - rbb0[b * 2 + 1];
+        const d20 = dx * dx + dy0 * dy0 + dz0 * dz0;
+        if (d20 < best_d2) { best_d2 = d20; best_bp = b; best_strand = 0; }
+        const dy1 = y_rel - rbb1[b * 2 + 0];
+        const dz1 = z_rel - rbb1[b * 2 + 1];
+        const d21 = dx * dx + dy1 * dy1 + dz1 * dz1;
+        if (d21 < best_d2) { best_d2 = d21; best_bp = b; best_strand = 1; }
+      }
+      if (best_d2 < r_indirect2) {
+        ssb_in_reach++;
+        if (ssbRng() < p_indirect) {
+          const global_bp = fiber_idx * n_bp_per + best_bp;
+          const idx = global_bp + best_strand * (n_bp_per * grid_N * grid_N);
+          if (ssbHits[idx] === 0) {
+            ssbHits[idx] = 1;
+            if (best_strand === 0) ssb0++; else ssb1++;
+          }
+        }
+      }
+    };
+  }
 
   // --- Phase 1: Group radicals by primary ID ---
   // rad_buf w-component encodes both primary id and species:
@@ -591,6 +670,15 @@ self.onmessage = function(e) {
       const ri = rxnMap[Math.min(si,sj) * N_SPECIES + Math.max(si,sj)];
       if (ri < 0) continue;
 
+      // Indirect-SSB scoring: check whether either reactant is an OH that
+      // happened to be within r_indirect of a backbone at consumption.
+      // This is the per-event check (OH dies in chemistry — its position
+      // at death is the encounter site).
+      if (dnaSsbCheck) {
+        if (si === 0) dnaSsbCheck(px[evt.i], py[evt.i], pz[evt.i]);
+        if (sj === 0) dnaSsbCheck(px[evt.j], py[evt.j], pz[evt.j]);
+      }
+
       // Kill reactants
       alive[evt.i] = 0;
       alive[evt.j] = 0;
@@ -661,6 +749,18 @@ self.onmessage = function(e) {
       cp_idx++;
     }
 
+    // Indirect-SSB scoring: also count OHs that SURVIVE to end-of-time
+    // (they made it to 1 μs without reacting; their final position is the
+    // closest they ever got to whatever DNA they were near). This mirrors
+    // the original scoreIndirectSSB scan at t=1μs.
+    if (dnaSsbCheck) {
+      for (let k = 0; k < n_total; k++) {
+        if (!alive[k]) continue;
+        if (species[k] !== 0) continue;
+        dnaSsbCheck(px[k], py[k], pz[k]);
+      }
+    }
+
     priDone++;
     if (priDone % 500 === 0) {
       self.postMessage({ type: 'progress',
@@ -694,8 +794,23 @@ self.onmessage = function(e) {
     rxn_info.push({ label: rxn_labels[r], count: rxn_counts[r],
       sigma: rxnSigma[r].toFixed(4), rc: rxnRc[r].toFixed(3) });
   }
+  // Indirect-SSB scoring summary — empty if dna/ssbScoring was not provided.
+  const ssb_indirect = ssbEnabled
+    ? {
+        ssb0,
+        ssb1,
+        total: ssb0 + ssb1,
+        candidates: ssb_candidates,
+        in_reach: ssb_in_reach,
+        r_indirect: ssbScoring.r_indirect,
+        p_indirect: ssbScoring.p_indirect,
+        note: 'Accumulated during IRT timeline: every OH death event AND every t=1μs survivor checked for backbone proximity. Replaces the original t=1μs-only scoreIndirectSSB scan.',
+      }
+    : null;
+
   self.postMessage({
     type: 'result', timeline, n_reacted: total_reacted,
-    chem_n: rad_n, t_wall, n_repaired: 0, rxn_info
+    chem_n: rad_n, t_wall, n_repaired: 0, rxn_info,
+    ssb_indirect,
   });
 };
