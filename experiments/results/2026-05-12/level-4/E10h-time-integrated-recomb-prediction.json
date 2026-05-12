@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "protocol": "E10h-time-integrated-recomb-prediction",
+    "hypothesis": "PHYSICS_DIAGNOSIS §1 candidate #5, proper test: with H₂Ovib decay branching from G4ChemDissociationChannels_option1 (13.65%/35.75%/15.6%/35%), sweep additional recomb fraction X_extra and find the X that minimizes RMS deviation across all 5 species at 0.1 ps vs chem6.",
+    "passBar": "At least one X lands ALL 5 species (OH, eaq, H, H₂, H₂O₂) within ±15% of chem6 targets → strong support; otherwise → tradeoff documented.",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "radBin": "dumps/rad_E10000_N4096.bin",
+      "g4Branching": "G4ChemDissociationChannels_option1.cc:437-457",
+      "chem6Reference": "E9 0.1 ps row (Gvalue0.root)"
+    },
+    "config": {
+      "energy_eV": 10000,
+      "n_primaries_sample": 256,
+      "x_sweep": [
+        0,
+        0.15,
+        0.25,
+        0.35,
+        0.5
+      ],
+      "chem6_targets": {
+        "G_OH": 5.049,
+        "G_eaq": 4.097,
+        "G_H": 0.893,
+        "G_H2": 0.251,
+        "G_H2O2": 0.053
+      }
+    }
+  },
+  "env": {
+    "gitSha": "cc478ad6ed07c80d4cd963c9beff10789a1154c4",
+    "gitDirty": true,
+    "timestamp": "2026-05-12T09:13:08.240Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "noisy",
+  "diagnosis": "Best X=0.15 reduces RMS dev from 30.0% to 22.1% but at least one species (likely G(eaq)) still outside ±15%. Recomb boost is partial — additional mechanism needed.",
+  "summary": {
+    "chem6_targets": {
+      "G_OH": 5.049,
+      "G_eaq": 4.097,
+      "G_H": 0.893,
+      "G_H2": 0.251,
+      "G_H2O2": 0.053
+    },
+    "baseline_rms_dev_pct": 29.951473580393856,
+    "best_x": 0.15,
+    "best_rms_dev_pct": 22.09944207310839,
+    "best_g_values": {
+      "G_OH": 4.153515625,
+      "G_eaq": 3.13875,
+      "G_H": 1.165078125,
+      "G_H2": 0.200859375,
+      "G_H2O2": 0.0445703125
+    },
+    "sweep": [
+      {
+        "x": 0,
+        "G_OH": 4.3759765625,
+        "G_eaq": 3.684765625,
+        "G_H": 0.7991015625,
+        "G_H2": 0.1238671875,
+        "G_H2O2": 0.032265625,
+        "rms_pct": 29.951473580393856
+      },
+      {
+        "x": 0.15,
+        "G_OH": 4.153515625,
+        "G_eaq": 3.13875,
+        "G_H": 1.165078125,
+        "G_H2": 0.200859375,
+        "G_H2O2": 0.0445703125,
+        "rms_pct": 22.09944207310839
+      },
+      {
+        "x": 0.25,
+        "G_OH": 4.0040625,
+        "G_eaq": 2.7774609375,
+        "G_H": 1.4126953125,
+        "G_H2": 0.2457421875,
+        "G_H2O2": 0.049765625,
+        "rms_pct": 31.286133411149358
+      },
+      {
+        "x": 0.35,
+        "G_OH": 3.8569140625,
+        "G_eaq": 2.4205859375,
+        "G_H": 1.6596875,
+        "G_H2": 0.2949609375,
+        "G_H2O2": 0.0596484375,
+        "rms_pct": 44.87086580282606
+      },
+      {
+        "x": 0.5,
+        "G_OH": 3.6203125,
+        "G_eaq": 1.8763671875,
+        "G_H": 2.0232421875,
+        "G_H2": 0.3653125,
+        "G_H2O2": 0.076796875,
+        "rms_pct": 69.06199553533503
+      }
+    ],
+    "headline": "best_x=0.15 → RMS_dev=22.1% (baseline 30.0%); G(H2): 0.201 (target 0.251); G(eaq): 3.139 (target 4.097)"
+  },
+  "rows": [
+    {
+      "metric": "x_0.00_G_OH",
+      "value": 4.3759765625,
+      "target": 5.049,
+      "ratio": 0.8667016364626658,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.00_G_eaq",
+      "value": 3.684765625,
+      "target": 4.097,
+      "ratio": 0.8993814071271661,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.00_G_H2",
+      "value": 0.1238671875,
+      "target": 0.251,
+      "ratio": 0.49349477091633465,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.00_G_H2O2",
+      "value": 0.032265625,
+      "target": 0.053,
+      "ratio": 0.6087853773584906,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.00_RMS_dev_pct",
+      "value": 29.951473580393856,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.15_G_OH",
+      "value": 4.153515625,
+      "target": 5.049,
+      "ratio": 0.8226412408397702,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.15_G_eaq",
+      "value": 3.13875,
+      "target": 4.097,
+      "ratio": 0.7661093483036368,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.15_G_H2",
+      "value": 0.200859375,
+      "target": 0.251,
+      "ratio": 0.8002365537848606,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.15_G_H2O2",
+      "value": 0.0445703125,
+      "target": 0.053,
+      "ratio": 0.8409492924528302,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.15_RMS_dev_pct",
+      "value": 22.09944207310839,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.25_G_OH",
+      "value": 4.0040625,
+      "target": 5.049,
+      "ratio": 0.7930407011289363,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.25_G_eaq",
+      "value": 2.7774609375,
+      "target": 4.097,
+      "ratio": 0.6779255400292896,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.25_G_H2",
+      "value": 0.2457421875,
+      "target": 0.251,
+      "ratio": 0.9790525398406374,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.25_G_H2O2",
+      "value": 0.049765625,
+      "target": 0.053,
+      "ratio": 0.9389740566037736,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.25_RMS_dev_pct",
+      "value": 31.286133411149358,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.35_G_OH",
+      "value": 3.8569140625,
+      "target": 5.049,
+      "ratio": 0.7638966255694196,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.35_G_eaq",
+      "value": 2.4205859375,
+      "target": 4.097,
+      "ratio": 0.5908191206980716,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.35_G_H2",
+      "value": 0.2949609375,
+      "target": 0.251,
+      "ratio": 1.1751431772908367,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.35_G_H2O2",
+      "value": 0.0596484375,
+      "target": 0.053,
+      "ratio": 1.125442216981132,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.35_RMS_dev_pct",
+      "value": 44.87086580282606,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.50_G_OH",
+      "value": 3.6203125,
+      "target": 5.049,
+      "ratio": 0.717035551594375,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.50_G_eaq",
+      "value": 1.8763671875,
+      "target": 4.097,
+      "ratio": 0.4579856449841347,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.50_G_H2",
+      "value": 0.3653125,
+      "target": 0.251,
+      "ratio": 1.4554282868525896,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.50_G_H2O2",
+      "value": 0.076796875,
+      "target": 0.053,
+      "ratio": 1.448997641509434,
+      "status": "informational"
+    },
+    {
+      "metric": "x_0.50_RMS_dev_pct",
+      "value": 69.06199553533503,
+      "status": "informational"
+    }
+  ]
+}
