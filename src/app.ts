@@ -198,19 +198,12 @@ function scoreDamageAt10keV(
   let ssb_ind: number;
   let indirectHits: Uint8Array;
   if (chem.ssb_indirect) {
-    // IRT worker did the scoring. Its hit-set is internal; rebuild the
-    // hit-mask from the counts so the DSB clusterer still gets a per-bp
-    // hit array (DSB needs co-located strand-0 / strand-1 hits, which
-    // we can't perfectly reconstruct here — fall back to the t=1μs
-    // chem_pos scan for the DSB-input mask but use the worker count for
-    // the headline number).
+    // IRT worker did the scoring. It now returns the per-bp hit mask
+    // alongside the count, so the DSB clusterer sees both direct AND
+    // indirect hits — co-located strand-0/strand-1 damage clusters
+    // into a DSB correctly.
     ssb_ind = chem.ssb_indirect.total;
-    if (chem.chem_pos_final && chem.chem_alive_final) {
-      const fallback = scoreIndirectSSB(dna, chem.chem_pos_final, chem.chem_alive_final, chem.chem_n, rng);
-      indirectHits = fallback.hits;
-    } else {
-      indirectHits = new Uint8Array(dna.n_bp * 2);
-    }
+    indirectHits = chem.ssb_indirect.hits ?? new Uint8Array(dna.n_bp * 2);
   } else if (chem.chem_pos_final && chem.chem_alive_final) {
     const fallback = scoreIndirectSSB(dna, chem.chem_pos_final, chem.chem_alive_final, chem.chem_n, rng);
     ssb_ind = fallback.ssb0 + fallback.ssb1;

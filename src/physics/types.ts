@@ -86,6 +86,8 @@ export interface ChemResult {
     in_reach: number;
     r_indirect: number;
     p_indirect: number;
+    /** Per-bp hit mask (length n_bp_per × grid_N² × 2), for DSB clustering. */
+    hits?: Uint8Array;
   } | null;
 }
 

@@ -795,6 +795,10 @@ self.onmessage = function(e) {
       sigma: rxnSigma[r].toFixed(4), rc: rxnRc[r].toFixed(3) });
   }
   // Indirect-SSB scoring summary — empty if dna/ssbScoring was not provided.
+  // Also returns the per-bp hit mask (ssbHits Uint8Array, length =
+  // n_bp_per * grid_N * grid_N * 2) so the DSB clusterer sees both direct
+  // and indirect hits when combining masks. Without this, clusterDSB sees
+  // only the direct-SSB mask and misses indirect→direct co-localized DSBs.
   const ssb_indirect = ssbEnabled
     ? {
         ssb0,
@@ -804,7 +808,8 @@ self.onmessage = function(e) {
         in_reach: ssb_in_reach,
         r_indirect: ssbScoring.r_indirect,
         p_indirect: ssbScoring.p_indirect,
-        note: 'Accumulated during IRT timeline: every OH death event AND every t=1μs survivor checked for backbone proximity. Replaces the original t=1μs-only scoreIndirectSSB scan.',
+        hits: ssbHits,  // Uint8Array, transferred via postMessage
+        note: 'Accumulated during IRT timeline: every OH death event AND every t=1μs survivor checked for backbone proximity. Replaces the original t=1μs-only scoreIndirectSSB scan. `hits` is the per-bp hit mask suitable for clusterDSB.',
       }
     : null;
 
