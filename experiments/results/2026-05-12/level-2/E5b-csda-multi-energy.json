@@ -1,0 +1,191 @@
+{
+  "meta": {
+    "protocol": "E5b-csda-multi-energy",
+    "hypothesis": "At every ESTAR energy (100 eV, 300 eV, 500 eV, 1, 3, 5, 10, 20 keV), WGSL primary-track CSDA mean (column 4 of the in-browser validation table) agrees with Geant4 11.4.1 dnaphysics primary CSDA mean within the same E5 pass bar: ratio ∈ [0.85, 1.15] AND |Δ|/SEM < 5σ.",
+    "passBar": "Per energy: CSDA ratio ∈ [0.85, 1.15] AND |Δ|/SEM < 5σ. Energies where either side reports 0 are flagged informational, not failed.",
+    "seed": "E5_CSDA=0x54524B01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "wgslHarness": "src/app.ts → runValidation() table cell 4",
+      "g4Macro": "validation/run_validation_multi_E.mac (8 beamOns, 4096 events each)",
+      "g4Bin": "~/Downloads/dnaphysics-v11.4.1-build/dnaphysics"
+    },
+    "config": {
+      "energies": [
+        100,
+        300,
+        500,
+        1000,
+        3000,
+        5000,
+        10000,
+        20000
+      ],
+      "n_primaries": 4096
+    }
+  },
+  "env": {
+    "gitSha": "8a43869abcacc43d4cd53484963cc830ee8b8555",
+    "gitDirty": true,
+    "timestamp": "2026-05-12T07:55:40.625Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "6/8 energies outside CSDA pass bar",
+  "summary": {
+    "energies": [
+      100,
+      300,
+      500,
+      1000,
+      3000,
+      5000,
+      10000,
+      20000
+    ],
+    "nPassed": 2,
+    "nFailed": 6,
+    "nSkipped": 0,
+    "geant4TotalWallSec": 1205.17,
+    "wgslHarnessSec": 168.609,
+    "headline": "100eV: 15.4/26.2=0.587× | 300eV: 25.3/35.9=0.705× | 500eV: 37.3/48.1=0.776× | 1000eV: 78.0/90.3=0.864× | 3000eV: 378.7/392.5=0.965× | 5000eV: 856.0/877.6=0.975× | 10000eV: 2714.4/2747.5=0.988× | 20000eV: 9026.9/9096.2=0.992×"
+  },
+  "rows": [
+    {
+      "metric": "csda_100_eV",
+      "energyEv": 100,
+      "wgsl_csda_nm": 15.4,
+      "g4_csda_nm": 26.21450158114835,
+      "g4_std_nm": 24.317099785353594,
+      "g4_sem_nm": 0.3799546841461499,
+      "g4_n_events": 4096,
+      "ratio": 0.5874611024866714,
+      "sigmaDelta": 28.46260891730063,
+      "ratioPass": false,
+      "sigmaPass": false,
+      "status": "fail"
+    },
+    {
+      "metric": "csda_300_eV",
+      "energyEv": 300,
+      "wgsl_csda_nm": 25.3,
+      "g4_csda_nm": 35.90820910185124,
+      "g4_std_nm": 24.482303934942294,
+      "g4_sem_nm": 0.38253599898347335,
+      "g4_n_events": 4096,
+      "ratio": 0.7045742640140653,
+      "sigmaDelta": 27.731270076648514,
+      "ratioPass": false,
+      "sigmaPass": false,
+      "status": "fail"
+    },
+    {
+      "metric": "csda_500_eV",
+      "energyEv": 500,
+      "wgsl_csda_nm": 37.3,
+      "g4_csda_nm": 48.07192264853118,
+      "g4_std_nm": 24.970062259081036,
+      "g4_sem_nm": 0.3901572227981412,
+      "g4_n_events": 4096,
+      "ratio": 0.7759207026669587,
+      "sigmaDelta": 27.60918424443558,
+      "ratioPass": false,
+      "sigmaPass": false,
+      "status": "fail"
+    },
+    {
+      "metric": "csda_1000_eV",
+      "energyEv": 1000,
+      "wgsl_csda_nm": 78,
+      "g4_csda_nm": 90.26007740317414,
+      "g4_std_nm": 30.884303337867077,
+      "g4_sem_nm": 0.4825672396541731,
+      "g4_n_events": 4096,
+      "ratio": 0.8641694339745493,
+      "sigmaDelta": 25.405946354667996,
+      "ratioPass": true,
+      "sigmaPass": false,
+      "status": "fail"
+    },
+    {
+      "metric": "csda_3000_eV",
+      "energyEv": 3000,
+      "wgsl_csda_nm": 378.7,
+      "g4_csda_nm": 392.4657905142931,
+      "g4_std_nm": 93.67002253533654,
+      "g4_sem_nm": 1.4635941021146335,
+      "g4_n_events": 4096,
+      "ratio": 0.9649248651805953,
+      "sigmaDelta": 9.405470064687993,
+      "ratioPass": true,
+      "sigmaPass": false,
+      "status": "fail"
+    },
+    {
+      "metric": "csda_5000_eV",
+      "energyEv": 5000,
+      "wgsl_csda_nm": 856,
+      "g4_csda_nm": 877.5921903008582,
+      "g4_std_nm": 198.35030830707052,
+      "g4_sem_nm": 3.099223567297977,
+      "g4_n_events": 4096,
+      "ratio": 0.9753961002165984,
+      "sigmaDelta": 6.96696763947336,
+      "ratioPass": true,
+      "sigmaPass": false,
+      "status": "fail"
+    },
+    {
+      "metric": "csda_10000_eV",
+      "energyEv": 10000,
+      "wgsl_csda_nm": 2714.4,
+      "g4_csda_nm": 2747.462139502735,
+      "g4_std_nm": 589.9247885062255,
+      "g4_sem_nm": 9.217574820409773,
+      "g4_n_events": 4096,
+      "ratio": 0.987966298415046,
+      "sigmaDelta": 3.586858815566993,
+      "ratioPass": true,
+      "sigmaPass": true,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_20000_eV",
+      "energyEv": 20000,
+      "wgsl_csda_nm": 9026.9,
+      "g4_csda_nm": 9096.24558366371,
+      "g4_std_nm": 1753.6476569091797,
+      "g4_sem_nm": 27.400744639205932,
+      "g4_n_events": 4096,
+      "ratio": 0.9923764609227075,
+      "sigmaDelta": 2.530791939299614,
+      "ratioPass": true,
+      "sigmaPass": true,
+      "status": "pass"
+    },
+    {
+      "metric": "metadata",
+      "geant4_total_wall_sec": 1205.17,
+      "geant4_wall_by_energy_sec": {
+        "100": 4.732,
+        "300": 10.901,
+        "500": 16.955,
+        "1000": 32.214,
+        "3000": 93.564,
+        "5000": 149.482,
+        "10000": 295.177,
+        "20000": 602.145
+      },
+      "wgsl_harness_wall_sec": 168.609,
+      "wgsl_page_errors": [],
+      "status": "informational"
+    }
+  ]
+}
