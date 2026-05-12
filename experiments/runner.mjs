@@ -17,6 +17,7 @@ import { runE4 } from './level-1-cross-sections/E4-vib-xs-match.mjs';
 import { runE4b } from './level-1-cross-sections/E4b-vib-mode-fractions.mjs';
 import { runE5 } from './level-2-track-structure/E5-csda-vs-g4-ntuple.mjs';
 import { runE5b } from './level-2-track-structure/E5b-csda-multi-energy.mjs';
+import { runE5c } from './level-2-track-structure/E5c-w-value.mjs';
 import { runE6 } from './level-2-track-structure/E6-mfp-vs-g4-ntuple.mjs';
 import { runE6b } from './level-2-track-structure/E6b-sigma-per-process-vs-g4.mjs';
 import { runE7 } from './level-2-track-structure/E7-ions-per-primary-cascade.mjs';
@@ -30,6 +31,7 @@ import { runE10f } from './level-4-chemistry/E10f-per-primary-partitioning.mjs';
 import { runE10g } from './level-4-chemistry/E10g-recomb-rate-sensitivity.mjs';
 import { runE10h } from './level-4-chemistry/E10h-time-integrated-recomb-prediction.mjs';
 import { runE10i } from './level-4-chemistry/E10i-joint-fix-validation.mjs';
+import { runE10j } from './level-4-chemistry/E10j-post-joint-fix-vs-chem6-at-1us.mjs';
 import { runE9 } from './level-3-prechemistry/E9-prechem-vs-chem6.mjs';
 import { runE15 } from './level-6-performance/E15-phase-a-alpha-beta.mjs';
 import { runE15b } from './level-6-performance/E15b-vs-geant4-single-thread.mjs';
@@ -63,6 +65,7 @@ const REGISTRY = {
   // Level 2 — track structure
   E5:  { run: runE5,  level: 'level-2', id: 'E5-csda-vs-g4-ntuple' },
   E5b: { run: runE5b, level: 'level-2', id: 'E5b-csda-multi-energy' },
+  E5c: { run: runE5c, level: 'level-2', id: 'E5c-w-value' },
   E6:  { run: runE6,  level: 'level-2', id: 'E6-mfp-vs-g4-ntuple' },
   E6b: { run: runE6b, level: 'level-2', id: 'E6b-sigma-per-process-vs-g4' },
   E7:  { run: runE7,  level: 'level-2', id: 'E7-ions-per-primary-cascade' },
@@ -78,6 +81,7 @@ const REGISTRY = {
   E10g: { run: runE10g, level: 'level-4', id: 'E10g-recomb-rate-sensitivity' },
   E10h: { run: runE10h, level: 'level-4', id: 'E10h-time-integrated-recomb-prediction' },
   E10i: { run: runE10i, level: 'level-4', id: 'E10i-joint-fix-validation' },
+  E10j: { run: runE10j, level: 'level-4', id: 'E10j-post-joint-fix-vs-chem6-at-1us' },
   E11:  { run: runE11,  level: 'level-4', id: 'E11-gpu-chem-vs-irt' },
 
   // Level 3 — pre-chemistry

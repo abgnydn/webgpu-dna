@@ -1,0 +1,70 @@
+cff-version: 1.2.0
+title: WebGPU Geant4-DNA
+message: >-
+  If you use this software in academic or research work, please cite it
+  using the metadata below.
+type: software
+authors:
+  - given-names: Ahmet Barış
+    family-names: Günaydın
+    email: abgunaydin94@gmail.com
+    affiliation: Independent researcher
+repository-code: https://github.com/abgnydn/webgpu-dna
+url: https://webgpudna.com
+abstract: >-
+  A WebGPU port of Geant4-DNA, the CNRS/IN2P3-coordinated Monte Carlo
+  track-structure toolkit for radiobiology. One GPU thread per primary
+  electron, the full particle history in a single fused WGSL compute
+  dispatch, Karamitros 2011 9-reaction Independent Reaction Time
+  chemistry in a Web Worker, and event-level SSB/DSB scoring on a
+  21x21 B-DNA fiber grid at 10 keV. Validation against a Geant4
+  11.4.1 / G4EMLOW 8.8 dnaphysics ntuple is committed as falsifiable
+  JSON artifacts under experiments/results/ — see README § Numbers
+  for the single source of truth.
+keywords:
+  - Monte Carlo
+  - radiation
+  - radiobiology
+  - DNA damage
+  - Geant4
+  - Geant4-DNA
+  - WebGPU
+  - WGSL
+  - kernel fusion
+  - track structure
+  - electron transport
+  - radiolysis chemistry
+  - IRT
+  - SSB
+  - DSB
+license: MIT
+version: "0.3.0"
+date-released: "2026-05-12"
+references:
+  - type: software
+    title: Geant4-DNA
+    authors:
+      - name: "Geant4 Collaboration / IN2P3"
+    url: https://geant4-dna.in2p3.fr/
+  - type: article
+    title: >-
+      Diffusion-controlled reactions modeling in Geant4-DNA
+    authors:
+      - family-names: Karamitros
+        given-names: M.
+    year: 2011
+    notes: >-
+      Foundational reference for the 9-reaction IRT chemistry table
+      used in option1.
+preferred-citation:
+  type: software
+  title: WebGPU Geant4-DNA — Monte Carlo track-structure radiobiology in the browser
+  authors:
+    - given-names: Ahmet Barış
+      family-names: Günaydın
+  version: "0.3.0"
+  year: 2026
+  url: https://github.com/abgnydn/webgpu-dna
+  notes: >-
+    Replace this preferred-citation block with the Zenodo DOI once the
+    GitHub-Zenodo integration mints one against tag v0.3.0.

@@ -1,0 +1,139 @@
+{
+  "meta": {
+    "protocol": "E10j-post-joint-fix-vs-chem6-at-1us",
+    "hypothesis": "After the joint fix (SIGMA_EXC_SCALE=0.5 + RECOMB_BOOST=2.0) shipped 2026-05-12, the 1 μs G-values vs Geant4 11.4.1 chem6 at matched 10 keV LET have shifted from the E10c baseline. Direction matches E10i 0.1 ps trends (G(H₂) up, G(H₂O₂) up, G(OH)/G(eaq) flat or slightly worse, G(H) overshoots).",
+    "passBar": "Each species ratio differs from the pre-fix E10c row by at least 2% (joint fix has measurable 1 μs effect) AND no species moves further from chem6 by more than 10% (joint fix is a defensible compromise).",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "e10iArtifact": "experiments/results/2026-05-12/level-4/E10i-joint-fix-validation.json",
+      "e10cArtifact": "experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json",
+      "chem6Reference": "chem6 1 μs G-values at 10 keV — Geant4 11.4.1 / G4EmDNAChemistry_option3 with /chem/reaction/UI 9-reaction table"
+    },
+    "config": {
+      "chem6_at_1us": {
+        "G_OH": 1.71,
+        "G_eaq": 1.694,
+        "G_H": 0.71,
+        "G_H2O2": 0.85,
+        "G_H2": 0.622
+      },
+      "pre_fix_ratios_e10c": {
+        "G_OH": 0.9073,
+        "G_eaq": 0.8302,
+        "G_H": 0.9924,
+        "G_H2O2": 0.7112,
+        "G_H2": 0.7519
+      },
+      "shader_constants": {
+        "sigma_exc_scale": 0.5,
+        "recomb_boost": 2
+      }
+    }
+  },
+  "env": {
+    "gitSha": "724eb9e76312841b041dc65d7df0982eadb9abf4",
+    "gitDirty": true,
+    "shaderHashes": {
+      "helpers_wgsl": "91ede5819c5669702436bad084fd2efa3da4192a",
+      "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
+      "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
+    },
+    "timestamp": "2026-05-12T12:05:39.567Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "noisy",
+  "diagnosis": "Only 2/5 species moved by ≥2%. The joint fix is mostly a 0.1 ps fix; the 1 μs end of the curve is dominated by chemistry kinetics that the per-primary IRT partitioning can't change (E10f).",
+  "summary": {
+    "chem6_at_1us": {
+      "G_OH": 1.71,
+      "G_eaq": 1.694,
+      "G_H": 0.71,
+      "G_H2O2": 0.85,
+      "G_H2": 0.622
+    },
+    "post_joint_fix_at_1us": {
+      "G_OH": 1.53,
+      "G_eaq": 1.381,
+      "G_H": 0.778,
+      "G_H2O2": 0.589,
+      "G_H2": 0.535
+    },
+    "post_joint_fix_ratios": {
+      "G_OH": 0.8947368421052632,
+      "G_eaq": 0.8152302243211335,
+      "G_H": 1.095774647887324,
+      "G_H2O2": 0.6929411764705882,
+      "G_H2": 0.8601286173633441
+    },
+    "n_species_moved": 2,
+    "n_regressions": 0,
+    "headline": "G_OH=0.895 (was 0.907) | G_eaq=0.815 (was 0.830) | G_H=1.096 (was 0.992) | G_H2O2=0.693 (was 0.711) | G_H2=0.860 (was 0.752)"
+  },
+  "rows": [
+    {
+      "metric": "G_OH",
+      "wgsl_post_joint_fix": 1.53,
+      "chem6_at_1us": 1.71,
+      "ratio_post": 0.8947368421052632,
+      "ratio_pre_E10c": 0.9073,
+      "delta_ratio": -0.012563157894736832,
+      "direction": "away from 1.0",
+      "regressed_more_than_10pct": false,
+      "status": "noisy"
+    },
+    {
+      "metric": "G_eaq",
+      "wgsl_post_joint_fix": 1.381,
+      "chem6_at_1us": 1.694,
+      "ratio_post": 0.8152302243211335,
+      "ratio_pre_E10c": 0.8302,
+      "delta_ratio": -0.014969775678866593,
+      "direction": "away from 1.0",
+      "regressed_more_than_10pct": false,
+      "status": "noisy"
+    },
+    {
+      "metric": "G_H",
+      "wgsl_post_joint_fix": 0.778,
+      "chem6_at_1us": 0.71,
+      "ratio_post": 1.095774647887324,
+      "ratio_pre_E10c": 0.9924,
+      "delta_ratio": 0.10337464788732409,
+      "direction": "toward 1.0",
+      "regressed_more_than_10pct": false,
+      "status": "pass"
+    },
+    {
+      "metric": "G_H2O2",
+      "wgsl_post_joint_fix": 0.589,
+      "chem6_at_1us": 0.85,
+      "ratio_post": 0.6929411764705882,
+      "ratio_pre_E10c": 0.7112,
+      "delta_ratio": -0.018258823529411883,
+      "direction": "away from 1.0",
+      "regressed_more_than_10pct": false,
+      "status": "noisy"
+    },
+    {
+      "metric": "G_H2",
+      "wgsl_post_joint_fix": 0.535,
+      "chem6_at_1us": 0.622,
+      "ratio_post": 0.8601286173633441,
+      "ratio_pre_E10c": 0.7519,
+      "delta_ratio": 0.1082286173633441,
+      "direction": "toward 1.0",
+      "regressed_more_than_10pct": false,
+      "status": "pass"
+    }
+  ]
+}

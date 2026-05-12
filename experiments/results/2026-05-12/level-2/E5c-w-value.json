@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "protocol": "E5c-w-value",
+    "hypothesis": "The implicit W-value (mean energy per ion pair) computed from rad_buf and the primary deposit budget at 10 keV lands within ±15% of the ICRU 31 reference (~21.4 eV for liquid water). Computed three ways: primary-track only, full cascade (rad_buf H3O+ count = species_code 3), and dose-weighted.",
+    "passBar": "All three W values within ±15% of ICRU 31 (21.4 eV). The \"primary-track only\" W is expected to be substantially higher (since we drop the cascade) but is still a useful diagnostic of the energy-partition between excitation and ionization.",
+    "seed": "E5_CSDA=0x54524B01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "radBin": "dumps/rad_E10000_N4096.bin",
+      "icru31Ref": "ICRU Report 31 (1979); see also Combecher 1980 (Rad. Res. 84, 189) and Krajcar Bronić 1998. Geant4-DNA defaults documented in G4DNAWaterIonisationStructure.cc."
+    },
+    "config": {
+      "n_primaries": 4096,
+      "energy_eV": 10000,
+      "total_deposit_eV": 40960000,
+      "icru31_w_eV": 21.4
+    }
+  },
+  "env": {
+    "gitSha": "724eb9e76312841b041dc65d7df0982eadb9abf4",
+    "gitDirty": true,
+    "shaderHashes": {
+      "helpers_wgsl": "91ede5819c5669702436bad084fd2efa3da4192a",
+      "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
+      "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
+    },
+    "timestamp": "2026-05-12T12:04:25.756Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "3/3 W-value variants outside ±15% of ICRU 31. W_cascade=26.89 eV; primary-track-only W typically reads high because it drops the cascade.",
+  "summary": {
+    "icru31_target": 21.4,
+    "W_primary_track_only_eV": 51.51983513652756,
+    "W_full_cascade_eV": 26.890685686224565,
+    "W_full_cascade_ratio": 1.2565740974871293,
+    "cascade_ions_per_primary": 371.8759765625,
+    "headline": "W_cascade=26.89 eV vs ICRU 31 21.4 eV → ratio 1.257× (25.7%)"
+  },
+  "rows": [
+    {
+      "metric": "W_primary_track_only",
+      "W_eV": 51.51983513652756,
+      "ICRU31_W_eV": 21.4,
+      "ratio": 2.4074689316134377,
+      "delta_pct": 140.74689316134376,
+      "status": "fail"
+    },
+    {
+      "metric": "W_full_cascade",
+      "W_eV": 26.890685686224565,
+      "ICRU31_W_eV": 21.4,
+      "ratio": 1.2565740974871293,
+      "delta_pct": 25.65740974871293,
+      "status": "fail"
+    },
+    {
+      "metric": "W_dose_weighted",
+      "W_eV": 26.890685686224565,
+      "ICRU31_W_eV": 21.4,
+      "ratio": 1.2565740974871293,
+      "delta_pct": 25.65740974871293,
+      "status": "fail"
+    },
+    {
+      "metric": "cascade_ions_per_primary",
+      "value": 371.8759765625,
+      "reference": 509.2,
+      "ratio": 0.7303141723536921,
+      "note": "Same number as E7. Reported here for cross-validation — if E7 and this disagree, one of the rad_buf readers has a bug.",
+      "status": "informational"
+    }
+  ]
+}
