@@ -16,8 +16,11 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pipeline } from 'node:stream/promises';
 
+// Pinned to the demo-v1 release tag (the asset's home). The /latest/
+// alias points at v0.1.0 — the source-code release — which does NOT
+// carry the binary asset, so /latest/download 404s on a clean build.
 const RELEASE_URL =
-  'https://github.com/abgnydn/webgpu-dna/releases/latest/download/wgdna-default.bin';
+  'https://github.com/abgnydn/webgpu-dna/releases/download/demo-v1/wgdna-default.bin';
 const EXPECTED_SIZE = 8_803_686;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
