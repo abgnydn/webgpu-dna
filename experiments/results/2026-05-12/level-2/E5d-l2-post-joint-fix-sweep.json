@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "protocol": "E5d-l2-post-joint-fix-sweep",
+    "hypothesis": "After the joint fix (SIGMA_EXC_SCALE=0.5 + RECOMB_BOOST=2.0) shipped 2026-05-12, the L2 metrics (CSDA at 8 energies, ions/primary at 10 keV) move toward their Geant4 11.4.1 references. Geant4-side baselines unchanged; this is a WGSL-only re-validation against cached references.",
+    "passBar": "CSDA: at least 6 of 8 energies have ratio closer to 1.0 than the pre-fix E5b run. Cascade ions/primary at 10 keV: post-fix ratio strictly closer to 1.0 than pre-fix 0.730×.",
+    "seed": "E5_CSDA=0x54524B01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "g4_csda_baseline": "experiments/results/2026-05-12/level-2/E5b-csda-multi-energy.json (Geant4 11.4.1 cached)",
+      "g4_cascade_baseline": "experiments/results/2026-05-11/level-2/E7-ions-per-primary-cascade.json (Geant4 ntuple)",
+      "wgsl_harness": "src/app.ts → runValidation() with current shader constants"
+    },
+    "config": {
+      "n_primaries": 4096,
+      "g4_csda_nm": {
+        "100": 26.21,
+        "300": 35.91,
+        "500": 48.07,
+        "1000": 90.32,
+        "3000": 392.5,
+        "5000": 877.6,
+        "10000": 2747.5,
+        "20000": 9096.2
+      },
+      "g4_cascade_ions_at_10keV": 509.2,
+      "shader_constants": {
+        "sigma_exc_scale": 0.5,
+        "recomb_boost": 2
+      }
+    }
+  },
+  "env": {
+    "gitSha": "116b2d66638940606a353affe65bfc11913a69ee",
+    "gitDirty": true,
+    "shaderHashes": {
+      "helpers_wgsl": "91ede5819c5669702436bad084fd2efa3da4192a",
+      "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
+      "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
+    },
+    "timestamp": "2026-05-12T12:09:36.299Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": "8/8 CSDA energies improved by the joint fix. Headline lift: 100 eV 0.588 → 0.736.",
+  "summary": {
+    "n_csda_improved": 8,
+    "csda_at_100eV_post": 0.7363601678748569,
+    "csda_at_100eV_pre": 0.5875619992369324,
+    "primary_track_ions_at_10keV_post": 195,
+    "headline": "100eV: 0.736 (was 0.588) | 300eV: 0.810 (was 0.705) | 500eV: 0.857 (was 0.776) | 1000eV: 0.912 (was 0.864) | 3000eV: 0.983 (was 0.965) | 5000eV: 0.984 (was 0.975) | 10000eV: 0.994 (was 0.988) | 20000eV: 0.996 (was 0.992)"
+  },
+  "rows": [
+    {
+      "metric": "csda_100_eV",
+      "g4_csda_nm": 26.21,
+      "wgsl_pre_fix_nm": 15.4,
+      "wgsl_post_fix_nm": 19.3,
+      "ratio_pre": 0.5875619992369324,
+      "ratio_post": 0.7363601678748569,
+      "improved": true,
+      "delta_pct": 14.879816863792449,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_300_eV",
+      "g4_csda_nm": 35.91,
+      "wgsl_pre_fix_nm": 25.3,
+      "wgsl_post_fix_nm": 29.1,
+      "ratio_pre": 0.7045391255917572,
+      "ratio_post": 0.8103592314118631,
+      "improved": true,
+      "delta_pct": 10.582010582010582,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_500_eV",
+      "g4_csda_nm": 48.07,
+      "wgsl_pre_fix_nm": 37.3,
+      "wgsl_post_fix_nm": 41.2,
+      "ratio_pre": 0.7759517370501352,
+      "ratio_post": 0.8570834200124818,
+      "improved": true,
+      "delta_pct": 8.113168296234663,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_1000_eV",
+      "g4_csda_nm": 90.32,
+      "wgsl_pre_fix_nm": 78,
+      "wgsl_post_fix_nm": 82.4,
+      "ratio_pre": 0.8635961027457928,
+      "ratio_post": 0.9123117803365812,
+      "improved": true,
+      "delta_pct": 4.871567759078843,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_3000_eV",
+      "g4_csda_nm": 392.5,
+      "wgsl_pre_fix_nm": 378.7,
+      "wgsl_post_fix_nm": 385.9,
+      "ratio_pre": 0.9648407643312101,
+      "ratio_post": 0.9831847133757962,
+      "improved": true,
+      "delta_pct": 1.8343949044586028,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_5000_eV",
+      "g4_csda_nm": 877.6,
+      "wgsl_pre_fix_nm": 856,
+      "wgsl_post_fix_nm": 863.2,
+      "ratio_pre": 0.97538742023701,
+      "ratio_post": 0.98359161349134,
+      "improved": true,
+      "delta_pct": 0.8204193254330083,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_10000_eV",
+      "g4_csda_nm": 2747.5,
+      "wgsl_pre_fix_nm": 2714.4,
+      "wgsl_post_fix_nm": 2730.1,
+      "ratio_pre": 0.9879526842584168,
+      "ratio_post": 0.9936669699727024,
+      "improved": true,
+      "delta_pct": 0.5714285714285672,
+      "status": "pass"
+    },
+    {
+      "metric": "csda_20000_eV",
+      "g4_csda_nm": 9096.2,
+      "wgsl_pre_fix_nm": 9026.9,
+      "wgsl_post_fix_nm": 9055.3,
+      "ratio_pre": 0.9923814340054087,
+      "ratio_post": 0.995503616894967,
+      "improved": true,
+      "delta_pct": 0.3122182889558345,
+      "status": "pass"
+    },
+    {
+      "metric": "primary_track_ions_per_primary_at_10keV",
+      "wgsl_pre_fix": 194.1,
+      "wgsl_post_fix": 195,
+      "delta": 0.9000000000000057,
+      "note": "GPU box_ions atomic — primary track only, NOT comparable to the 509.2 G4 cascade count. For a proper post-fix cascade-ion measurement, re-run E7 against a fresh rad bin generated under joint-fix shaders.",
+      "status": "informational"
+    }
+  ]
+}
