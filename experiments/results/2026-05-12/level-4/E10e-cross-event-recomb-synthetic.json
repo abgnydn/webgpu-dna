@@ -18,9 +18,9 @@
     }
   },
   "env": {
-    "gitSha": "134fc4c01b4dc41fb0b48f54d94b39eace21d779",
+    "gitSha": "078e4a5ec50d7a7c7b01f8ed755f0dd9ad1efc4c",
     "gitDirty": true,
-    "timestamp": "2026-05-12T08:23:08.822Z",
+    "timestamp": "2026-05-12T08:26:07.075Z",
     "runner": "node",
     "nodeVersion": "v24.5.0",
     "platform": "darwin",
@@ -29,17 +29,17 @@
     "cpuCount": 12,
     "totalMemBytes": 17179869184
   },
-  "status": "pass",
-  "diagnosis": "Cross-event recomb adds ~2.00 H₂/primary under nearest-eaq model — supports PHYSICS_DIAGNOSIS §1 candidate #4.",
+  "status": "fail",
+  "diagnosis": "Mean ΔP < 0.01 — cross-event recomb effect is negligible; H₂ deficit comes from elsewhere.",
   "summary": {
     "n_primaries_with_data": 4096,
     "total_h2op_sites": 1523204,
     "sites_per_primary": 371.8759765625,
-    "mean_p_recomb_geminate": 0.19077978173862853,
+    "mean_p_recomb_geminate": 0.2214733942884841,
     "mean_p_recomb_nearest": 0.23008829593052332,
-    "mean_p_recomb_delta": 0.039308514191894794,
-    "additional_h2ovib_per_site": 0.039308514191894794,
-    "additional_h2_per_primary": 1.9953422719682865,
+    "mean_p_recomb_delta": 0.008614901642039235,
+    "additional_h2ovib_per_site": 0.008614901642039235,
+    "additional_h2_per_primary": 0.4373016321933203,
     "h2_deficit_per_primary_target": 12.4,
     "nearest_dist_stats_nm": {
       "mean": 4.052457699104932,
@@ -49,18 +49,18 @@
       "max": 45.07317522505721
     },
     "geminate_dist_stats_nm": {
-      "mean": 3.7610341466826416,
-      "p10": 2.223570859677559,
-      "p50": 3.690460006889464,
-      "p90": 5.34,
-      "max": 5.34
+      "mean": 2.839999999940962,
+      "p10": 2.84,
+      "p50": 2.84,
+      "p90": 2.84,
+      "max": 2.84
     },
-    "headline": "delta_P=0.0393 sites/pri=371.9 extra_H2/pri=2.00 (target=12.4)"
+    "headline": "delta_P=0.0086 sites/pri=371.9 extra_H2/pri=0.44 (target=12.4)"
   },
   "rows": [
     {
       "metric": "mean_p_recomb_geminate",
-      "value": 0.19077978173862853,
+      "value": 0.2214733942884841,
       "status": "informational"
     },
     {
@@ -70,9 +70,9 @@
     },
     {
       "metric": "mean_p_recomb_delta",
-      "value": 0.039308514191894794,
+      "value": 0.008614901642039235,
       "threshold_pass": 0.03,
-      "status": "pass"
+      "status": "fail"
     },
     {
       "metric": "h2op_sites_per_primary",
@@ -81,7 +81,7 @@
     },
     {
       "metric": "additional_h2_per_primary_model",
-      "value": 1.9953422719682865,
+      "value": 0.4373016321933203,
       "status": "informational",
       "note": "Model: nearest-eaq within 10·r_Onsager. Compare to E9 deficit of 12.4 H₂/primary."
     },
@@ -97,7 +97,7 @@
     },
     {
       "metric": "geminate_dist_nm_median",
-      "value": 3.690460006889464,
+      "value": 2.84,
       "status": "informational"
     }
   ]

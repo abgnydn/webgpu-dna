@@ -140,30 +140,33 @@ export async function runE10e() {
 
     for (const [sx, sy, sz] of sites) {
       let r_nearest = Infinity;
-      let r_geminate_est = 0;
       // Find nearest eaq across all of this primary's eaqs.
       for (const [ex, ey, ez] of eaqs) {
         const dx = ex - sx, dy = ey - sy, dz = ez - sz;
         const r = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (r < r_nearest) r_nearest = r;
       }
-      // Geminate eaq estimate: among eaqs within 1.78 nm × 3 of mpos
-      // (3σ Meesungnoen at 1.7 eV), the geminate one is one of them.
-      // For the comparison we use the MEAN distance of close eaqs as a
-      // proxy for the geminate distance, since multiple geminate
-      // candidates exist within the cluster.
-      let nClose = 0, rSum = 0;
-      for (const [ex, ey, ez] of eaqs) {
-        const dx = ex - sx, dy = ey - sy, dz = ez - sz;
-        const r = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (r <= 5.34) { nClose++; rSum += r; } // 3σ at σ=1.78 nm
-      }
-      r_geminate_est = nClose > 0 ? rSum / nClose : 5.34;
 
+      // The cleanest comparison is r_nearest itself. Geant4's
+      // cross-event recomb makes ITS recomb decision at exactly this
+      // r_nearest (whichever eaq is closest to the H2O+, geminate or
+      // cross-event). WGSL's per-event geminate check uses the SAME r
+      // when the geminate eaq IS the closest — but for tracked
+      // secondaries where the geminate eaq lands far away (~r_track ~
+      // many nm), the nearest eaq is much closer than r_track.
       const r_nearest_safe = Math.max(r_nearest, 1e-6);
-      const r_geminate_safe = Math.max(r_geminate_est, 1e-6);
-
       const p_nearest = r_nearest_safe < R_SEARCH ? 1 - Math.exp(-R_ONSAGER / r_nearest_safe) : 0;
+      // Compare against the rate WGSL would have produced for THIS
+      // ionization had we used the rad_buf-stored geminate eaq (which
+      // for non-recombed sub-cutoff sites is the Meesungnoen-sampled
+      // position; for tracked sites it's the secondary's final
+      // thermalization point, often >>10 nm away → P_recomb ≈ 0).
+      // Since we can't identify which eaq is the geminate one, we
+      // estimate the "WGSL-current P_recomb" as the mean of ALL eaqs
+      // for this primary's distance distribution (the typical eaq
+      // distance distribution our model produces).
+      const r_geminate_est = 2.84; // E[||G3D(σ=1.78)||]
+      const r_geminate_safe = Math.max(r_geminate_est, 1e-6);
       const p_geminate = 1 - Math.exp(-R_ONSAGER / r_geminate_safe);
 
       sumPNearest += p_nearest;
