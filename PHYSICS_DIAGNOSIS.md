@@ -97,12 +97,19 @@ chem6 tracks but we don't, e.g. HO₂°).
    adds essentially nothing.
 5. **New leading hypotheses (E10e refuted #4).** The deficit must come
    from one of:
-   - **Per-primary IRT partitioning** (Hypothesis B above): our IRT runs
-     chemistry per primary, chem6 runs all primaries together. At early
-     times (t < 1 ps), primaries emitted from a common origin still have
-     overlapping cluster structure. Test: run our IRT on the full
-     concatenated rad_buf (no per-primary partitioning) and compare
-     G(H₂) at 0.1 ps.
+   - ~~**Per-primary IRT partitioning** (Hypothesis B above).~~ **REFUTED
+     for 0.1 ps but CONFIRMED at 1 μs by E10f (2026-05-12).** Subsample
+     test (128 primaries) of our IRT worker with vs without per-primary
+     partitioning:
+     - **At 0.1 ps**: ΔG(H₂) = -0.001 (essentially zero). Partitioning
+       does NOT cause the pre-chem deficit.
+     - **At 1 μs**: ΔG(H₂) = +0.149 (no-partition produces 32% more
+       H₂). This closes 96% of E10c's 1 μs implementation gap of 0.154.
+     - **Conclusion**: the 0.1 ps deficit (50% of chem6) is in the
+       pre-chem emission itself; partitioning is irrelevant at that
+       timescale. The 1 μs gap (25% of chem6) is mostly partitioning —
+       running all primaries in one chem pool, like chem6 does, would
+       close most of it.
    - **W_sec distribution differences.** Our Born differential CDF gives
      a specific W_sec distribution. If chem6's W_sec distribution shifts
      more energy to sub-cutoff (more geminate recomb), chem6 fires more
@@ -112,7 +119,15 @@ chem6 tracks but we don't, e.g. HO₂°).
      a one-shot Onsager check at t=0 separation. Geant4's
      `G4DNAElectronHoleRecombination` integrates over the chemistry
      timestep — H₂O+ has a finite lifetime to drift and react. Could
-     give higher effective recomb rate.
+     give higher effective recomb rate. **Quantitative estimate**: if
+     Geant4's effective P_recomb is ~0.30 vs our ~0.15, H₂ from ion
+     recomb goes from 7.6 → 15.3 H₂/primary at 10 keV (≈ closes the
+     0.1 ps deficit). Plausible mechanism, untested.
+   - **27% cascade-ion deficit** (E7) contributes too: 27% fewer
+     ionizations → ~27% fewer H₂Ovib events. But this is partially
+     compensated by the σ_exc inflation (more B1A1 events → more B1A1
+     direct H₂). Net contribution to H₂ deficit is unclear without
+     decomposition.
 5. Add HO₂° tracking + a HO₂°-mediated H₂O₂ pathway. Would help close
    the H₂O₂ deficit specifically (H + HO₂° → H₂O₂ at k=1e10 M⁻¹s⁻¹
    per option3 line 241-246).
