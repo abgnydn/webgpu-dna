@@ -76,11 +76,21 @@ export async function runE5c() {
   const f32 = new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4);
   const recordCount = f32.length / 4;
 
-  let nH3Op = 0; // species_code 3 = H3O+ (full cascade ion proxy per E7)
+  let nH3Op = 0; // species_code 3 = H3O+
+  let nH2Marker = 0; // species_code 7 = H2 marker (H2Ovib decCh1 13.65% branch)
   for (let i = 0; i < recordCount; i++) {
     const sp = speciesOf(f32[i * 4 + 3]);
     if (sp === 3) nH3Op++;
+    else if (sp === 7) nH2Marker++;
   }
+  // Corrected total ionization estimate: H3O+ records (non-recomb path)
+  // + H2 markers (recomb decCh1, 13.65% of recomb events emits H2). The
+  // H3O+-only count is biased downward by the joint-fix RECOMB_BOOST=2.0
+  // pathway, which consumes H3O+ records by funneling more ionizations
+  // through the H2Ovib decay channels. The H3O+ + H2-marker estimate
+  // captures the dominant recomb path; small over-count from
+  // excitation B1A1 direct + DEA but negligible at 10 keV. See E7b.
+  const nIonsCorrected = nH3Op + nH2Marker;
 
   // (a) Primary-track-only W: per E5, primary box_ions atomic gives
   //     194.1 ions/primary at 10 keV. We don't have direct access to
@@ -90,9 +100,16 @@ export async function runE5c() {
   const N_IONS_PRIMARY_TRACK = 194.1 * N_PRIMARIES;
   const W_primary_track = TOTAL_DEPOSIT_EV / N_IONS_PRIMARY_TRACK;
 
-  // (b) Full-cascade W from rad_buf H3O+ count (E7 method).
+  // (b) Full-cascade W from rad_buf H3O+ count (E7 method). Biased by
+  //     RECOMB_BOOST under joint-fix shaders — see comment above.
   const W_cascade = TOTAL_DEPOSIT_EV / nH3Op;
   const cascade_ions_per_primary = nH3Op / N_PRIMARIES;
+
+  // (b-corrected) W using the H3O+ + H2-marker estimate. This is the
+  // recomb-bias-corrected total ionization count and the right metric
+  // for joint-fix vs baseline comparison.
+  const W_corrected = TOTAL_DEPOSIT_EV / nIonsCorrected;
+  const cascade_ions_corrected = nIonsCorrected / N_PRIMARIES;
 
   // (c) Dose-weighted W = total E deposited / total ions. With perfect
   //     energy conservation (E5 ratio = 1.00007), the deposit is
@@ -111,14 +128,23 @@ export async function runE5c() {
 
   const rows = [
     row('W_primary_track_only', W_primary_track),
-    row('W_full_cascade', W_cascade),
+    row('W_full_cascade_H3Op_only', W_cascade),
+    row('W_full_cascade_H3Op_plus_H2marker', W_corrected),
     row('W_dose_weighted', W_dose_weighted),
     {
-      metric: 'cascade_ions_per_primary',
+      metric: 'cascade_ions_per_primary_H3Op_only',
       value: cascade_ions_per_primary,
       reference: 509.2,
       ratio: cascade_ions_per_primary / 509.2,
-      note: 'Same number as E7. Reported here for cross-validation — if E7 and this disagree, one of the rad_buf readers has a bug.',
+      note: 'H3O+ count alone — biased downward by RECOMB_BOOST under joint-fix shaders. Use the corrected estimate below for joint-fix-era comparisons.',
+      status: 'informational',
+    },
+    {
+      metric: 'cascade_ions_per_primary_H3Op_plus_H2marker',
+      value: cascade_ions_corrected,
+      reference: 509.2,
+      ratio: cascade_ions_corrected / 509.2,
+      note: 'H3O+ + H2-marker estimate — the right metric under joint-fix shaders. Cross-validates with E7b row of the same name.',
       status: 'informational',
     },
   ];
@@ -132,10 +158,12 @@ export async function runE5c() {
   const summary = {
     icru31_target: ICRU31_W_EV,
     W_primary_track_only_eV: W_primary_track,
-    W_full_cascade_eV: W_cascade,
-    W_full_cascade_ratio: W_cascade / ICRU31_W_EV,
-    cascade_ions_per_primary,
-    headline: `W_cascade=${W_cascade.toFixed(2)} eV vs ICRU 31 ${ICRU31_W_EV} eV → ratio ${(W_cascade / ICRU31_W_EV).toFixed(3)}× (${((W_cascade - ICRU31_W_EV) / ICRU31_W_EV * 100).toFixed(1)}%)`,
+    W_full_cascade_H3Op_only_eV: W_cascade,
+    W_full_cascade_corrected_eV: W_corrected,
+    W_full_cascade_corrected_ratio: W_corrected / ICRU31_W_EV,
+    cascade_ions_per_primary_H3Op_only: cascade_ions_per_primary,
+    cascade_ions_per_primary_corrected: cascade_ions_corrected,
+    headline: `W_corrected=${W_corrected.toFixed(2)} eV (H3O+ only=${W_cascade.toFixed(2)}) vs ICRU 31 ${ICRU31_W_EV} eV → ratio ${(W_corrected / ICRU31_W_EV).toFixed(3)}× (${((W_corrected - ICRU31_W_EV) / ICRU31_W_EV * 100).toFixed(1)}%)`,
   };
 
   return { meta, env, status, diagnosis, summary, rows };

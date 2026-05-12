@@ -33,12 +33,19 @@ function main(): void {
     runBtn.onclick = async () => {
       runBtn.disabled = true;
       if (resetBtn) resetBtn.disabled = true;
+      // When the page is opened with ?dump=1, the run is for rad_buf
+      // extraction (see src/app.ts) — chemistry is irrelevant and the
+      // 10 keV IRT step takes ~3 min and risks an OOM under the
+      // accumulated dump traffic. Skip chemistry for dump runs.
+      const params = new URLSearchParams(window.location.search);
+      const isDumpRun = params.has('dump');
       try {
         await runValidation({
           np: Math.round(readNumber('np', 4096)),
           boxNm: readNumber('box', 15000),
           ceEV: readNumber('cut', 7.4),
           log: lg,
+          ...(isDumpRun ? { chemBackend: 'none' } : {}),
         });
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);

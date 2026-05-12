@@ -132,12 +132,32 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
   let lastDose: Uint32Array | null = null;
   let lastDoseBox = boxNm;
 
+  // Optional rad_buf dump: when the page URL has ?dump=1, POST each
+  // energy's rad_buf to /dump/rad_E<E>_N<np>.bin. Used by experiments
+  // that need a fresh rad bin under current shaders (e.g. E5d/E6/E7/E5c
+  // post-joint-fix re-validation). The POST is fire-and-forget — a
+  // missing dump server returns a network error which we swallow. In
+  // automated harnesses (Playwright), `page.route()` intercepts the
+  // request and writes the body to disk on the Node side.
+  const wantDump = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('dump');
+
   for (const ref of ESTAR) {
     const r = await runAtEnergy(device, buffers, pipelines, ref.E, np, boxNm, ceEV, dna, chemCallback);
 
     if (r.dose_arr) {
       lastDose = r.dose_arr;
       lastDoseBox = boxNm;
+    }
+
+    if (wantDump && r.rad_buf_final) {
+      const dumpName = `rad_E${r.E}_N${np}.bin`;
+      const blob = new Blob([r.rad_buf_final.buffer], { type: 'application/octet-stream' });
+      try {
+        const resp = await fetch(`/dump/${dumpName}`, { method: 'POST', body: blob });
+        if (resp.ok) {
+          log(`  dumped ${r.rad_n_stored} radicals → /dump/${dumpName} (${(r.rad_buf_final.byteLength / 1e6).toFixed(2)} MB)`, 'data');
+        }
+      } catch { /* no dump endpoint, ignore */ }
     }
 
     const csdaRatio = r.mean_total / ref.csda;

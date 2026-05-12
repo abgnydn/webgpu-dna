@@ -21,7 +21,9 @@ import { runE5c } from './level-2-track-structure/E5c-w-value.mjs';
 import { runE5d } from './level-2-track-structure/E5d-l2-post-joint-fix-sweep.mjs';
 import { runE6 } from './level-2-track-structure/E6-mfp-vs-g4-ntuple.mjs';
 import { runE6b } from './level-2-track-structure/E6b-sigma-per-process-vs-g4.mjs';
+import { runE6c } from './level-2-track-structure/E6c-effective-sigma-post-joint-fix.mjs';
 import { runE7 } from './level-2-track-structure/E7-ions-per-primary-cascade.mjs';
+import { runE7b } from './level-2-track-structure/E7b-l2-post-joint-fix-cascade.mjs';
 import { runE8 } from './level-2-track-structure/E8-secondary-ke-spectrum.mjs';
 import { runE10 } from './level-4-chemistry/E10-irt-vs-karamitros.mjs';
 import { runE10b } from './level-4-chemistry/E10b-vshape-bootstrap-sigma.mjs';
@@ -70,7 +72,9 @@ const REGISTRY = {
   E5d: { run: runE5d, level: 'level-2', id: 'E5d-l2-post-joint-fix-sweep' },
   E6:  { run: runE6,  level: 'level-2', id: 'E6-mfp-vs-g4-ntuple' },
   E6b: { run: runE6b, level: 'level-2', id: 'E6b-sigma-per-process-vs-g4' },
+  E6c: { run: runE6c, level: 'level-2', id: 'E6c-effective-sigma-post-joint-fix' },
   E7:  { run: runE7,  level: 'level-2', id: 'E7-ions-per-primary-cascade' },
+  E7b: { run: runE7b, level: 'level-2', id: 'E7b-l2-post-joint-fix-cascade' },
   E8:  { run: runE8,  level: 'level-2', id: 'E8-secondary-ke-spectrum' },
 
   // Level 4 — chemistry

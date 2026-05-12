@@ -18,7 +18,7 @@
     }
   },
   "env": {
-    "gitSha": "724eb9e76312841b041dc65d7df0982eadb9abf4",
+    "gitSha": "d3dcb4bb204b4817b032c38fd97a0d3e5690935a",
     "gitDirty": true,
     "shaderHashes": {
       "helpers_wgsl": "91ede5819c5669702436bad084fd2efa3da4192a",
@@ -27,7 +27,7 @@
       "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
       "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
     },
-    "timestamp": "2026-05-12T12:04:25.756Z",
+    "timestamp": "2026-05-12T12:26:54.812Z",
     "runner": "node",
     "nodeVersion": "v24.5.0",
     "platform": "darwin",
@@ -37,14 +37,16 @@
     "totalMemBytes": 17179869184
   },
   "status": "fail",
-  "diagnosis": "3/3 W-value variants outside ±15% of ICRU 31. W_cascade=26.89 eV; primary-track-only W typically reads high because it drops the cascade.",
+  "diagnosis": "4/3 W-value variants outside ±15% of ICRU 31. W_cascade=30.72 eV; primary-track-only W typically reads high because it drops the cascade.",
   "summary": {
     "icru31_target": 21.4,
     "W_primary_track_only_eV": 51.51983513652756,
-    "W_full_cascade_eV": 26.890685686224565,
-    "W_full_cascade_ratio": 1.2565740974871293,
-    "cascade_ions_per_primary": 371.8759765625,
-    "headline": "W_cascade=26.89 eV vs ICRU 31 21.4 eV → ratio 1.257× (25.7%)"
+    "W_full_cascade_H3Op_only_eV": 30.71954688668342,
+    "W_full_cascade_corrected_eV": 29.015546977771514,
+    "W_full_cascade_corrected_ratio": 1.3558666812042763,
+    "cascade_ions_per_primary_H3Op_only": 325.525634765625,
+    "cascade_ions_per_primary_corrected": 344.642822265625,
+    "headline": "W_corrected=29.02 eV (H3O+ only=30.72) vs ICRU 31 21.4 eV → ratio 1.356× (35.6%)"
   },
   "rows": [
     {
@@ -56,27 +58,43 @@
       "status": "fail"
     },
     {
-      "metric": "W_full_cascade",
-      "W_eV": 26.890685686224565,
+      "metric": "W_full_cascade_H3Op_only",
+      "W_eV": 30.71954688668342,
       "ICRU31_W_eV": 21.4,
-      "ratio": 1.2565740974871293,
-      "delta_pct": 25.65740974871293,
+      "ratio": 1.4354928451721225,
+      "delta_pct": 43.54928451721226,
+      "status": "fail"
+    },
+    {
+      "metric": "W_full_cascade_H3Op_plus_H2marker",
+      "W_eV": 29.015546977771514,
+      "ICRU31_W_eV": 21.4,
+      "ratio": 1.3558666812042763,
+      "delta_pct": 35.586668120427646,
       "status": "fail"
     },
     {
       "metric": "W_dose_weighted",
-      "W_eV": 26.890685686224565,
+      "W_eV": 30.71954688668342,
       "ICRU31_W_eV": 21.4,
-      "ratio": 1.2565740974871293,
-      "delta_pct": 25.65740974871293,
+      "ratio": 1.4354928451721225,
+      "delta_pct": 43.54928451721226,
       "status": "fail"
     },
     {
-      "metric": "cascade_ions_per_primary",
-      "value": 371.8759765625,
+      "metric": "cascade_ions_per_primary_H3Op_only",
+      "value": 325.525634765625,
       "reference": 509.2,
-      "ratio": 0.7303141723536921,
-      "note": "Same number as E7. Reported here for cross-validation — if E7 and this disagree, one of the rad_buf readers has a bug.",
+      "ratio": 0.6392883636402691,
+      "note": "H3O+ count alone — biased downward by RECOMB_BOOST under joint-fix shaders. Use the corrected estimate below for joint-fix-era comparisons.",
+      "status": "informational"
+    },
+    {
+      "metric": "cascade_ions_per_primary_H3Op_plus_H2marker",
+      "value": 344.642822265625,
+      "reference": 509.2,
+      "ratio": 0.6768319368924293,
+      "note": "H3O+ + H2-marker estimate — the right metric under joint-fix shaders. Cross-validates with E7b row of the same name.",
       "status": "informational"
     }
   ]
