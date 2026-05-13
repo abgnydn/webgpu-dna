@@ -60,7 +60,7 @@ tools/             Python + Node helpers (G4EMLOW converter, IRT driver)
 validation/        Geant4-DNA comparison harness (compare.py, analyze_g4.py)
 ```
 
-Deep-dive: [`ARCHITECTURE.md`](./ARCHITECTURE.md). Standing physics diagnoses: [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md). Research protocol: [`RESEARCH.md`](./RESEARCH.md).
+Deep-dive: [`ARCHITECTURE.md`](./ARCHITECTURE.md). Standing physics diagnoses: [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md). Research protocol: [`RESEARCH.md`](./RESEARCH.md). Forward roadmap with multi-agent wall-clock estimates: [`ROADMAP.md`](./ROADMAP.md). Recipe for adding a new physics model: [`EXTENDING.md`](./EXTENDING.md).
 
 ## Regenerating cross sections
 
