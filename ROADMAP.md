@@ -35,12 +35,20 @@ Each item below lists: **(scope) (parallelism) (sequential bottleneck) (validati
 
 ## Tier 1 — Open physics (the structural questions)
 
-### H₂O⁺ tracking with proper time-integration (~1 hr)
+### H₂O⁺ tracking with proper time-integration (~1.5-2 hr)
 
 The named third-knob fix from E7c. Replaces the `RECOMB_BOOST` constant
 with the actual physical model: H₂O⁺ as a discrete species with finite
 lifetime, encounter-based recomb fires during the chem timestep against
 the nearest eaq within `10 × r_Onsager`.
+
+**Design doc**: [`H2OP_TRACKING_DESIGN.md`](./H2OP_TRACKING_DESIGN.md) —
+captures the open physics question (what does Geant4 actually do over
+H₂O⁺ lifetime? naive Onsager-per-step gives `P → 1` quickly, which is
+unphysical), the implementation plan, the file:line catalogue of WGSL
+recomb branches to strip, the Phase 0 algorithm in pseudocode, the
+validation chain (E10k / E5f / E7d / E13d), and the anti-pattern that
+disqualifies a "fix" (no physics citation = not done).
 
 **Scope:**
 - Add Phase 0 in `public/irt-worker.js` (before the existing IRT
