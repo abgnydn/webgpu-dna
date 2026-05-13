@@ -28,7 +28,19 @@
     "arch": "arm64",
     "hostname": "Ahmets-MBP.localdomain",
     "cpuCount": 12,
-    "totalMemBytes": 17179869184
+    "totalMemBytes": 17179869184,
+    "shaderHashes": {
+      "helpers_wgsl": "f2b52f954605e15a42d7543c98df7a825f33b55b",
+      "primary_wgsl": "484e2f7d3fef7815ab9993b7ea158195efeac507",
+      "secondary_wgsl": "04e574f45d539eda6caf71b99e9eb96e0beed3f6",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "08228570c61b475d5a11a0951c77e49d019784f9"
+    },
+    "shaderHashesRetrofit": {
+      "retrofittedAt": "2026-05-13T09:22:19.142Z",
+      "method": "git rev-parse <gitSha>:<shader-path>",
+      "note": "Retrofit by tools/retrofit-shader-hashes.mjs — original artifact predated the shaderHashes audit fix (2026-05-12)."
+    }
   },
   "status": "pass",
   "diagnosis": null,

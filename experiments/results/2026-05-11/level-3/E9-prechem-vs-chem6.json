@@ -30,7 +30,19 @@
     "arch": "arm64",
     "hostname": "Ahmets-MBP.localdomain",
     "cpuCount": 12,
-    "totalMemBytes": 17179869184
+    "totalMemBytes": 17179869184,
+    "shaderHashes": {
+      "helpers_wgsl": "f2b52f954605e15a42d7543c98df7a825f33b55b",
+      "primary_wgsl": "484e2f7d3fef7815ab9993b7ea158195efeac507",
+      "secondary_wgsl": "04e574f45d539eda6caf71b99e9eb96e0beed3f6",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "bcfd94e84118519ea2d759ffc5b537ccb29b90ac"
+    },
+    "shaderHashesRetrofit": {
+      "retrofittedAt": "2026-05-13T09:22:18.388Z",
+      "method": "git rev-parse <gitSha>:<shader-path>",
+      "note": "Retrofit by tools/retrofit-shader-hashes.mjs — original artifact predated the shaderHashes audit fix (2026-05-12)."
+    }
   },
   "status": "fail",
   "diagnosis": "OH: WGSL 4.382 vs chem6 5.049 (ratio 0.868, 9.5σ); eaq: WGSL 3.692 vs chem6 4.097 (ratio 0.901, 6.9σ); H: WGSL 0.786 vs chem6 0.893 (ratio 0.880, 6.7σ); H2: WGSL 0.127 vs chem6 0.251 (ratio 0.508, 22.0σ); H2O2: WGSL 0.031 vs chem6 0.053 (ratio 0.577, 9.3σ)",
