@@ -35,20 +35,47 @@ Each item below lists: **(scope) (parallelism) (sequential bottleneck) (validati
 
 ## Tier 1 — Open physics (the structural questions)
 
-### H₂O⁺ tracking with proper time-integration (~1.5-2 hr)
+### ~~H₂O⁺ tracking with proper time-integration~~ REFUTED 2026-05-13
 
-The named third-knob fix from E7c. Replaces the `RECOMB_BOOST` constant
-with the actual physical model: H₂O⁺ as a discrete species with finite
-lifetime, encounter-based recomb fires during the chem timestep against
-the nearest eaq within `10 × r_Onsager`.
+The premise was wrong. Source archaeology of
+`G4DNAElectronHoleRecombination.cc` (Geant4 11.4.1) shows the recomb
+process is a **one-shot single-sample check against the nearest eaq**,
+not time-integrated. Our WGSL kernel already does the same thing modulo
+the geminate-vs-nearest difference, which E10e measured as a 3.5 %
+contribution to the deficit. See
+[`H2OP_TRACKING_DESIGN.md`](./H2OP_TRACKING_DESIGN.md) §"Geant4 source
+archaeology — verdict" for the file:line citations and the revised
+hypothesis.
 
-**Design doc**: [`H2OP_TRACKING_DESIGN.md`](./H2OP_TRACKING_DESIGN.md) —
-captures the open physics question (what does Geant4 actually do over
-H₂O⁺ lifetime? naive Onsager-per-step gives `P → 1` quickly, which is
-unphysical), the implementation plan, the file:line catalogue of WGSL
-recomb branches to strip, the Phase 0 algorithm in pseudocode, the
-validation chain (E10k / E5f / E7d / E13d), and the anti-pattern that
-disqualifies a "fix" (no physics citation = not done).
+**`RECOMB_BOOST = 2.0` has no physical basis** — there's no Geant4
+mechanism for it to approximate. It's a fudge that happens to improve
+chem6 agreement; the actual root cause of the chem6 deficit is
+elsewhere.
+
+### Cross-primary IRT via spatial hash (~2 hr, NEW Tier 1)
+
+The real structural fix per E10f. Replace the `priMap` per-primary
+partitioning in `public/irt-worker.js` with a spatial-hash candidate
+lookup. Per-primary partitioning is a perf optimization, not physics —
+chem6 doesn't do it. E10f measured **96 % of the 1 μs implementation
+gap comes from partitioning**, so this is the highest-impact remaining
+chemistry fix.
+
+**Scope:**
+- Drop `priMap.set(pid, [...])` partitioning in `irt-worker.js`
+- Add spatial hash on radical positions (cell size ~ diffusion-bounded
+  reach over chem step, e.g. 1 nm)
+- Reaction-time scan iterates over (this radical, its hash bucket +
+  neighbors) instead of (this radical, same-pid bucket)
+- All other IRT machinery (TDC, PDC, Onsager-screened rates) unchanged
+
+**Parallelism:** 2-3 agents — one spatial-hash implementation, one
+worker-loop refactor, one validation.
+
+**Sequential bottleneck:** 1 Playwright + IRT chem run (~3 min).
+
+**Validation gate:** G(H₂) @ 1 μs vs chem6 ≥ 0.95× (up from current
+0.86× per E10j). G(eaq) @ 1 μs ≥ 0.85× (up from 0.81×).
 
 **Scope:**
 - Add Phase 0 in `public/irt-worker.js` (before the existing IRT

@@ -1,15 +1,111 @@
 # H₂O⁺ tracking — design doc
 
-Status: design only. Implementation deferred. Captures everything thought
-through during the 2026-05-12 / 2026-05-13 sessions about replacing the
-`RECOMB_BOOST` constant with the actual Geant4-style time-integrated
-e-h recombination physics.
+**Status: PREMISE REFUTED 2026-05-13 by source archaeology** (see
+§"Geant4 source archaeology — verdict" below). The whole motivation
+for replacing `RECOMB_BOOST = 2.0` with "real" time-integrated
+recombination assumed Geant4's `G4DNAElectronHoleRecombination`
+integrates over the H₂O⁺ lifetime. **It doesn't.** Geant4 is a
+one-shot, single-sample check against the nearest eaq within
+`10 × r_Onsager`, which is essentially what our WGSL kernel already
+does (modulo geminate-vs-nearest, which E10e measured as a 3.5 %
+contribution to the deficit).
+
+This file is kept in the tree as a record of how the design was
+revised and what the actual next-research-question is. **Do not
+implement Phase 0 H₂O⁺ tracking — it would not change behavior in
+the way the original design predicted.**
+
+The historical design (kept below for the archaeology trail).
+Original status line:
 
 This is the named structural fix in [`ROADMAP.md`](./ROADMAP.md) Tier 1
 and [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md) §1, called for by
 the two-knob structural limit that E7c (asymmetric `RECOMB_BOOST`) and
 E5e (W_sec cutoff sweep) both confirmed cannot be sidestepped with
 existing knobs.
+
+## Geant4 source archaeology — verdict (2026-05-13)
+
+The premise driving this entire design — that Geant4 has a
+time-integrated e-h recomb that our one-shot WGSL check
+under-approximates — **does not survive contact with the source.**
+
+`G4DNAElectronHoleRecombination.cc` in Geant4 11.4.1 implements
+recomb as follows (file:line citations below verified by hand):
+
+| File:line | What |
+|---|---|
+| `GetMeanFreePath` (line 322-332) and `GetMeanLifeTime` (line 336-344) | Return `0.` if `FindReactant(track)` is true, else `DBL_MAX`. Result: the process fires on the **first chem-step call** if any nearby eaq is within range; otherwise it doesn't fire at all (no re-checking on subsequent steps). |
+| `FindReactant` (line 213-309) | Finds nearest eaqs within `10 × onsagerRadius`, computes `P = 1 - exp(-r_Onsager / r_sep)` for each, samples a single uniform random against `pState->fSampleProba`. Returns `reactants[0].fProbability > pState->fSampleProba` — i.e., it only matters whether the **single closest eaq** beats the sample. |
+| `MakeReaction` (line 161-209) | Iterates `reactants` BUT contains `break` (line 180) right after the first iteration's check. So it selects from `reactants[0]` only. The H₂O⁺ becomes H₂Ovib via `ChangeConfigurationToLabel("H2Ovib")` on success, or stays as `fStopButAlive` (= no recomb, decay as default H₂O⁺ → OH + H₃O⁺ path) on failure. |
+
+**There is no Brownian sub-loop. No per-step re-check. No
+time-integrated cumulative probability.** It's a single sample against
+the nearest eaq.
+
+The only ways Geant4's recomb effectively differs from our WGSL
+one-shot check:
+
+- **(a)** Geant4 uses **nearest eaq within `10 × r_Onsager`**, not
+  the geminate eaq. Cross-event candidates from other ionizations can
+  win if they're closer.
+- **(b)** Geant4's `r_sep` is whatever the eaq's actual position is
+  at H₂O⁺ creation time (after pre-chem displacement steps). Ours is
+  Meesungnoen-sampled at primary kernel emit time. Probably close.
+
+**E10e already measured difference (a)** end-to-end on real rad_buf
+data: `mean P_recomb_nearest = 0.230` vs `mean P_recomb_geminate = 0.221`
+(point estimate at r=2.84 nm Meesungnoen mean). ΔP = +0.009, which
+maps to **+0.44 H₂/primary out of a 12.4 H₂/primary chem6 deficit
+(3.5 %)**. The cross-event lookup is essentially a no-op at 10 keV
+because the geminate eaq is the nearest one in ~98 % of cases.
+
+**Conclusion**: `RECOMB_BOOST = 2.0` has no physical basis. There's
+no time-integrated Geant4 mechanism for it to approximate. The
+chemistry deficit must come from somewhere else.
+
+## What the chemistry deficit actually is
+
+If Geant4 recomb fires identically to ours at the H₂O⁺ creation step,
+the 0.5×-0.7× G(H₂) / G(H₂O₂) gap (E9 at 0.1 ps) and the residual
+~10-20 % deficit at 1 μs (E10c) can only come from one of:
+
+1. **Per-primary IRT partitioning at the chem stage** — E10f measured
+   this is responsible for **96 % of the 1 μs implementation gap**.
+   Geant4 chem6 runs all primaries in one chemistry pool; we run
+   per-primary. Inter-primary recomb reactions (H+H, eaq+eaq, etc.)
+   that Geant4 captures, we don't.
+
+2. **Secondary KE differential distribution (W_sec)** — E8 noted a
+   43 % deficit in the 438-806 eV tail. Affects how many secondaries
+   end up sub-cutoff vs tracked, which affects local radical density
+   and downstream chemistry.
+
+3. **Solvation radius / Meesungnoen kinetic-energy input** — our
+   autoionization eaq uses Meesungnoen at 1.7 eV uniformly. Geant4's
+   matches but the effective eaq position may differ at higher excited
+   states (B1A1 autoion ke = exc_energy - I_p, ranges 0-2 eV).
+
+The structural fix is **NOT H₂O⁺ tracking**. It's likely:
+
+- **Cross-primary IRT** via spatial hash at the chem stage. Substantial
+  refactor of `public/irt-worker.js` to drop the `priMap` partitioning
+  and use a spatial-hash for reaction candidate lookup. O(N² log N)
+  worst case but tractable with appropriate cell size + diffusion-
+  bounded search radius. Per-primary partitioning is only a perf
+  optimization, not physics.
+
+- **W_sec differential CDF audit** — re-derive our Born differential
+  table and compare bin-by-bin against Geant4's 438-806 eV bin where
+  E8 noted a 43 % deficit.
+
+The roadmap should be updated to reflect this. The H₂O⁺ tracking
+item moves to "REFUTED — see H2OP_TRACKING_DESIGN.md".
+
+---
+
+**Below: the original design as written 2026-05-13 BEFORE the source
+archaeology was done. Kept for the archaeology trail.**
 
 ## What the fix needs to do
 

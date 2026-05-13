@@ -115,19 +115,24 @@ chem6 tracks but we don't, e.g. HO₂°).
      more energy to sub-cutoff (more geminate recomb), chem6 fires more
      H₂Ovib events. Tied to E8's 43% deficit in the 438-806 eV
      secondary KE band.
-   - **Different recomb formula or e-h time integration.** Our recomb is
-     a one-shot Onsager check at t=0 separation. Geant4's
-     `G4DNAElectronHoleRecombination` integrates over the chemistry
-     timestep — H₂O+ has a finite lifetime to drift and react. Could
-     give higher effective recomb rate. **QUANTIFIED by E10g
-     (2026-05-12)**: linear sweep of "post-hoc convert X fraction of
-     non-recombed ionizations to H₂Ovib decCh1 (2OH+H₂)" shows that
-     **x ≈ 0.035 closes the G(H₂)@0.1ps gap to chem6 0.251**. Since
-     each deterministic conversion gives 1 H₂ vs Geant4's 13.65%
-     probabilistic decCh1, the equivalent additional effective recomb
-     fraction is ~**25%** above our baseline. Implementation: track
-     H₂O+ as a discrete species with finite lifetime, let it find eaqs
-     during diffusion. Non-trivial WGSL refactor.
+   - ~~**Different recomb formula or e-h time integration.**~~
+     **REFUTED 2026-05-13 by Geant4 source archaeology.** Reading
+     `G4DNAElectronHoleRecombination.cc:140-310` in Geant4 11.4.1
+     shows the recomb process is a **one-shot single-sample check
+     against the nearest eaq**, not time-integrated. `FindReactant`
+     uses `1 - exp(-r_Onsager / r_sep)` and samples once;
+     `MakeReaction` only checks `reactants[0]` (the closest eaq) via
+     a `break` after one iteration; `GetMeanFreePath` /
+     `GetMeanLifeTime` return 0 (fires on first opportunity).
+     **There is no Brownian sub-loop, no time-integrated cumulative
+     probability.** Our WGSL kernel is essentially Geant4's mechanism
+     modulo geminate-vs-nearest (which E10e measured as 3.5 % of the
+     deficit). `RECOMB_BOOST = 2.0` has no physical basis — it's a
+     fudge that improves chem6 agreement empirically. The real
+     chemistry-deficit root cause is **per-primary IRT partitioning**
+     (E10f: 96 % of 1 μs gap) — see [`H2OP_TRACKING_DESIGN.md`](./H2OP_TRACKING_DESIGN.md)
+     for the full source archaeology and the cross-primary-IRT fix
+     that takes its place.
    - **27% cascade-ion deficit** (E7) contributes too: 27% fewer
      ionizations → ~27% fewer H₂Ovib events. But this is partially
      compensated by the σ_exc inflation (more B1A1 events → more B1A1
