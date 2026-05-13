@@ -19,6 +19,7 @@ import { runE5 } from './level-2-track-structure/E5-csda-vs-g4-ntuple.mjs';
 import { runE5b } from './level-2-track-structure/E5b-csda-multi-energy.mjs';
 import { runE5c } from './level-2-track-structure/E5c-w-value.mjs';
 import { runE5d } from './level-2-track-structure/E5d-l2-post-joint-fix-sweep.mjs';
+import { runE5e } from './level-2-track-structure/E5e-w-sec-cutoff-sweep.mjs';
 import { runE6 } from './level-2-track-structure/E6-mfp-vs-g4-ntuple.mjs';
 import { runE6b } from './level-2-track-structure/E6b-sigma-per-process-vs-g4.mjs';
 import { runE6c } from './level-2-track-structure/E6c-effective-sigma-post-joint-fix.mjs';
@@ -71,6 +72,7 @@ const REGISTRY = {
   E5b: { run: runE5b, level: 'level-2', id: 'E5b-csda-multi-energy' },
   E5c: { run: runE5c, level: 'level-2', id: 'E5c-w-value' },
   E5d: { run: runE5d, level: 'level-2', id: 'E5d-l2-post-joint-fix-sweep' },
+  E5e: { run: runE5e, level: 'level-2', id: 'E5e-w-sec-cutoff-sweep' },
   E6:  { run: runE6,  level: 'level-2', id: 'E6-mfp-vs-g4-ntuple' },
   E6b: { run: runE6b, level: 'level-2', id: 'E6b-sigma-per-process-vs-g4' },
   E6c: { run: runE6c, level: 'level-2', id: 'E6c-effective-sigma-post-joint-fix' },

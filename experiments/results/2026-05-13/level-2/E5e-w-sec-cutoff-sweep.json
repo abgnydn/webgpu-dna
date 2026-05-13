@@ -1,0 +1,183 @@
+{
+  "meta": {
+    "protocol": "E5e-w-sec-cutoff-sweep",
+    "hypothesis": "Raising the secondary-tracking cutoff ce_eV from 7.4 to e.g. 10/12/15/20 routes more low-energy secondaries through the sub-cutoff geminate-recomb path (Meesungnoen-displaced eaq + clean Onsager check) instead of the tracked-secondary r_track heuristic. The hypothesis is that some intermediate ceEV gives a useful operating point: more cascade ions preserved than at ce=7.4 (where r_track-driven recomb kills them) while keeping CSDA close to the original.",
+    "passBar": "At some ceEV > 7.4, primary-track ions at 10 keV exceeds the ce=7.4 value by ≥ 5% AND CSDA at 10 keV stays within ±5%. PASS iff a useful intermediate ceEV exists. FAIL iff cascade ions and CSDA move together (no decoupling).",
+    "seed": "E5_CSDA=0x54524B01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "harness": "src/app.ts → runValidation() driven via Playwright with #cut input",
+      "ce_sweep": [
+        7.4,
+        10,
+        12,
+        15,
+        20
+      ],
+      "shader_constants": {
+        "sigma_exc_scale": 0.5,
+        "recomb_boost": 2
+      }
+    },
+    "config": {
+      "n_primaries": 4096,
+      "ce_sweep": [
+        7.4,
+        10,
+        12,
+        15,
+        20
+      ]
+    }
+  },
+  "env": {
+    "gitSha": "68c3e396b4227641549b8a7588b3c4132369e1b7",
+    "gitDirty": true,
+    "shaderHashes": {
+      "helpers_wgsl": "2dcbe219e54a7f985cf170627e90c6f2bd903953",
+      "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
+      "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
+    },
+    "timestamp": "2026-05-13T08:17:17.625Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "No useful intermediate ceEV found. Ions and CSDA move together across the sweep — the W_sec cutoff is not the right third knob.. Confirms the H₂O+ tracking refactor (Tier 1) is the right structural fix instead.",
+  "summary": {
+    "sweep": [
+      {
+        "metric": "ceEV_7.4",
+        "ceEV": 7.4,
+        "csda_10keV": 2730.1,
+        "ions_10keV": 195,
+        "sec_10keV": 143.9,
+        "csda_100eV": 19.3,
+        "ions_100eV": 4,
+        "ion_pct_vs_baseline": 0,
+        "csda_pct_vs_baseline": 0,
+        "status": "informational"
+      },
+      {
+        "metric": "ceEV_10",
+        "ceEV": 10,
+        "csda_10keV": 2726,
+        "ions_10keV": 195.1,
+        "sec_10keV": 120,
+        "csda_100eV": 14,
+        "ions_100eV": 4,
+        "ion_pct_vs_baseline": 0.051282051282048366,
+        "csda_pct_vs_baseline": -0.15017764917035675,
+        "status": "informational"
+      },
+      {
+        "metric": "ceEV_12",
+        "ceEV": 12,
+        "csda_10keV": 2730.4,
+        "ions_10keV": 195.4,
+        "sec_10keV": 104,
+        "csda_100eV": 11.4,
+        "ions_100eV": 4,
+        "ion_pct_vs_baseline": 0.20512820512820804,
+        "csda_pct_vs_baseline": 0.010988608475886667,
+        "status": "informational"
+      },
+      {
+        "metric": "ceEV_15",
+        "ceEV": 15,
+        "csda_10keV": 2723.4,
+        "ions_10keV": 195.4,
+        "sec_10keV": 84.8,
+        "csda_100eV": 8.8,
+        "ions_100eV": 4,
+        "ion_pct_vs_baseline": 0.20512820512820804,
+        "csda_pct_vs_baseline": -0.24541225596131344,
+        "status": "informational"
+      },
+      {
+        "metric": "ceEV_20",
+        "ceEV": 20,
+        "csda_10keV": 2720.8,
+        "ions_10keV": 195.6,
+        "sec_10keV": 63.8,
+        "csda_100eV": 6.8,
+        "ions_100eV": 3.7,
+        "ion_pct_vs_baseline": 0.30769230769230477,
+        "csda_pct_vs_baseline": -0.34064686275227013,
+        "status": "informational"
+      }
+    ],
+    "useful_ceEV": null,
+    "headline": "ce=7.4: ions=195 (0.0%) CSDA=2730 nm (0.0%) | ce=10: ions=195 (0.1%) CSDA=2726 nm (-0.2%) | ce=12: ions=195 (0.2%) CSDA=2730 nm (0.0%) | ce=15: ions=195 (0.2%) CSDA=2723 nm (-0.2%) | ce=20: ions=196 (0.3%) CSDA=2721 nm (-0.3%)"
+  },
+  "rows": [
+    {
+      "metric": "ceEV_7.4",
+      "ceEV": 7.4,
+      "csda_10keV": 2730.1,
+      "ions_10keV": 195,
+      "sec_10keV": 143.9,
+      "csda_100eV": 19.3,
+      "ions_100eV": 4,
+      "ion_pct_vs_baseline": 0,
+      "csda_pct_vs_baseline": 0,
+      "status": "informational"
+    },
+    {
+      "metric": "ceEV_10",
+      "ceEV": 10,
+      "csda_10keV": 2726,
+      "ions_10keV": 195.1,
+      "sec_10keV": 120,
+      "csda_100eV": 14,
+      "ions_100eV": 4,
+      "ion_pct_vs_baseline": 0.051282051282048366,
+      "csda_pct_vs_baseline": -0.15017764917035675,
+      "status": "informational"
+    },
+    {
+      "metric": "ceEV_12",
+      "ceEV": 12,
+      "csda_10keV": 2730.4,
+      "ions_10keV": 195.4,
+      "sec_10keV": 104,
+      "csda_100eV": 11.4,
+      "ions_100eV": 4,
+      "ion_pct_vs_baseline": 0.20512820512820804,
+      "csda_pct_vs_baseline": 0.010988608475886667,
+      "status": "informational"
+    },
+    {
+      "metric": "ceEV_15",
+      "ceEV": 15,
+      "csda_10keV": 2723.4,
+      "ions_10keV": 195.4,
+      "sec_10keV": 84.8,
+      "csda_100eV": 8.8,
+      "ions_100eV": 4,
+      "ion_pct_vs_baseline": 0.20512820512820804,
+      "csda_pct_vs_baseline": -0.24541225596131344,
+      "status": "informational"
+    },
+    {
+      "metric": "ceEV_20",
+      "ceEV": 20,
+      "csda_10keV": 2720.8,
+      "ions_10keV": 195.6,
+      "sec_10keV": 63.8,
+      "csda_100eV": 6.8,
+      "ions_100eV": 3.7,
+      "ion_pct_vs_baseline": 0.30769230769230477,
+      "csda_pct_vs_baseline": -0.34064686275227013,
+      "status": "informational"
+    }
+  ]
+}
