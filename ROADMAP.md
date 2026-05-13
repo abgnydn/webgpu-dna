@@ -52,25 +52,35 @@ mechanism for it to approximate. It's a fudge that happens to improve
 chem6 agreement; the actual root cause of the chem6 deficit is
 elsewhere.
 
-### Cross-primary IRT via spatial hash (~1.5-2 hr, NEW Tier 1)
+### Cross-primary IRT (NEW Tier 1, sequenced behind Tier 3)
 
 The real structural fix per E10f. Replace the `priMap` per-primary
-partitioning in `public/irt-worker.js` with a spatial-hash candidate
-lookup. Per-primary partitioning is a perf optimization, not physics —
-chem6 doesn't do it. E10f measured **96 % of the 1 μs implementation
-gap comes from partitioning**, so this is the highest-impact remaining
-chemistry fix.
+partitioning in `public/irt-worker.js` with a global IRT pool. Per-
+primary partitioning is a perf optimization, not physics — chem6
+doesn't do it. E10f measured **96 % of the 1 μs implementation gap
+comes from partitioning**.
 
 **Design doc**: [`CROSS_PRIMARY_IRT_DESIGN.md`](./CROSS_PRIMARY_IRT_DESIGN.md)
-— captures the algorithm (spatial hash with `cell_size = R_CUT = 5 nm`
-+ 3×3×3 neighbor scan), the file-level diff catalogue for
-`public/irt-worker.js`, the validation chain (E10m, E5d/E7b/E13c
-under cross-primary), and the performance budget (target ~150-300 s
-wall, similar to current per-primary).
+— algorithm, file-level diff catalogue, validation chain, AND the
+memory-ceiling constraint discovered during the initial implementation
+attempt.
+
+**Constraint surfaced 2026-05-13**: naïve cross-primary at N = 4096
+requires ~400 MB of typed-array storage + ~1 GB of heap entries —
+**exceeds the browser-tab memory ceiling**. Naïve refactor not
+runnable in a browser. The design doc lists four mitigations
+(spatial chunking, streaming heap, native runtime, subsample-only)
+and recommends sequencing this fix BEHIND the headless native
+runtime (Tier 3) so memory becomes a host-OS concern rather than a
+browser tab concern. The naïve cross-primary IRT becomes a 30-minute
+drop-in in the native runtime.
 
 The expected research-grade arc after this lands: `RECOMB_BOOST = 2.0`
 drops to 1.0, the chemistry side of the validation chain becomes
-physics-grounded instead of empirically-tuned.
+physics-grounded instead of empirically-tuned. The native-runtime
+sequencing means this is now the first marquee demonstration of why
+`webgpu-dna-native` is worth building — cross-primary IRT is a thing
+we literally cannot do in a browser.
 
 **Scope:**
 - Add Phase 0 in `public/irt-worker.js` (before the existing IRT

@@ -143,6 +143,75 @@ If the spatial-hash implementation takes > 10 minutes, profile
 before merging. The cell-size and product-rebuild paths are the
 likely hot spots.
 
+## Memory constraint (browser ceiling)
+
+This is the implementation complexity that wasn't obvious before
+drafting the per-primary → global refactor.
+
+Current per-primary worker: `CAP = maxN * 2 + 512 ≈ 3112` per primary.
+Heap capacity `CAP * 8 ≈ 25 k` entries, used for one primary at a
+time. Total memory per primary loop iteration: ~10 MB (px/py/pz +
+species + alive + gen + tbirth + heap), reused 4096 times.
+
+Cross-primary global pool would need:
+- `CAP = 2 × rad_n + 512 ≈ 10 M` slots (each Float64/Int32 array
+  alone = 40-80 MB; total static allocation across 7 typed arrays ≈
+  **~400 MB**, near the browser tab memory ceiling)
+- Heap size: initial pairs after R_CUT prune ≈ 50 M entries × ~20
+  bytes packed = **~1 GB just for the heap** (well over browser
+  ceiling at ~1.5-2 GB tab limit)
+
+Naïve cross-primary IRT therefore **cannot run end-to-end in a
+browser tab at N = 4096**.
+
+Mitigations (pick one, each is its own design choice):
+
+1. **Spatial chunking.** Process the simulation in 3D sub-volumes
+   (e.g., 6 × 6 × 6 = 216 chunks of 5 μm cubes). Each chunk holds
+   the radicals inside it + a "halo" extending R_CUT into neighbors.
+   Run IRT per chunk; merge results. Trades determinism (chunk
+   boundaries break some reactions) for tractability. Tradeoff
+   needs an experimental gate.
+2. **Streaming heap.** Don't materialize all initial pairs; instead,
+   emit pairs lazily during the time-stepping, scanning the spatial
+   hash for the next-event candidate as needed. Replaces the priority
+   queue with a per-cell event horizon. Different algorithm, closer
+   to G4DNAIRT's actual implementation.
+3. **Run in `webgpu-dna-native`** (`ROADMAP.md` Tier 3). Drop the
+   browser memory ceiling entirely. The same WGSL shaders + worker
+   code run in Node/Deno with `wgpu-native`; heap memory becomes a
+   host-OS concern, not a browser tab concern. This unblocks the
+   naïve cross-primary IRT as a 30-minute drop-in.
+4. **Subsample test only.** Don't run cross-primary at full N. Use
+   N = 128 (E10f-style) as the validation, and ship the per-primary
+   version as the production path with a documented "this is a known
+   ~20 % chemistry deficit at 1 μs because we partition for memory
+   reasons" caveat.
+
+Option 3 (native runtime) is by far the cleanest and aligns with the
+broader Tier 3 / swarm work. The HPC discussion ([commit chain w/
+WebRTC swarm and headless wgpu]) already had this as a separate
+trajectory; cross-primary IRT becomes one of the first concrete
+demonstrations of why the native runtime is worth building.
+
+**Recommended sequence:**
+
+1. Build `webgpu-dna-native` minimal runner (~2-3 hr per ROADMAP
+   Tier 3) — Node + `wgpu-native` wrapping the existing WGSL +
+   the irt-worker.js shimmed through Dawn or a Node Worker.
+2. THEN run the naïve cross-primary IRT in that runtime (no spatial
+   hash needed — RAM is cheap on a workstation).
+3. Validate: measure E10m, E5d, E7b, E13c under the cross-primary
+   variant.
+4. If validation passes, decide whether to build the spatial-hash
+   browser-tractable version, or document the browser path's
+   chemistry-deficit caveat and direct power users to the native
+   runner.
+
+This is a different sequencing than the original `H2OP_TRACKING_DESIGN`
+ordering implied, but it's the structurally honest one once the
+memory ceiling is recognized.
+
 ## Anti-patterns
 
 Same as `H2OP_TRACKING_DESIGN.md` — do not ship a "fix" that
