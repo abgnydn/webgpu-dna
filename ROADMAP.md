@@ -52,7 +52,7 @@ mechanism for it to approximate. It's a fudge that happens to improve
 chem6 agreement; the actual root cause of the chem6 deficit is
 elsewhere.
 
-### Cross-primary IRT via spatial hash (~2 hr, NEW Tier 1)
+### Cross-primary IRT via spatial hash (~1.5-2 hr, NEW Tier 1)
 
 The real structural fix per E10f. Replace the `priMap` per-primary
 partitioning in `public/irt-worker.js` with a spatial-hash candidate
@@ -61,21 +61,16 @@ chem6 doesn't do it. E10f measured **96 % of the 1 μs implementation
 gap comes from partitioning**, so this is the highest-impact remaining
 chemistry fix.
 
-**Scope:**
-- Drop `priMap.set(pid, [...])` partitioning in `irt-worker.js`
-- Add spatial hash on radical positions (cell size ~ diffusion-bounded
-  reach over chem step, e.g. 1 nm)
-- Reaction-time scan iterates over (this radical, its hash bucket +
-  neighbors) instead of (this radical, same-pid bucket)
-- All other IRT machinery (TDC, PDC, Onsager-screened rates) unchanged
+**Design doc**: [`CROSS_PRIMARY_IRT_DESIGN.md`](./CROSS_PRIMARY_IRT_DESIGN.md)
+— captures the algorithm (spatial hash with `cell_size = R_CUT = 5 nm`
++ 3×3×3 neighbor scan), the file-level diff catalogue for
+`public/irt-worker.js`, the validation chain (E10m, E5d/E7b/E13c
+under cross-primary), and the performance budget (target ~150-300 s
+wall, similar to current per-primary).
 
-**Parallelism:** 2-3 agents — one spatial-hash implementation, one
-worker-loop refactor, one validation.
-
-**Sequential bottleneck:** 1 Playwright + IRT chem run (~3 min).
-
-**Validation gate:** G(H₂) @ 1 μs vs chem6 ≥ 0.95× (up from current
-0.86× per E10j). G(eaq) @ 1 μs ≥ 0.85× (up from 0.81×).
+The expected research-grade arc after this lands: `RECOMB_BOOST = 2.0`
+drops to 1.0, the chemistry side of the validation chain becomes
+physics-grounded instead of empirically-tuned.
 
 **Scope:**
 - Add Phase 0 in `public/irt-worker.js` (before the existing IRT
