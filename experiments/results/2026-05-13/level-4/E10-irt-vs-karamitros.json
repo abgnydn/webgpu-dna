@@ -1,0 +1,385 @@
+{
+  "meta": {
+    "protocol": "E10-irt-vs-karamitros",
+    "hypothesis": "Karamitros 2011 9-reaction IRT (run_irt.cjs) produces G(species, 1 μs) within loose per-species bands across all primary energies (catches scale-factor / unit bugs), AND G(OH) / G(e⁻aq) increase monotonically with primary energy in the regime ≥ 5 keV (where the LET deficit closes toward the low-LET reference). Sub-5-keV non-monotonicity is reported as informational evidence of track-end physics, not a failure.",
+    "passBar": "Every (energy, species) row in [0.30, 2.20] band (loose) AND G(OH), G(eaq) monotonic for E ≥ 5 keV.",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "worker": "tools/run_irt.cjs",
+      "bins": "dumps/rad_E<E>_N4096.bin (gitignored, regenerable via browser harness)",
+      "reference": "Karamitros 2011 low-LET (~1 MeV) reference G-values at 1 μs"
+    }
+  },
+  "env": {
+    "gitSha": "5b2ff181806fb1eb1afa0914eb8d1e1116816cb9",
+    "gitDirty": true,
+    "shaderHashes": {
+      "helpers_wgsl": "2dcbe219e54a7f985cf170627e90c6f2bd903953",
+      "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
+      "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
+    },
+    "timestamp": "2026-05-13T07:29:05.198Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "nEnergies": 5,
+    "nRows": 25,
+    "nFailedRows": 0,
+    "skipped": [],
+    "letTrendMonotonic": {
+      "OH": true,
+      "eaq": true
+    },
+    "reference": "Karamitros 2011 low-LET (~1 MeV) at 1 μs",
+    "perEnergyHeadline": [
+      {
+        "eEv": 1000,
+        "elapsedSec": 3.841,
+        "g": {
+          "OH": 0.9576171875,
+          "eaq": 1.180712890625,
+          "H": 0.76826171875,
+          "H2O2": 0.9259521484375,
+          "H2": 0.747607421875
+        }
+      },
+      {
+        "eEv": 3000,
+        "elapsedSec": 21.765,
+        "g": {
+          "OH": 1.0950439453125,
+          "eaq": 1.0287434895833334,
+          "H": 0.7440185546875,
+          "H2O2": 0.7527099609375,
+          "H2": 0.69931640625
+        }
+      },
+      {
+        "eEv": 5000,
+        "elapsedSec": 49.279,
+        "g": {
+          "OH": 1.2617041015625,
+          "eaq": 1.144326171875,
+          "H": 0.76333984375,
+          "H2O2": 0.6843017578125,
+          "H2": 0.6366162109375
+        }
+      },
+      {
+        "eEv": 10000,
+        "elapsedSec": 135.707,
+        "g": {
+          "OH": 1.53134765625,
+          "eaq": 1.37916259765625,
+          "H": 0.777822265625,
+          "H2O2": 0.58941162109375,
+          "H2": 0.537109375
+        }
+      },
+      {
+        "eEv": 20000,
+        "elapsedSec": 338.666,
+        "g": {
+          "OH": 1.7691064453125,
+          "eaq": 1.612891845703125,
+          "H": 0.778975830078125,
+          "H2O2": 0.511641845703125,
+          "H2": 0.452359619140625
+        }
+      }
+    ],
+    "lowEFindings": {
+      "eaq": "12.9% drop from 1 keV (1.181) to 3 keV (1.029) — track-end / spur-structure effect"
+    },
+    "letTrendFloorEv": 5000
+  },
+  "rows": [
+    {
+      "eEv": 1000,
+      "species": "OH",
+      "gWgsl": 0.9576171875,
+      "gKaramitros": 2.5,
+      "ratio": 0.383046875,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 1000,
+      "species": "eaq",
+      "gWgsl": 1.180712890625,
+      "gKaramitros": 2.5,
+      "ratio": 0.47228515625,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 1000,
+      "species": "H",
+      "gWgsl": 0.76826171875,
+      "gKaramitros": 0.57,
+      "ratio": 1.3478275767543861,
+      "bandMin": 0.5,
+      "bandMax": 1.8,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 1000,
+      "species": "H2O2",
+      "gWgsl": 0.9259521484375,
+      "gKaramitros": 0.73,
+      "ratio": 1.2684276005993151,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 1000,
+      "species": "H2",
+      "gWgsl": 0.747607421875,
+      "gKaramitros": 0.42,
+      "ratio": 1.7800176711309523,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 3000,
+      "species": "OH",
+      "gWgsl": 1.0950439453125,
+      "gKaramitros": 2.5,
+      "ratio": 0.43801757812500003,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 3000,
+      "species": "eaq",
+      "gWgsl": 1.0287434895833334,
+      "gKaramitros": 2.5,
+      "ratio": 0.41149739583333333,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 3000,
+      "species": "H",
+      "gWgsl": 0.7440185546875,
+      "gKaramitros": 0.57,
+      "ratio": 1.3052957099780702,
+      "bandMin": 0.5,
+      "bandMax": 1.8,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 3000,
+      "species": "H2O2",
+      "gWgsl": 0.7527099609375,
+      "gKaramitros": 0.73,
+      "ratio": 1.031109535530822,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 3000,
+      "species": "H2",
+      "gWgsl": 0.69931640625,
+      "gKaramitros": 0.42,
+      "ratio": 1.6650390625000002,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 5000,
+      "species": "OH",
+      "gWgsl": 1.2617041015625,
+      "gKaramitros": 2.5,
+      "ratio": 0.504681640625,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 5000,
+      "species": "eaq",
+      "gWgsl": 1.144326171875,
+      "gKaramitros": 2.5,
+      "ratio": 0.45773046875,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 5000,
+      "species": "H",
+      "gWgsl": 0.76333984375,
+      "gKaramitros": 0.57,
+      "ratio": 1.3391927083333335,
+      "bandMin": 0.5,
+      "bandMax": 1.8,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 5000,
+      "species": "H2O2",
+      "gWgsl": 0.6843017578125,
+      "gKaramitros": 0.73,
+      "ratio": 0.9373996682363014,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 5000,
+      "species": "H2",
+      "gWgsl": 0.6366162109375,
+      "gKaramitros": 0.42,
+      "ratio": 1.5157528831845237,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 10000,
+      "species": "OH",
+      "gWgsl": 1.53134765625,
+      "gKaramitros": 2.5,
+      "ratio": 0.6125390625,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 10000,
+      "species": "eaq",
+      "gWgsl": 1.37916259765625,
+      "gKaramitros": 2.5,
+      "ratio": 0.5516650390625,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 10000,
+      "species": "H",
+      "gWgsl": 0.777822265625,
+      "gKaramitros": 0.57,
+      "ratio": 1.364600466008772,
+      "bandMin": 0.5,
+      "bandMax": 1.8,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 10000,
+      "species": "H2O2",
+      "gWgsl": 0.58941162109375,
+      "gKaramitros": 0.73,
+      "ratio": 0.8074131795804794,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 10000,
+      "species": "H2",
+      "gWgsl": 0.537109375,
+      "gKaramitros": 0.42,
+      "ratio": 1.2788318452380953,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 20000,
+      "species": "OH",
+      "gWgsl": 1.7691064453125,
+      "gKaramitros": 2.5,
+      "ratio": 0.707642578125,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 20000,
+      "species": "eaq",
+      "gWgsl": 1.612891845703125,
+      "gKaramitros": 2.5,
+      "ratio": 0.64515673828125,
+      "bandMin": 0.3,
+      "bandMax": 1.1,
+      "letBand": true,
+      "status": "pass"
+    },
+    {
+      "eEv": 20000,
+      "species": "H",
+      "gWgsl": 0.778975830078125,
+      "gKaramitros": 0.57,
+      "ratio": 1.3666242632949563,
+      "bandMin": 0.5,
+      "bandMax": 1.8,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 20000,
+      "species": "H2O2",
+      "gWgsl": 0.511641845703125,
+      "gKaramitros": 0.73,
+      "ratio": 0.7008792406892124,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    },
+    {
+      "eEv": 20000,
+      "species": "H2",
+      "gWgsl": 0.452359619140625,
+      "gKaramitros": 0.42,
+      "ratio": 1.0770467122395835,
+      "bandMin": 0.4,
+      "bandMax": 2.2,
+      "letBand": false,
+      "status": "pass"
+    }
+  ]
+}

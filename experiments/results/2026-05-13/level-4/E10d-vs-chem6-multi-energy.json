@@ -1,0 +1,360 @@
+{
+  "meta": {
+    "protocol": "E10d-vs-chem6-multi-energy",
+    "hypothesis": "WGSL IRT G(species, 1 μs) agrees with Geant4 11.4.1 chem6 within 30% at every species × every energy ∈ {1, 3, 5, 10, 20} keV, AND chem6 reproduces the WGSL G(e⁻aq) V-shape direction at 1→3 keV (G drops from 1 keV to 3 keV, recovers at 5 keV). Confirms the V-shape is real LET physics rather than an IRT-side artifact.",
+    "passBar": "Per species × per energy: |G_wgsl - G_chem6| / G_chem6 < 0.30. AND chem6 G(eaq) drops from 1 keV to 3 keV (V-shape sign).",
+    "seed": "E10_IRT_G_VALUES=0x43484D01",
+    "warmup": 0,
+    "trials": 1,
+    "sources": {
+      "chem6Bin": "~/Downloads/chem6-build/chem6",
+      "macro": "validation/chem6_multi_energy.mac",
+      "wgslReference": "experiments/results/2026-05-11/level-4/E10-irt-vs-karamitros.json"
+    },
+    "config": {
+      "energies": [
+        1000,
+        3000,
+        5000,
+        10000,
+        20000
+      ],
+      "nPrimariesPerEnergy": "100 (50 at 20 keV)"
+    }
+  },
+  "env": {
+    "gitSha": "5b2ff181806fb1eb1afa0914eb8d1e1116816cb9",
+    "gitDirty": true,
+    "shaderHashes": {
+      "helpers_wgsl": "2dcbe219e54a7f985cf170627e90c6f2bd903953",
+      "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
+      "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
+      "chemistry_wgsl": "f85ad0a0828ef8b40e4a1012ebd1118b5e7aacd9",
+      "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
+    },
+    "timestamp": "2026-05-13T07:29:05.760Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MBP.localdomain",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "status": "fail",
+  "diagnosis": "1/25 species×energy cells outside 30% band",
+  "summary": {
+    "energies": [
+      1000,
+      3000,
+      5000,
+      10000,
+      20000
+    ],
+    "nPassed": 24,
+    "nFailed": 1,
+    "chem6_walltime_sec": 68.835,
+    "vshape_chem6_reproduces": true,
+    "chem6_eaq": {
+      "1keV": 1.374999999999997,
+      "3keV": 1.263666666666663,
+      "5keV": 1.3875999999999733
+    },
+    "headline": "24/25 species×energy cells in 30% band. chem6 V-shape: REPRODUCED (eaq 1keV 1.37 → 3keV 1.26 → 5keV 1.39)"
+  },
+  "rows": [
+    {
+      "metric": "species_OH_at_E1000",
+      "eEv": 1000,
+      "species": "OH",
+      "gWgsl": 0.967431640625,
+      "gChem6": 1.083999999999997,
+      "seChem6": 0.0308702072712463,
+      "ratio": 0.8924646131226962,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E1000",
+      "eEv": 1000,
+      "species": "eaq",
+      "gWgsl": 1.166259765625,
+      "gChem6": 1.374999999999997,
+      "seChem6": 0.027902246388693513,
+      "ratio": 0.8481889204545474,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E1000",
+      "eEv": 1000,
+      "species": "H",
+      "gWgsl": 0.7173828125,
+      "gChem6": 0.7369999999999982,
+      "seChem6": 0.02468611027286477,
+      "ratio": 0.9733823778833132,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E1000",
+      "eEv": 1000,
+      "species": "H2",
+      "gWgsl": 0.6609130859375,
+      "gChem6": 0.7259999999999981,
+      "seChem6": 0.02272452508643565,
+      "ratio": 0.9103486032196993,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E1000",
+      "eEv": 1000,
+      "species": "H2O2",
+      "gWgsl": 0.941943359375,
+      "gChem6": 1.044999999999998,
+      "seChem6": 0.028046678263497736,
+      "ratio": 0.9013812051435424,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_OH_at_E3000",
+      "eEv": 3000,
+      "species": "OH",
+      "gWgsl": 1.0989095052083333,
+      "gChem6": 1.2463333333333297,
+      "seChem6": 0.026194879598343455,
+      "ratio": 0.8817139651310536,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E3000",
+      "eEv": 3000,
+      "species": "eaq",
+      "gWgsl": 1.0267578125,
+      "gChem6": 1.263666666666663,
+      "seChem6": 0.02320114068947756,
+      "ratio": 0.8125226688208941,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E3000",
+      "eEv": 3000,
+      "species": "H",
+      "gWgsl": 0.69736328125,
+      "gChem6": 0.6836666666666646,
+      "seChem6": 0.013554520576485245,
+      "ratio": 1.0200340535104857,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E3000",
+      "eEv": 3000,
+      "species": "H2",
+      "gWgsl": 0.6251546223958333,
+      "gChem6": 0.7369999999999979,
+      "seChem6": 0.014212551952293161,
+      "ratio": 0.8482423641734533,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E3000",
+      "eEv": 3000,
+      "species": "H2O2",
+      "gWgsl": 0.7791178385416667,
+      "gChem6": 0.9473333333333309,
+      "seChem6": 0.014696174784986906,
+      "ratio": 0.822432623372627,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_OH_at_E5000",
+      "eEv": 5000,
+      "species": "OH",
+      "gWgsl": 1.27470703125,
+      "gChem6": 1.468999999999971,
+      "seChem6": 0.026131563019815025,
+      "ratio": 0.8677379382232983,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E5000",
+      "eEv": 5000,
+      "species": "eaq",
+      "gWgsl": 1.1489306640625,
+      "gChem6": 1.3875999999999733,
+      "seChem6": 0.023950757563775696,
+      "ratio": 0.8279984606965424,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E5000",
+      "eEv": 5000,
+      "species": "H",
+      "gWgsl": 0.705634765625,
+      "gChem6": 0.719199999999986,
+      "seChem6": 0.01175480129714452,
+      "ratio": 0.9811384394118657,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E5000",
+      "eEv": 5000,
+      "species": "H2",
+      "gWgsl": 0.5655078125,
+      "gChem6": 0.6979999999999869,
+      "seChem6": 0.010116493184074742,
+      "ratio": 0.8101831124641987,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E5000",
+      "eEv": 5000,
+      "species": "H2O2",
+      "gWgsl": 0.7010009765625,
+      "gChem6": 0.872599999999983,
+      "seChem6": 0.011172314266104847,
+      "ratio": 0.8033474404796169,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_OH_at_E10000",
+      "eEv": 10000,
+      "species": "OH",
+      "gWgsl": 1.5546728515625,
+      "gChem6": 1.7664999999999242,
+      "seChem6": 0.01952226131544873,
+      "ratio": 0.8800865279154071,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E10000",
+      "eEv": 10000,
+      "species": "eaq",
+      "gWgsl": 1.408349609375,
+      "gChem6": 1.7213999999999272,
+      "seChem6": 0.018612486305289375,
+      "ratio": 0.81814198290639,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E10000",
+      "eEv": 10000,
+      "species": "H",
+      "gWgsl": 0.7060498046875,
+      "gChem6": 0.7163999999999693,
+      "seChem6": 0.008465640596379586,
+      "ratio": 0.9855524911886241,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E10000",
+      "eEv": 10000,
+      "species": "H2",
+      "gWgsl": 0.4676513671875,
+      "gChem6": 0.614999999999974,
+      "seChem6": 0.007658757448604657,
+      "ratio": 0.7604087271341785,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E10000",
+      "eEv": 10000,
+      "species": "H2O2",
+      "gWgsl": 0.60281005859375,
+      "gChem6": 0.8376999999999643,
+      "seChem6": 0.008102693154972071,
+      "ratio": 0.7196013591903734,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_OH_at_E20000",
+      "eEv": 20000,
+      "species": "OH",
+      "gWgsl": 1.802376708984375,
+      "gChem6": 2.004999999999909,
+      "seChem6": 0.03286614783434776,
+      "ratio": 0.8989410019872603,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_eaq_at_E20000",
+      "eEv": 20000,
+      "species": "eaq",
+      "gWgsl": 1.658514404296875,
+      "gChem6": 1.9851999999999088,
+      "seChem6": 0.030551715940985987,
+      "ratio": 0.8354394541088813,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H_at_E20000",
+      "eEv": 20000,
+      "species": "H",
+      "gWgsl": 0.6890673828125,
+      "gChem6": 0.6995999999999681,
+      "seChem6": 0.008094896351329485,
+      "ratio": 0.9849448010470717,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2_at_E20000",
+      "eEv": 20000,
+      "species": "H2",
+      "gWgsl": 0.386807861328125,
+      "gChem6": 0.5518999999999749,
+      "seChem6": 0.00888691999169395,
+      "ratio": 0.7008658476683143,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "pass"
+    },
+    {
+      "metric": "species_H2O2_at_E20000",
+      "eEv": 20000,
+      "species": "H2O2",
+      "gWgsl": 0.52052734375,
+      "gChem6": 0.7934999999999639,
+      "seChem6": 0.009789884408647732,
+      "ratio": 0.6559890910523297,
+      "passBar": "|ratio - 1| < 0.30",
+      "status": "fail"
+    },
+    {
+      "metric": "chem6_vshape_check",
+      "chem6_eaq_1keV": 1.374999999999997,
+      "chem6_eaq_3keV": 1.263666666666663,
+      "chem6_eaq_5keV": 1.3875999999999733,
+      "drop_1_to_3": 0.11133333333333395,
+      "vshape_dropAt1to3": true,
+      "vshape_recoveryAt3to5": true,
+      "passBar": "chem6 G(eaq) drops 1→3 keV AND recovers 3→5 keV",
+      "status": "pass",
+      "note": "If chem6 reproduces the V-shape, it confirms the WGSL finding (E10/E10b) is real LET physics, not an IRT-side artifact."
+    },
+    {
+      "metric": "chem6_run_metadata",
+      "walltimeSec": 68.835,
+      "nEnergies": 5,
+      "status": "informational"
+    }
+  ]
+}
