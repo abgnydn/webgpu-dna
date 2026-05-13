@@ -26,12 +26,12 @@ Each item below lists: **(scope) (parallelism) (sequential bottleneck) (validati
   Updates `CITATION.cff` `preferred-citation` block with the real DOI.
   (5 min · sequential · n/a · n/a — but you have to do it yourself)
 
-- **`shaderHashes` retrofit for pre-2026-05-12 artifacts** (optional).
-  Add a one-shot Node script that walks `experiments/results/` and
-  back-fills shader hashes by reading the artifact's `gitSha` and
-  running `git hash-object src/shaders/helpers.wgsl@<sha>`. Lets
-  every artifact be grouped by shader version even retroactively.
-  (~30 min · parallel-safe · n/a · `npm run test`)
+- ~~**`shaderHashes` retrofit for pre-2026-05-12 artifacts**~~ **DONE
+  2026-05-13.** `tools/retrofit-shader-hashes.mjs` walked
+  `experiments/results/` and back-filled shader hashes via
+  `git rev-parse <gitSha>:<shader-path>` for 48 of 59 artifacts (the
+  other 11 already had organic `shaderHashes` from `captureEnv()`).
+  Every L0-L6 artifact now identifies its shader version.
 
 ## Tier 1 — Open physics (the structural questions)
 
