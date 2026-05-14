@@ -1,5 +1,46 @@
 # WebGPU DNA Track Structure Simulation
 
+## Next session — start here
+
+**Status as of 2026-05-14**: 40 commits past v0.3.0, all pushed (HEAD = `a9e4f146`). Production live at `webgpudna.com`. The last session ended with the structural narrative pivot below, after which a host-side Ghostty TCC drop blocked further local work.
+
+### The structural pivot to read first
+
+1. **`H2OP_TRACKING_DESIGN.md`** — the H₂O⁺-tracking hypothesis was REFUTED via Geant4 source archaeology of `G4DNAElectronHoleRecombination.cc:140-310`. Geant4's recomb is one-shot single-sample (not time-integrated), so `RECOMB_BOOST = 2.0` has no physical basis — it's a fudge that empirically improves chem6 agreement but doesn't model any underlying physics.
+2. **`CROSS_PRIMARY_IRT_DESIGN.md`** — the actual structural fix. E10f measured per-primary IRT partitioning as the cause of **96 %** of the 1 μs chem6 implementation gap. BUT: naïve cross-primary IRT in a browser needs ~1 GB of heap memory (exceeds tab ceiling). Design doc sequences this **behind** the headless native runtime build (Tier 3 in ROADMAP), since `webgpu-dna-native` removes the browser memory ceiling and makes cross-primary IRT a 30-minute drop-in.
+
+### Recommended next moves (in order)
+
+1. **Verify TCC access** — `ls ~/Downloads/webgpu-dna/.git`; if "Operation not permitted", grant Ghostty Downloads access via System Settings → Privacy & Security → Files and Folders before doing anything else. If access is fine, skip.
+2. **Polish queue** (4 mechanical commits, ~10 min total once filesystem access works):
+   - Update `CHANGELOG.md` `[Unreleased]` section with the 40 post-v0.3.0 commits (E5d, E5e, E6c, E7b, E7c, E10i, E10j, E13c re-runs + retrofit + 3 design docs + ROADMAP)
+   - Bump `package.json` to `0.4.0` and cut a `v0.4.0` git tag + GitHub Release titled "v0.4.0 — audit closure + structural pivots". The release notes write themselves from the CHANGELOG entries.
+   - Update `validation/webgpu-results.json` `dnaDamage` block: `SSB_dir=23 SSB_ind=68 DSB=1 ratio=2.96` → `SSB_dir=26 SSB_ind=64 DSB=9 ratio=2.46` (post-joint-fix values from E13c re-run on 2026-05-13). Keep `$ssb_history` with both.
+   - Push the OG image if any §Numbers headline changed (currently still accurate: `0.988 / 0.73 / 100.0% / 46/46`).
+3. **Tier 3 — `webgpu-dna-native` runtime** (~2-3 hr multi-agent wall per ROADMAP). Node + `wgpu-native` wrapping the existing WGSL + `irt-worker.js`. This is the prerequisite that unblocks cross-primary IRT. Choose between:
+   - `@sylphx/webgpu-darwin-arm64` 1.0.4 (npm registry, found 2026-05-13 search)
+   - `bun-webgpu` 0.1.7 (alternative)
+   - Or vendor `wgpu-native` C bindings directly via Node N-API
+4. **Tier 1 cross-primary IRT** (~30 min drop-in once native runtime exists). Drop `priMap` partitioning in `public/irt-worker.js`, run global pool. Validation: re-run E10c-equivalent + E5d / E7b / E13c (the last three should not change — they're primary-phase metrics).
+5. **`RECOMB_BOOST` removal** (after cross-primary IRT validates). The fudge factor drops to 1.0; chemistry side becomes physics-grounded.
+
+### Sequencing rationale
+
+This ordering produces a clean research-grade arc: joint fix v0.3.0 (empirical) → audit closure (every claim traceable to artifact + shader hash) → H₂O⁺ refutation (source archaeology) → cross-primary IRT (real fix, validates E10f's measurement) → fudge factor removed. The "we found the structural cause and validated it twice" narrative is the v1.0 publishable story.
+
+### Anti-pattern reminders
+
+- **No fudge factors without a Geant4 source citation.** The H₂O⁺ refutation establishes the precedent: any new tunable scalar in `helpers.wgsl` must have a single-line provenance back to G4 source, or it gets flagged for removal by the next audit.
+- **No artifacts without `shaderHashes` in `env`.** The 2026-05-13 retrofit covered all pre-fix artifacts; future artifacts get them organically via `captureEnv()`.
+- **Failed experiments are committed with `status: "fail"` and not re-run until they pass.** The two-knob structural limit (E7c) and the cutoff-shifter (E5e) are both honest negatives — those refutations are publishable findings, not engineering bugs to fix.
+
+### Memory of host-side gotchas
+
+If `ls ~/Downloads/` returns `Operation not permitted` in the next session: it's the recurring Ghostty TCC drop documented in `~/.claude/.../memory/macos_tcc_ghostty.md` and `~/.claude/.../memory/macos_tcc_ghostty_downloads.md`. Recovery: System Settings → Privacy & Security → Files and Folders → Ghostty, toggle Downloads off+on, then quit and reopen Ghostty. Or `tccutil reset SystemPolicyDownloadsFolder com.mitchellh.ghostty` from a non-Ghostty terminal.
+
+---
+
+
 ## Goal
 
 Port Geant4-DNA (the CNRS/IN2P3-coordinated Monte Carlo track structure toolkit
