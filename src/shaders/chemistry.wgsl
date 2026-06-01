@@ -34,6 +34,7 @@ fn diffuse(@builtin(global_invocation_id) gid:vec3u){
   if(idx>=cu.n){return;}
   if(atomicLoad(&chem_alive[idx])==0u){return;}
   var pk=chem_pos[idx];
+  chem_pos_old[idx]=pk;  // snapshot pre-step position for the bridge react
   // kind encoded as f32 in .w: 0=OH, 1=eaq, 2=H, 3=H3O+
   let kind=i32(round(pk.w));
   var D:f32=D_OH;
@@ -62,6 +63,9 @@ fn diffuse(@builtin(global_invocation_id) gid:vec3u){
 // or -1 if empty. next_idx[i] is the next radical's index in the same bucket.
 @group(0)@binding(6) var<storage,read_write> cell_head:array<atomic<i32>>;
 @group(0)@binding(7) var<storage,read_write> next_idx:array<i32>;
+// Pre-step positions, written by diffuse() before it moves each radical.
+// react() uses (old, new) separation pairs for the Brownian-bridge probability.
+@group(0)@binding(8) var<storage,read_write> chem_pos_old:array<vec4<f32>>;
 
 const HASH_SIZE:u32=8388608u;  // 2^23 buckets, 32 MB (16M would exceed
                                // maxComputeWorkgroupsPerDimension=65535
@@ -195,9 +199,42 @@ fn sample_irt(r0:f32,sigma:f32,rc:f32,D:f32,idx_i:u32,idx_j:u32)->f32{
   return 0.25*dr*dr/(D*ei*ei);
 }
 
-// Simple contact-based reaction: diffuse → hash → react on contact.
-// No IRT, no deterministic hash, no mutual-minimum matching.
-// Just walk neighbors, check dist < R, roll probability, CAS claim.
+// Diffusion coefficient by species kind (nm²/ns).
+fn Dk(k:i32)->f32{
+  if(k==1){return D_EAQ;}
+  if(k==2){return D_H;}
+  if(k==3){return D_H3O;}
+  return D_OH;
+}
+
+// Complementary error function (Numerical Recipes erfcc, |err| < 1.2e-7).
+// Used by the first-passage reaction probability. Valid for all x; our
+// argument is ≥ 0 (reff ≥ σ) so the x≥0 branch is the hot path.
+fn erfc_ns(x:f32)->f32{
+  let z=abs(x);
+  let t=1.0/(1.0+0.5*z);
+  let ans=t*exp(-z*z-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+
+    t*(-0.18628806+t*(0.27886807+t*(-1.13520398+t*(1.48851587+
+    t*(-0.82215223+t*0.17087277)))))))));
+  return select(2.0-ans,ans,x>=0.0);
+}
+
+// ============================================================================
+// SBS reaction with Brownian-bridge probability (gMicroMC/MPEXS2.1 method).
+// 2026-06-01: replaces the naive end-position contact test (which needed
+// dt ≲ 0.01 ns → ~8000 steps to 1 µs, 4.6× slower than IRT in E10L).
+//
+// For a pair whose relative separation went from r0 (pre-step) to r1 (post-
+// step) over dt, the probability the path touched the encounter radius σ
+// DURING the step is the absorbing Brownian-bridge hitting probability:
+//   r1 ≤ σ                → reacted (contact)
+//   else  W = (σ/r1)·exp[ -(r0-σ)(r1-σ) / (D·dt) ],  D = Di+Dj
+// Unlike the cumulative first-passage CDF W(dt|r0) (which over-reacts when
+// compounded across steps — E10M v1: 730 steps gave G(eaq) 0.19× vs IRT),
+// the per-step bridge is the correct independent increment given endpoints,
+// so the scheme CONVERGES as the step count rises. Charged pairs use the
+// Onsager-screened separation for both endpoints.
+// ============================================================================
 @compute @workgroup_size(256)
 fn react(@builtin(global_invocation_id) gid:vec3u){
   let i=gid.x;
@@ -228,21 +265,26 @@ fn react(@builtin(global_invocation_id) gid:vec3u){
 
           let R=react_sigma(ki,kj);
           if(R<=0.0){j=jnext;continue;}
-          let d=pi.xyz-pj.xyz;
-          let dist2=dot(d,d);
-          if(dist2>R*R){j=jnext;continue;}
-
-          // Contact probability
-          let a=min(ki,kj);let b=max(ki,kj);
-          var pc:f32=0.0;
-          if(a==0&&b==0){pc=0.376;}
-          else if(a==0&&b==1){pc=0.980;}
-          else if(a==0&&b==2){pc=0.511;}
-          else if(a==1&&b==1){pc=0.125;}
-          else if(a==1&&b==2){pc=0.455;}
-          else if(a==1&&b==3){pc=0.538;}
-          else if(a==2&&b==2){pc=0.216;}
-          if(rf(&s)>=pc){j=jnext;continue;}
+          let rc=react_rc(ki,kj);
+          let Dsum=Dk(ki)+Dk(kj);
+          // r1 = post-step separation (current positions), r0 = pre-step (snapshot).
+          let dnew=pi.xyz-pj.xyz;
+          var r1=sqrt(dot(dnew,dnew));
+          let dold=chem_pos_old[i].xyz-chem_pos_old[ju].xyz;
+          var r0=sqrt(dot(dold,dold));
+          // Onsager-screened effective separations for charged pairs.
+          if(rc!=0.0){
+            r0=-rc/(1.0-exp(rc/r0));
+            r1=-rc/(1.0-exp(rc/r1));
+          }
+          // Brownian-bridge reaction probability for this step (see header).
+          var W:f32;
+          if(r1<=R||r0<=R){
+            W=1.0;
+          } else {
+            W=(R/r1)*exp(-(r0-R)*(r1-R)/(Dsum*cu.dt));
+          }
+          if(rf(&s)>=W){j=jnext;continue;}
 
           let claim_i=atomicCompareExchangeWeak(&chem_alive[i],1u,0u);
           if(!claim_i.exchanged){chem_rng[i]=s;return;}

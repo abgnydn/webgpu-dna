@@ -117,6 +117,7 @@ export async function createPipelines(
       { binding: 5, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'read-only-storage' } },
       { binding: 6, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
       { binding: 7, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
+      { binding: 8, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
     ],
   });
 
@@ -133,6 +134,7 @@ export async function createPipelines(
       { binding: 5, resource: { buffer: buffers.radBuf } },
       { binding: 6, resource: { buffer: buffers.chemCellHead } },
       { binding: 7, resource: { buffer: buffers.chemNextIdx } },
+      { binding: 8, resource: { buffer: buffers.chemPosOld } },
     ],
   });
 

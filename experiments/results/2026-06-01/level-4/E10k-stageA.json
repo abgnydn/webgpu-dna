@@ -1,0 +1,44 @@
+{
+  "records": 4970068,
+  "particles": 4891764,
+  "speciesHistogram": {
+    "OH": 1743103,
+    "eaq": 40519,
+    "H": 412162,
+    "H3O+": 1333353,
+    "pretherm-eaq": 1347229,
+    "OH-": 15398,
+    "H2marker": 78304
+  },
+  "R_CUT_nm": 551.6499636495809,
+  "bbox_nm": {
+    "x": [
+      -2460.546875,
+      2538.99072265625
+    ],
+    "y": [
+      -2664.596435546875,
+      2143.919921875
+    ],
+    "z": [
+      -2244.5791015625,
+      2181.22021484375
+    ]
+  },
+  "cell_nm": 551.6499636495809,
+  "cells_occupied": 355,
+  "mean_occupancy": 13779.61690140845,
+  "max_occupancy": 294484,
+  "top5_occupancy": [
+    294484,
+    281342,
+    275507,
+    271336,
+    269255
+  ],
+  "densest_cell_selfpair_lb": 43360265886,
+  "total_geometric_pairchecks": 5113818906847,
+  "doc_estimate_pairchecks": 6750000000,
+  "ratio_to_doc_estimate": 757.6028010143704,
+  "stageB_feasible": false
+}

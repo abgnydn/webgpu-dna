@@ -24,6 +24,14 @@ interface ChemBenchOpts {
   energyEv: number;
   nTherm: number;
   np?: number;
+  /** Optional [dt_ns, n_steps, label] schedule override for the SBS
+   *  step-count feasibility probe. When omitted, the production
+   *  CHEM_SCHEDULE (133 steps) is used. */
+  scheduleOverride?: ReadonlyArray<readonly [number, number, string]>;
+  /** Cap the radical count loaded from the bin (E10P per-step scaling probe:
+   *  proxy for late-time compaction — how cheap do steps get with fewer
+   *  alive radicals). When omitted, the full bin (≤ MAX_RAD) is used. */
+  maxRad?: number;
 }
 
 interface ChemBenchResult {
@@ -85,7 +93,7 @@ async function runGpuChemBench(opts: ChemBenchOpts): Promise<ChemBenchResult> {
   if (!resp.ok) throw new Error(`bin fetch failed: ${resp.status} ${opts.binUrl}`);
   const ab = await resp.arrayBuffer();
   const f32 = new Float32Array(ab);
-  const radN = Math.min(f32.length / 4, MAX_RAD);
+  const radN = Math.min(f32.length / 4, MAX_RAD, opts.maxRad ?? Infinity);
   // Upload to rad_buf. We only need radN records (16 bytes each).
   device.queue.writeBuffer(buffers.radBuf, 0, f32, 0, radN * 4);
 
@@ -97,6 +105,7 @@ async function runGpuChemBench(opts: ChemBenchOpts): Promise<ChemBenchResult> {
     radN,
     opts.energyEv,
     opts.nTherm,
+    opts.scheduleOverride ? { scheduleOverride: opts.scheduleOverride } : undefined,
   );
   const walltimeMs = performance.now() - t0;
 

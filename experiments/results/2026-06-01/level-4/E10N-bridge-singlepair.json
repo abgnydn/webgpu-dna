@@ -1,0 +1,47 @@
+{
+  "protocol": "E10N-bridge-singlepair-convergence",
+  "status": "measured",
+  "date": "2026-06-01",
+  "params": {
+    "sigma": 0.44,
+    "D_rel": 4.4,
+    "r0": 1,
+    "T_ns": 100,
+    "trials": 200000
+  },
+  "W_analytic": 0.43337303279530776,
+  "rows": [
+    {
+      "dt": 4,
+      "nSteps": 25,
+      "p_react": 0.05991,
+      "ratio": 0.13824118130649096
+    },
+    {
+      "dt": 1,
+      "nSteps": 100,
+      "p_react": 0.11201,
+      "ratio": 0.25846093670739534
+    },
+    {
+      "dt": 0.25,
+      "nSteps": 400,
+      "p_react": 0.191255,
+      "ratio": 0.4413172614049897
+    },
+    {
+      "dt": 0.05,
+      "nSteps": 2000,
+      "p_react": 0.318885,
+      "ratio": 0.7358210499235582
+    },
+    {
+      "dt": 0.01,
+      "nSteps": 10000,
+      "p_react": 0.40282,
+      "ratio": 0.9294994600881439
+    }
+  ],
+  "ratio_spread": 6.723752295109332,
+  "verdict": "non-convergent"
+}

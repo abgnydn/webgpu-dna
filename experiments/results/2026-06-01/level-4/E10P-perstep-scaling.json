@@ -1,0 +1,63 @@
+{
+  "protocol": "E10P-sbs-perstep-scaling",
+  "status": "measured",
+  "git": "6cca750",
+  "date": "2026-06-01",
+  "config": {
+    "steps": 200,
+    "dt_ns": 0.02,
+    "energyEv": 10000,
+    "nTherm": 4096
+  },
+  "env": {
+    "gitSha": "6cca750e2228e27c557e58da668b30b6ca115f1b",
+    "gitDirty": true,
+    "shaderHashes": {
+      "helpers_wgsl": "2dcbe219e54a7f985cf170627e90c6f2bd903953",
+      "primary_wgsl": "a627ec825be4aca43e4d0aea36695db240d561c8",
+      "secondary_wgsl": "4cfee2ddc72dc267dd44845488820cbc7f6e75c3",
+      "chemistry_wgsl": "b0d08fcd5c7b4dc4bdeb4de095fabf25648b683c",
+      "irt_worker_js": "62bf27a1225e042977269db6185af5d5c5213ea1"
+    },
+    "timestamp": "2026-06-01T11:12:04.644Z",
+    "runner": "node",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "hostname": "Ahmets-MacBook-Pro.local",
+    "cpuCount": 12,
+    "totalMemBytes": 17179869184
+  },
+  "rows": [
+    {
+      "maxRad": 500000,
+      "radN": 500000,
+      "walltime_ms": 1371,
+      "ms_per_step": 6.855
+    },
+    {
+      "maxRad": 1500000,
+      "radN": 1500000,
+      "walltime_ms": 3260.7999999970198,
+      "ms_per_step": 16.3039999999851
+    },
+    {
+      "maxRad": 3000000,
+      "radN": 3000000,
+      "walltime_ms": 7448.100000008941,
+      "ms_per_step": 37.240500000044705
+    },
+    {
+      "maxRad": 5000000,
+      "radN": 4970068,
+      "walltime_ms": 13778,
+      "ms_per_step": 68.89
+    }
+  ],
+  "fit": {
+    "fixed_floor_ms": -2.753480951816165,
+    "ms_per_Mrad": 14.072464080214345,
+    "fixed_share_at_5M": -0.04072664128309458,
+    "perstep_at_2p5M_ms": 32.4276792487197
+  }
+}

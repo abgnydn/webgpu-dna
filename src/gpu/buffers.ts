@@ -29,6 +29,7 @@ export interface GPUBuffers {
   // Chemistry phase
   chemUni: GPUBuffer;       // 16B uniform
   chemPos: GPUBuffer;       // CHEM_N × 16B
+  chemPosOld: GPUBuffer;    // CHEM_N × 16B — pre-step positions for bridge react
   chemPosRB: GPUBuffer;
   chemAlive: GPUBuffer;     // CHEM_N × 4B
   chemAliveRB: GPUBuffer;
@@ -76,6 +77,7 @@ export function allocateBuffers(device: GPUDevice, np: number): GPUBuffers {
 
     chemUni: mk(16, U | D),
     chemPos: mk(CHEM_N * 16, S | C | D),
+    chemPosOld: mk(CHEM_N * 16, S | D),
     chemPosRB: mk(CHEM_N * 16, D | R),
     chemAlive: mk(CHEM_N * 4, S | C | D),
     chemAliveRB: mk(CHEM_N * 4, D | R),

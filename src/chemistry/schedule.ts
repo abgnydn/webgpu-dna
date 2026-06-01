@@ -24,6 +24,11 @@ export interface RunChemistryOptions {
    *  buffer (~13 M radicals at 10 keV) is far too large for a browser blob,
    *  so we subsample. Default 50 000 → ~6.4 MB across 8 checkpoints. */
   snapshot_n?: number;
+  /** Override the [dt_ns, n_steps, label] schedule. Used by the SBS
+   *  step-count feasibility probe (E10L) to measure per-step wall-clock at
+   *  gMicroMC/MPEXS-style fine step counts without touching the production
+   *  default (CHEM_SCHEDULE). When omitted, CHEM_SCHEDULE is used. */
+  scheduleOverride?: ReadonlyArray<readonly [number, number, string]>;
 }
 
 /**
@@ -54,9 +59,10 @@ export async function runChemistry(
 
   const dump = !!options?.dump_snapshots;
   const snap_n = dump ? Math.min(options?.snapshot_n ?? 50_000, chem_n) : 0;
+  const SCHED = options?.scheduleOverride ?? CHEM_SCHEDULE;
 
-  // Pre-allocate per-checkpoint readback buffers (1 t=0 + 7 schedule entries = 8).
-  const NUM_SNAPS = 1 + CHEM_SCHEDULE.length;
+  // Pre-allocate per-checkpoint readback buffers (1 t=0 + schedule entries).
+  const NUM_SNAPS = 1 + SCHED.length;
   const snapPosRBs: GPUBuffer[] = [];
   const snapAliveRBs: GPUBuffer[] = [];
   if (dump && snap_n > 0) {
@@ -143,7 +149,7 @@ export async function runChemistry(
     prod_H2: t0_state.prod_H2,
   });
 
-  for (const [dt_ns, n_steps, label] of CHEM_SCHEDULE) {
+  for (const [dt_ns, n_steps, label] of SCHED) {
     const wg = Math.ceil(chem_n / 256);
     const ubuf = new ArrayBuffer(16);
     const uu = new Uint32Array(ubuf);
