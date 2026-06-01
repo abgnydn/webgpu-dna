@@ -111,6 +111,11 @@ That section is the single source of truth — every artifact link, every ratio,
 σ-significance figure. Do not introduce new numbers anywhere else (this file, slide
 decks, blog posts, index.html headlines) without first landing them in §Numbers.
 
+Where the WGSL physics **deliberately differs** from Geant4-DNA `DNA_Opt2`
+(Emfietzoglou excitation, the σ_exc/recomb tuning knobs, per-primary IRT, fp32
+atomics, fiber-grid geometry) is catalogued — with the why and the measured
+cost of each — in [`GEANT4_DIVERGENCES.md`](./GEANT4_DIVERGENCES.md).
+
 When measuring a new ratio: write the protocol → run the experiment → commit the
 JSON artifact under `experiments/results/<UTC-date>/<level>/<id>.json` → add a row
 to §Numbers → only then mention it elsewhere.

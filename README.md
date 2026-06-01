@@ -93,6 +93,8 @@ Reference snapshot for the WebGPU side: `N = 4096` primaries at 10 keV unless ot
 
 **Citing this work:** see [`CITATION.cff`](./CITATION.cff). The current release is `v0.3.0` ([GitHub Release](https://github.com/abgnydn/webgpu-dna/releases/tag/v0.3.0)); a Zenodo DOI per release is on the todo list.
 
+**Where we deliberately differ from Geant4-DNA `DNA_Opt2`** (Emfietzoglou excitation, the σ_exc/recomb tuning knobs, per-primary IRT, fp32 atomics, fiber-grid geometry) — with the rationale and measured cost of each — is catalogued in [`GEANT4_DIVERGENCES.md`](./GEANT4_DIVERGENCES.md). Every cost figure there links back to its row in this section.
+
 ## Level 0 — Environment / infrastructure (2 of 2 pass)
 
 | ID | Status | Result | Artifact |
