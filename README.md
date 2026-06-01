@@ -91,7 +91,7 @@ Reference snapshot for the WebGPU side: `N = 4096` primaries at 10 keV unless ot
 
 **Reproducibility caveat:** fp32 `atomicAdd` reductions on the dose grid and `rad_buf` counters are not order-deterministic across GPU vendors — same WGSL on different hardware (Apple Metal vs Nvidia Vulkan vs Intel iGPU) yields **statistically equivalent results within MC noise, NOT bit-exact**. The same machine + same seed + same shader hash IS bit-exact across re-runs. Every artifact emits `env.shaderHashes.{helpers,primary,secondary,chemistry}_wgsl` (added 2026-05-12) so you can group rows by shader version when the joint-fix scales or other shader-side tunables shift the baseline.
 
-**Citing this work:** see [`CITATION.cff`](./CITATION.cff). The current release is `v0.3.0` ([GitHub Release](https://github.com/abgnydn/webgpu-dna/releases/tag/v0.3.0)); a Zenodo DOI per release is on the todo list.
+**Citing this work:** see [`CITATION.cff`](./CITATION.cff). The current release is `v0.4.0` ([GitHub Release](https://github.com/abgnydn/webgpu-dna/releases/tag/v0.4.0)); a Zenodo DOI per release is on the todo list.
 
 **Where we deliberately differ from Geant4-DNA `DNA_Opt2`** (Emfietzoglou excitation, the σ_exc/recomb tuning knobs, per-primary IRT, fp32 atomics, fiber-grid geometry) — with the rationale and measured cost of each — is catalogued in [`GEANT4_DIVERGENCES.md`](./GEANT4_DIVERGENCES.md). Every cost figure there links back to its row in this section.
 
@@ -199,7 +199,7 @@ After all 2026-05-12 fixes (L5 indirect SSB closure, joint physics tuning):
 | G(H₂O₂) @ 0.1 ps (joint fix applied)         | 0.041            | 0.053 (chem6)                               | **0.77× (was 0.58×)** [[E10i]](./experiments/results/2026-05-12/level-4/E10i-joint-fix-validation.json) |
 | RMS deviation across 5 species @ 0.1 ps      | **19.0 %**       | (vs chem6)                                  | down from 30.3 % baseline [[E10i]](./experiments/results/2026-05-12/level-4/E10i-joint-fix-validation.json) |
 | G(e⁻aq) V-shape drop 1→3 keV                 | 12.5 %           | 0 (smooth-monotonic null)                   | **126σ significant** [[E10b]](./experiments/results/2026-05-11/level-4/E10b-vshape-bootstrap-sigma.json) |
-| SSB direct / indirect / DSB @ 10 keV         | 23 / 68 / 1      | indirect/direct ratio PARTRAC = 2-3         | **2.96 — in PARTRAC band** [[E13c]](./experiments/results/2026-05-12/level-5/E13c-rerun-ssb-after-fix.json) |
+| SSB direct / indirect / DSB @ 10 keV (post joint-fix) | 26 / 64 / 9      | indirect/direct ratio PARTRAC = 2-3         | **2.46 — in PARTRAC band** [[E13c]](./experiments/results/2026-05-13/level-5/E13c-rerun-ssb-after-fix.json) |
 | Phase A wall-clock @ N=4096, 10 keV          | 14.4 ms          | —                                           | n/a [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | Phase A peak throughput                      | 538,947 primaries/sec @ N=16384 | —                            | n/a [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | Phase A + B vs Geant4 11.4.1 single-thread   | 635 ms           | 289.1 s (median over 3 trials)              | **455× speedup** [[E15b]](./experiments/results/2026-05-11/level-6/E15b-vs-geant4-single-thread.json) |
@@ -220,7 +220,7 @@ Each is a falsifiable claim only visible because of the protocol — not from re
 6. **WebGPU is 455× faster than Geant4 11.4.1 single-thread** on matched-scope physics tracking; end-to-end only 1.48× because IRT chem on CPU dominates. Decomposes into ~10× from GPU vs CPU + ~40× from kernel fusion (multiplicative). [E15b, E16]
 7. **The G(OH) deficit vs Karamitros 2011 confounds two effects**: ~70% is real LET physics (chem6 reproduces the same trend); ~30% is a real WGSL-vs-chem6 implementation gap. G(H₂)/G(H₂O₂) are the biggest implementation gaps. [E10c, E10d]
 8. **The 0.1 ps pre-chem H₂/H₂O₂ deficit is NOT from cross-event recomb (refuted by E10e at 3.5%) and NOT from per-primary IRT partitioning at 0.1 ps (refuted by E10f at 0%).** Partitioning IS the cause of 96% of the 1 μs gap. The 0.1 ps gap requires structural physics changes (H₂O+ tracking + time-integrated recomb). [E10e, E10f, E10g, E10h, E10i]
-9. **L5 indirect-SSB ratio closed in 4 commits** — from `0/24 = 0` (real failure) to `68/23 = 2.96` (PARTRAC 2-3 band) via constants split + IRT-side time-resolved scoring + P_indirect calibration. [E13, E13b, E13c]
+9. **L5 indirect-SSB ratio closed in 4 commits** — from `0/24 = 0` (real failure) to a PARTRAC 2-3 band ratio (pre joint-fix `68/23 = 2.96`; post joint-fix `64/26 = 2.46`, current) via constants split + IRT-side time-resolved scoring + P_indirect calibration. [E13, E13b, E13c]
 
 ## Ongoing physics work
 

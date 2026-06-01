@@ -22,11 +22,11 @@
     "G_H2": 0.468
   },
   "dnaDamage": {
-    "SSB_dir": 23,
-    "SSB_ind": 68,
-    "DSB": 1,
+    "SSB_dir": 26,
+    "SSB_ind": 64,
+    "DSB": 9,
     "kernelHits": 117,
-    "$comment": "Counts on the 21×21 B-DNA fiber grid (3.89 Mbp target) at 10 keV, ~0.243 Gy at 30 μm box. SSB_ind/SSB_dir/DSB refreshed 2026-05-12 after IRT-side indirect SSB scoring (E13c) + P_indirect calibration (0.4 → 0.05). Indirect/direct ratio = 2.96 — in PARTRAC 2-3 band. SSB_dir = 23 (vs prior 24) is MC noise — direct scoring unchanged. kernelHits unchanged.",
-    "$ssb_history": "0.29 nm + P=0.4 (2026-04-21 run): SSB_dir=24 SSB_ind=0 DSB=2 ratio=0. After radius split + IRT-side scoring + P calibration to 0.05 (2026-05-12, E13c-3rd-stage): SSB_dir=23 SSB_ind=68 DSB=1 ratio=2.96 (in PARTRAC band)."
+    "$comment": "Counts on the 21×21 B-DNA fiber grid (3.89 Mbp target) at 10 keV, ~0.243 Gy at 30 μm box. Post-joint-fix values from E13c re-run (2026-05-13, experiments/results/2026-05-13/level-5/E13c-rerun-ssb-after-fix.json): SSB_dir=26 SSB_ind=64 DSB=9, indirect/direct ratio = 2.46 — in PARTRAC 2-3 band. DSB 1 → 9 because the joint fix's chemistry boost produces more co-located strand-0/strand-1 indirect hits. kernelHits unchanged.",
+    "$ssb_history": "0.29 nm + P=0.4 (2026-04-21 run): SSB_dir=24 SSB_ind=0 DSB=2 ratio=0. After radius split + IRT-side scoring + P calibration to 0.05 (2026-05-12, E13c pre-joint-fix): SSB_dir=23 SSB_ind=68 DSB=1 ratio=2.96. POST joint-fix (2026-05-13, E13c re-run): SSB_dir=26 SSB_ind=64 DSB=9 ratio=2.46 (current; still in PARTRAC band)."
   }
 }

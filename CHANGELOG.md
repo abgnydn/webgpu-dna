@@ -9,6 +9,64 @@ from `0.1.0`.
 
 _Nothing pending. Open a PR or issue to start the next entry._
 
+## [0.4.0] — 2026-06-02
+
+Audit-closure + structural-pivot release. Completes the post-joint-fix
+validation sweeps (L2/L4/L5), makes every committed artifact traceable
+(shaderHashes retrofit), and reaches the release's headline *negative*
+result: the remaining 1 µs chemistry gap is an **inter-track** effect that
+is **not reachable browser-native** — established by refuting the H₂O⁺
+hypothesis via Geant4 source archaeology, and by falsifying both
+browser-native routes (cross-primary IRT and GPU step-by-step) with cheap,
+committed tests. No new headline §Numbers physics ratios vs 0.3.0; the value
+here is rigor, traceability, and three design docs that scope the path
+forward (native runtime).
+
+### Added
+
+- **L2 marquee — E5d**: post-joint-fix CSDA across all 8 ESTAR energies,
+  **8/8 improved monotonically** (100 eV 0.588× → 0.736×; high-E → ~0.99×).
+- **L2 — E6c / E7b / E5c**: effective σ-per-process under the joint fix
+  (σ_exc 2.55× → 1.27×), post-fix cascade-ion + W-value re-measurement,
+  documenting the two-knob structural tradeoff.
+- **L4/L5 re-runs**: E10 / E10d / E13c against current shaders (V-shape
+  preserved; SSB ratio held in the PARTRAC 2–3 band, 2.96 → 2.46 with
+  DSB 1 → 9).
+- **GPU-SBS inter-track investigation — E10k/L/M/N/P/Q**: per-step cost,
+  first-passage→bridge reaction model, single-pair convergence, per-step
+  scaling, and the σ-bounded-dt kill criterion. Conclusion: GPU-SBS is not
+  faster than IRT at the accuracy bar on laptop WebGPU. Bridge reaction
+  probability added to `chemistry.wgsl` (behind the GPU backend; default
+  unchanged). New: `GPU_SBS_INTERTRACK_FINDINGS.md`, `HYBRID_IRT_SBS_DESIGN.md`.
+- **Design docs**: `CROSS_PRIMARY_IRT_DESIGN.md` (+ memory-ceiling addendum
+  surfacing the native-runtime dependency), `H2OP_TRACKING_DESIGN.md`,
+  `ROADMAP.md`, `RESEARCH_STANDARDS.md`, and `GEANT4_DIVERGENCES.md` — a
+  single catalogue of where this build deliberately differs from `DNA_Opt2`,
+  each with its measured cost linked to §Numbers.
+
+### Changed
+
+- **Audit closure**: retrofitted `env.shaderHashes` onto 48 pre-2026-05-12
+  artifacts; closed six traceability gaps a reviewer would ask about; fixed
+  two stale comparison-table claims in `index.html` and added an explicit
+  Geant4-DNA-vs-port feature-scope section. README §Numbers cross-linked to
+  `GEANT4_DIVERGENCES.md`; CLAUDE.md likewise.
+
+### Honest negatives (committed as evidence, not bugs)
+
+- **E7c** asymmetric `RECOMB_BOOST` and **E5e** W_sec cutoff sweep — both
+  refuted as alternative "third knobs."
+- **H₂O⁺ tracking** — premise refuted: Geant4's `G4DNAElectronHoleRecombination`
+  is one-shot, not time-integrated, so `RECOMB_BOOST` has no physical basis.
+- **Cross-primary IRT** (O(N²), 551 nm horizon) and **GPU-SBS** (σ-bounded
+  ~50k steps) — both browser-native inter-track routes closed; the physics
+  needs a native runtime (ROADMAP Tier 3).
+
+### Fixed
+
+- Build: copy `rad_buf` into a fresh `ArrayBuffer` before `Blob` construction
+  (4D-viewer snapshot export).
+
 ## [0.3.0] — 2026-05-12
 
 Research-grade closure release. Promotes the prior-version informal "we're
