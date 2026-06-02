@@ -5,6 +5,7 @@
 [![Live demo](https://img.shields.io/badge/live-webgpudna.com-6ea8ff)](https://webgpudna.com)
 [![Geant4-DNA validated](https://img.shields.io/badge/Geant4--DNA-cross--checked-b0ffd0)](#numbers)
 [![Tests](https://img.shields.io/badge/tests-46%20%E2%9C%93-82c98b)](./tests)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20506339.svg)](https://doi.org/10.5281/zenodo.20506339)
 
 A WebGPU port of [Geant4-DNA](https://geant4-dna.in2p3.fr/) — the CNRS/IN2P3-coordinated Monte Carlo track-structure toolkit for radiobiology — running entirely in the browser.
 
@@ -109,7 +110,7 @@ Reference snapshot for the WebGPU side: `N = 4096` primaries at 10 keV unless ot
 
 **Reproducibility caveat:** fp32 `atomicAdd` reductions on the dose grid and `rad_buf` counters are not order-deterministic across GPU vendors — same WGSL on different hardware (Apple Metal vs Nvidia Vulkan vs Intel iGPU) yields **statistically equivalent results within MC noise, NOT bit-exact**. The same machine + same seed + same shader hash IS bit-exact across re-runs. Every artifact emits `env.shaderHashes.{helpers,primary,secondary,chemistry}_wgsl` (added 2026-05-12) so you can group rows by shader version when the joint-fix scales or other shader-side tunables shift the baseline.
 
-**Citing this work:** see [`CITATION.cff`](./CITATION.cff). The current release is `v0.4.1` ([GitHub Release](https://github.com/abgnydn/webgpu-dna/releases/tag/v0.4.1)); a Zenodo DOI per release is on the todo list.
+**Citing this work:** see [`CITATION.cff`](./CITATION.cff). The current release is `v0.4.1` ([GitHub Release](https://github.com/abgnydn/webgpu-dna/releases/tag/v0.4.1)). Zenodo concept DOI [10.5281/zenodo.20506339](https://doi.org/10.5281/zenodo.20506339) (always resolves to the latest version); the v0.4.1 version DOI is [10.5281/zenodo.20506340](https://doi.org/10.5281/zenodo.20506340).
 
 **Where we deliberately differ from Geant4-DNA `DNA_Opt2`** (Emfietzoglou excitation, the σ_exc/recomb tuning knobs, per-primary IRT, fp32 atomics, fiber-grid geometry) — with the rationale and measured cost of each — is catalogued in [`GEANT4_DIVERGENCES.md`](./GEANT4_DIVERGENCES.md). Every cost figure there links back to its row in this section.
 

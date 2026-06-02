@@ -40,6 +40,7 @@ keywords:
 license: MIT
 version: "0.4.1"
 date-released: "2026-06-02"
+doi: "10.5281/zenodo.20506339"
 references:
   - type: software
     title: Geant4-DNA
@@ -65,6 +66,8 @@ preferred-citation:
   version: "0.4.1"
   year: 2026
   url: https://github.com/abgnydn/webgpu-dna
+  doi: "10.5281/zenodo.20506340"
   notes: >-
-    Replace this preferred-citation block with the Zenodo DOI once the
-    GitHub-Zenodo integration mints one against tag v0.4.1.
+    Version DOI for the v0.4.1 release. The concept DOI
+    10.5281/zenodo.20506339 (top-level doi) always resolves to the latest
+    version.
