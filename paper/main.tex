@@ -46,9 +46,12 @@ source and the G4EMLOW~8.8 tabulated cross sections, and use a
 normally-compiled Geant4~11.4.1 as a validation oracle on a falsifiable,
 artifact-backed ladder. Cross sections match the reference to peak ratios of
 \numrange{0.975}{1.000}; the continuous-slowing-down range at \SI{10}{keV} is
-\num{0.988}$\times$ Geant4; and the fused tracking is \textbf{455$\times$}
-faster than Geant4 single-thread (\textbf{280$\times$} vs.\ an 8-thread build)
-on an Apple~M2~Pro. We also report the project's honest limits: a 27\,\%
+\num{0.988}$\times$ Geant4. The \emph{fused track-structure kernel} is
+\textbf{455$\times$} faster than Geant4 single-thread (280$\times$ vs.\ an
+8-thread build) on an Apple~M2~Pro; \emph{end-to-end}, however, the speedup is
+\textbf{1.48$\times$}, because the IRT radiolysis chemistry runs on CPU and
+dominates the wall-clock---we report both and are explicit about which is
+which. We also report the project's honest limits: a 27\,\%
 cascade-ionisation deficit traceable to an intentional excitation
 cross-section choice, and the finding that the \emph{inter-track} chemistry
 contribution---which closes most of the residual \SI{1}{\micro s} gap against
@@ -117,11 +120,9 @@ fixed-point integer \texttt{atomicAdd} ($\times100$ per \si{eV}), since WGSL
 atomics are integer-only.
 
 \begin{figure}[t]
-\placeholderfig{Phase A/B/C pipeline + buffer map}{Generate from
-ARCHITECTURE.md: Phase~A one fused dispatch (1 thread/primary) writing the
-\texttt{rad\_buf} and secondary buffer; Phase~B wavefront over secondaries;
-Phase~C IRT worker; atomic voxel grid for dose/radical deposition.}
-\caption{Three-phase pipeline. Phase~A is fully fused; B and C cannot be.}
+\centering\includegraphics[width=0.92\linewidth]{figs/fig1_pipeline.pdf}
+\caption{Three-phase pipeline. Phase~A is fully fused (one GPU thread per
+primary, full history in a loop); B and C cannot be.}
 \label{fig:pipeline}
 \end{figure}
 
@@ -210,12 +211,10 @@ deficit---the expected signature of the excitation cross-section correction
 (E5b, E5d; Fig.~\ref{fig:csda}).
 
 \begin{figure}[t]
-\placeholderfig{CSDA range ratio vs.\ energy, pre/post joint-fix}{Plot from
-E5b (pre) and E5d (post) artifacts: WebGPU/Geant4 CSDA ratio at 100, 300, 500,
-1000, 3000, 5000, 10000, 20000 eV; two curves (pre-fix $0.587\!\to\!0.992$,
-post-fix $0.736\!\to\!0.996$); the post curve sits above the pre curve, gap
-largest at low E.}
-\caption{Energy-dependent CSDA closure under the joint fix (8/8 improved).}
+\centering\includegraphics[width=0.6\linewidth]{figs/fig2_csda.pdf}
+\caption{Energy-dependent CSDA closure under the joint fix: WebGPU/Geant4
+range ratio at the eight ESTAR energies, pre vs.\ post fix (8/8 improved;
+artifacts E5b, E5d).}
 \label{fig:csda}
 \end{figure}
 
@@ -248,25 +247,44 @@ Sec.\ KE/primary & 143.4 & 144.9 & 1.010 (E8) \\
 \end{table}
 
 \subsection{Chemistry (Levels 3--4)}
-Against Geant4's \texttt{chem6} at matched \SI{10}{keV}, the
-$G$-values at \SI{1}{\micro s} (post joint-fix, E10j) are: $G(\mathrm{OH})$
+\textbf{Caveat up front: the chemistry yields below are not parameter-free.}
+They are reported with an empirical tuning scalar active
+(\texttt{RECOMB\_BOOST}~$=2.0$, Table~\ref{tab:diverge}), which has no
+first-principles basis and was chosen to improve agreement with
+\texttt{chem6}. They should therefore be read as \emph{agreement after
+tuning}, not as a parameter-free validation of the chemistry stage. Reporting
+the parameter-free yields---by removing this knob and instead modelling its
+intended effect physically (super-excitation autoionisation, or an
+Onsager/Mozumder escape-probability treatment of geminate recombination)---is
+required before the chemistry stage can be called validated, and is left to
+future work (Sec.~\ref{sec:discussion}).
+
+With that caveat, against Geant4's \texttt{chem6} at matched \SI{10}{keV} the
+tuned $G$-values at \SI{1}{\micro s} (E10j) are: $G(\mathrm{OH})$
 $0.90\times$, $G(\mathrm{e^-_{aq}})$ $0.82\times$, $G(\mathrm{H})$
 $1.10\times$, $G(\mathrm{H_2})$ $0.86\times$, $G(\mathrm{H_2O_2})$
-$0.69\times$ (Fig.~\ref{fig:gvalues}). The five-species RMS deviation at
-\SI{0.1}{ps} is 19.0\,\% (down from a 30.3\,\% baseline, E10i). A non-trivial
-physics result emerges from the protocol: $G(\mathrm{e^-_{aq}})$ is
-non-monotonic between 1 and \SI{3}{keV}, a 12.5\,\% dip significant at
-$126\sigma$ by primary-bootstrap (E10b), which \texttt{chem6} independently
-reproduces (E10d)---i.e.\ it is real track-end / spur-structure physics, not
-an artifact.
+$0.69\times$ (Fig.~\ref{fig:gvalues}); the five-species RMS deviation at
+\SI{0.1}{ps} is 19.0\,\% (down from 30.3\,\% before tuning, E10i). One result
+is, however, tuning-independent and worth highlighting:
+$G(\mathrm{e^-_{aq}})$ is non-monotonic between 1 and \SI{3}{keV}, a 12.5\,\%
+dip significant at $126\sigma$ by primary-bootstrap
+(Fig.~\ref{fig:vshape}, E10b), which \texttt{chem6} independently reproduces
+(E10d)---real track-end / spur-structure physics, not an artifact.
 
 \begin{figure}[t]
-\placeholderfig{$G(t)$ for five species, WebGPU vs.\ chem6}{Plot from E10c/E10j
-artifacts: $G$(OH, $\mathrm{e^-_{aq}}$, H, $\mathrm{H_2}$, $\mathrm{H_2O_2}$)
-vs.\ time on a log axis $0.1\,\mathrm{ps}\to1\,\mu\mathrm{s}$; solid = WebGPU,
-dashed = chem6.}
-\caption{Radiolysis $G$-value time evolution against Geant4 \texttt{chem6}.}
+\centering\includegraphics[width=0.62\linewidth]{figs/fig3_gvalues.pdf}
+\caption{Radiolysis $G$-value time evolution (WebGPU, lines) against Geant4
+\texttt{chem6} endpoints at \SI{1}{\micro s} (open circles). These yields are
+tuning-dependent; see the caveat in the text.}
 \label{fig:gvalues}
+\end{figure}
+
+\begin{figure}[t]
+\centering\includegraphics[width=0.58\linewidth]{figs/fig4_vshape.pdf}
+\caption{$G(\mathrm{e^-_{aq}})$ at \SI{1}{\micro s} vs.\ primary energy: the
+non-monotonic 1$\to$3~keV dip ($126\sigma$, E10b), independently reproduced by
+\texttt{chem6} (E10d).}
+\label{fig:vshape}
 \end{figure}
 
 \subsection{DNA damage (Level 5)}
@@ -290,10 +308,11 @@ chemistry runs on CPU and dominates the wall-clock (\SI{194}{s} of
 \SI{194.6}{s}); this motivates Sec.~\ref{sec:intertrack}.
 
 \begin{figure}[t]
-\placeholderfig{Speedup bars + throughput vs.\ $N$}{From E15/E15b/E15c/E15d/E16:
-(a) bar chart 455$\times$ (ST), 280$\times$ (MT-8), 40$\times$ (fusion),
-1.48$\times$ (end-to-end); (b) throughput vs.\ $N$ across 8 energies.}
-\caption{Performance summary.}
+\centering\includegraphics[width=0.58\linewidth]{figs/fig6_perf.pdf}
+\caption{Speedups (log scale): fused track-structure kernel vs.\ Geant4
+single-thread (E15b) and 8-thread (E15c), the within-WebGPU kernel-fusion
+factor (E16), and the honest \emph{end-to-end} figure (E15b), which is only
+$1.48\times$ because the IRT chemistry runs on CPU.}
 \label{fig:perf}
 \end{figure}
 
@@ -332,11 +351,11 @@ No SBS schedule, full or hybrid, beats the IRT worker at the required accuracy
 on laptop WebGPU.
 
 \begin{figure}[t]
-\placeholderfig{Bridge convergence ratio vs.\ $\Delta t$ at several separations}{From
-E10Q: SBS/analytic reaction-probability ratio vs.\ $\Delta t$ (4, 1, 0.25,
-0.05 ns) for $r_0=$ 1, 10, 30, 100 nm; the four curves overlap, showing the
-$\Delta t$ requirement is set by $\sigma$, not separation.}
-\caption{Kill criterion: the SBS time-step bound is separation-independent.}
+\centering\includegraphics[width=0.6\linewidth]{figs/fig5_killcrit.pdf}
+\caption{Kill criterion (E10Q): single-pair SBS/analytic reaction-probability
+ratio vs.\ $\Delta t$ for four separations. The curves overlap, so the
+$\Delta t$ requirement is set by the encounter radius $\sigma$, not by
+separation — far, dilute pairs need the same tiny steps as close ones.}
 \label{fig:killcrit}
 \end{figure}
 
@@ -346,6 +365,7 @@ cheap (unblocking single-pool cross-primary IRT) or many cores parallelise the
 step count. The browser remains the validation and demonstration surface.
 
 \section{Discussion}
+\label{sec:discussion}
 Browser-native execution buys accessibility and reproducibility that the
 CUDA/OpenCL engines cannot: the simulation and its validation harness run on
 any modern GPU with no install, which is valuable for teaching, sharing, and

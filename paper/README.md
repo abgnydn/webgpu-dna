@@ -16,18 +16,26 @@ pdflatex main && bibtex main && pdflatex main && pdflatex main
 
 Requires the `siunitx` package (`tlmgr install siunitx` on a minimal TinyTeX).
 
-## Before submission — two must-dos
+## Status
 
-1. **Verify every `[VERIFY]` reference in `refs.bib`.** Several entries have
-   author/venue/year at best-effort confidence but unconfirmed volume/pages.
-   A wrong citation is a hard error — confirm each against the publisher. Only
-   `agostinelli2003geant4`, `hissoiny2011gpumcd`, and `icru31` are marked
-   `[HIGH]` confidence.
-2. **Replace the figure placeholders with real plots.** Figures 1–6 are framed
-   placeholders whose captions specify exactly which committed artifact under
-   `experiments/results/` to plot (e.g. Fig.~2 from E5b/E5d, Fig.~4 from
-   E10/E10b/E10d, Fig.~6 from E15*/E16). The numbers in the *tables* are final
-   and sourced from README §Numbers.
+- **Figures: real.** All six are generated from the committed artifacts by
+  `figs/make_figs.py` (run it to regenerate `figs/fig*.pdf`). No placeholders.
+- **References: verified.** Every entry in `refs.bib` was checked against the
+  publisher (exact pages + DOI), 2026-06. No `[VERIFY]` tags remain. Two minor
+  residuals are noted in the `.bib` header (a page range taken as the article
+  span; one page range deferred to the DOI).
+
+## Before submission — the remaining substantive item
+
+- **`RECOMB_BOOST = 2.0` is an empirical knob with no physical basis**, and the
+  chemistry $G$-values depend on it. The paper now states this explicitly and
+  reports the yields as *agreement after tuning*, not a parameter-free
+  validation (§3.3). The stronger fix a chemistry referee will want is to
+  **remove the knob and report the parameter-free yields** — i.e. re-run the
+  chemistry validation with `RECOMB_BOOST = 1.0` (and/or implement the
+  super-excitation-autoionisation / Onsager-escape replacement). That is a
+  GPU/worker re-run, not a text edit, and is the recommended next step before
+  submitting the chemistry claims.
 
 ## Provenance
 
