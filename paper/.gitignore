@@ -1,0 +1,10 @@
+# LaTeX aux files — keep main.tex, refs.bib, README.md, and main.pdf
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.blg
+*.bbl
+*.synctex.gz
+build.log
