@@ -117,10 +117,7 @@ fixed-point integer \texttt{atomicAdd} ($\times100$ per \si{eV}), since WGSL
 atomics are integer-only.
 
 \begin{figure}[t]
-\placeholderfig{Phase A/B/C pipeline + buffer map}{Generate from
-ARCHITECTURE.md: Phase~A one fused dispatch (1 thread/primary) writing the
-\texttt{rad\_buf} and secondary buffer; Phase~B wavefront over secondaries;
-Phase~C IRT worker; atomic voxel grid for dose/radical deposition.}
+\centering\includegraphics[width=\linewidth]{figs/pipeline.pdf}
 \caption{Three-phase pipeline. Phase~A is fully fused; B and C cannot be.}
 \label{fig:pipeline}
 \end{figure}
@@ -210,11 +207,7 @@ deficit---the expected signature of the excitation cross-section correction
 (E5b, E5d; Fig.~\ref{fig:csda}).
 
 \begin{figure}[t]
-\placeholderfig{CSDA range ratio vs.\ energy, pre/post joint-fix}{Plot from
-E5b (pre) and E5d (post) artifacts: WebGPU/Geant4 CSDA ratio at 100, 300, 500,
-1000, 3000, 5000, 10000, 20000 eV; two curves (pre-fix $0.587\!\to\!0.992$,
-post-fix $0.736\!\to\!0.996$); the post curve sits above the pre curve, gap
-largest at low E.}
+\centering\includegraphics[width=0.74\linewidth]{figs/csda.pdf}
 \caption{Energy-dependent CSDA closure under the joint fix (8/8 improved).}
 \label{fig:csda}
 \end{figure}
@@ -261,11 +254,8 @@ reproduces (E10d)---i.e.\ it is real track-end / spur-structure physics, not
 an artifact.
 
 \begin{figure}[t]
-\placeholderfig{$G(t)$ for five species, WebGPU vs.\ chem6}{Plot from E10c/E10j
-artifacts: $G$(OH, $\mathrm{e^-_{aq}}$, H, $\mathrm{H_2}$, $\mathrm{H_2O_2}$)
-vs.\ time on a log axis $0.1\,\mathrm{ps}\to1\,\mu\mathrm{s}$; solid = WebGPU,
-dashed = chem6.}
-\caption{Radiolysis $G$-value time evolution against Geant4 \texttt{chem6}.}
+\centering\includegraphics[width=0.74\linewidth]{figs/gvalues.pdf}
+\caption{Radiolysis $G$-value ratios (WebGPU\,/\,Geant4 \texttt{chem6}) at $1\,\mu$s, post joint-fix (E10j). Teal: within 12\%; red: larger deviation.}
 \label{fig:gvalues}
 \end{figure}
 
@@ -290,9 +280,7 @@ chemistry runs on CPU and dominates the wall-clock (\SI{194}{s} of
 \SI{194.6}{s}); this motivates Sec.~\ref{sec:intertrack}.
 
 \begin{figure}[t]
-\placeholderfig{Speedup bars + throughput vs.\ $N$}{From E15/E15b/E15c/E15d/E16:
-(a) bar chart 455$\times$ (ST), 280$\times$ (MT-8), 40$\times$ (fusion),
-1.48$\times$ (end-to-end); (b) throughput vs.\ $N$ across 8 energies.}
+\centering\includegraphics[width=0.74\linewidth]{figs/perf.pdf}
 \caption{Performance summary.}
 \label{fig:perf}
 \end{figure}
@@ -332,10 +320,7 @@ No SBS schedule, full or hybrid, beats the IRT worker at the required accuracy
 on laptop WebGPU.
 
 \begin{figure}[t]
-\placeholderfig{Bridge convergence ratio vs.\ $\Delta t$ at several separations}{From
-E10Q: SBS/analytic reaction-probability ratio vs.\ $\Delta t$ (4, 1, 0.25,
-0.05 ns) for $r_0=$ 1, 10, 30, 100 nm; the four curves overlap, showing the
-$\Delta t$ requirement is set by $\sigma$, not separation.}
+\centering\includegraphics[width=0.74\linewidth]{figs/killcrit.pdf}
 \caption{Kill criterion: the SBS time-step bound is separation-independent.}
 \label{fig:killcrit}
 \end{figure}

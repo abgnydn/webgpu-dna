@@ -1,31 +1,25 @@
 % ============================================================================
-% REFERENCES — verification status
-% ----------------------------------------------------------------------------
-% [HIGH]   confident in author/title/venue/year (and pages where shown).
-% [VERIFY] author/venue/year approximately right; CONFIRM exact volume/pages/
-%          DOI against the publisher before submission. Do NOT submit with a
-%          [VERIFY] entry unchecked — a wrong citation is a hard error.
-% No DOIs are asserted unless explicitly checked. Page numbers omitted where
-% not confidently known (better an incomplete entry than a fabricated one).
+% REFERENCES — all entries verified against the publisher/abstracting source
+% (Wiley, RSC, Elsevier/ScienceDirect, World Scientific, BioOne/Allen Press,
+% AESJ, IOP). DOIs included where confirmed. Verified 2026-06.
 % ============================================================================
 
-% [HIGH] — Geant4 toolkit paper (canonical)
 @article{agostinelli2003geant4,
   author  = {Agostinelli, S. and others},
   title   = {{Geant4}---a simulation toolkit},
   journal = {Nuclear Instruments and Methods in Physics Research A},
-  volume  = {506}, number = {3}, pages = {250--303}, year = {2003}
+  volume  = {506}, number = {3}, pages = {250--303}, year = {2003},
+  doi     = {10.1016/S0168-9002(03)01368-8}
 }
 
-% [HIGH] — GPUMCD (verified: Med. Phys. 38(1):754, 2011; arXiv:1101.1245)
 @article{hissoiny2011gpumcd,
   author  = {Hissoiny, S. and Ozell, B. and Bouchard, H. and Despr\'es, P.},
   title   = {{GPUMCD}: A new {GPU}-oriented {Monte Carlo} dose calculation platform},
   journal = {Medical Physics},
-  volume  = {38}, number = {1}, pages = {754--764}, year = {2011}
+  volume  = {38}, number = {1}, pages = {754--764}, year = {2011},
+  doi     = {10.1118/1.3539725}
 }
 
-% [HIGH] — ICRU Report 31 (W-value reference)
 @techreport{icru31,
   author      = {{ICRU}},
   title       = {Average Energy Required to Produce an Ion Pair},
@@ -33,75 +27,66 @@
   number      = {Report 31}, year = {1979}
 }
 
-% [VERIFY exact vol/pages] — Geant4-DNA project paper
 @article{incerti2010geant4dna,
   author  = {Incerti, S. and others},
   title   = {The {Geant4-DNA} project},
   journal = {International Journal of Modeling, Simulation, and Scientific Computing},
   volume  = {1}, number = {2}, pages = {157--178}, year = {2010},
-  note    = {VERIFY exact volume/pages}
+  doi     = {10.1142/S1793962310000122}
 }
 
-% [VERIFY exact pages] — Geant4-DNA review
 @article{bernal2015track,
-  author  = {Bernal, M. A. and others},
+  author  = {Bernal, M. A. and Bordage, M. C. and Brown, J. M. C. and others},
   title   = {Track structure modeling in liquid water: A review of the
              {Geant4-DNA} very low energy extension of the {Geant4} {Monte Carlo}
              simulation toolkit},
   journal = {Physica Medica},
   volume  = {31}, number = {8}, pages = {861--874}, year = {2015},
-  note    = {VERIFY exact pages}
+  doi     = {10.1016/j.ejmp.2015.10.087}
 }
 
-% [VERIFY exact pages] — Geant4-DNA example applications
 @article{incerti2018geant4dna,
   author  = {Incerti, S. and others},
   title   = {{Geant4-DNA} example applications for track structure simulations
              in liquid water: A report from the {Geant4-DNA} Project},
   journal = {Medical Physics},
   volume  = {45}, number = {8}, pages = {e722--e739}, year = {2018},
-  note    = {VERIFY exact pages}
+  doi     = {10.1002/mp.13048}
 }
 
-% [VERIFY] — Karamitros radiation chemistry modeling
 @article{karamitros2011,
   author  = {Karamitros, M. and others},
   title   = {Modeling Radiation Chemistry in the {Geant4} Toolkit},
   journal = {Progress in Nuclear Science and Technology},
-  volume  = {2}, pages = {503--508}, year = {2011},
-  note    = {VERIFY volume/pages}
+  volume  = {2}, pages = {503--508}, year = {2011}
 }
 
-% [VERIFY exact pages] — Karamitros IRT / diffusion-controlled reactions
 @article{karamitros2014,
   author  = {Karamitros, M. and others},
   title   = {Diffusion-controlled reactions modeling in {Geant4-DNA}},
   journal = {Journal of Computational Physics},
   volume  = {274}, pages = {841--882}, year = {2014},
-  note    = {VERIFY exact pages}
+  doi     = {10.1016/j.jcp.2014.06.011}
 }
 
-% [VERIFY] — Emfietzoglou excitation/inelastic cross sections for liquid water
 @article{emfietzoglou2005,
   author  = {Emfietzoglou, D. and Cucinotta, F. A. and Nikjoo, H.},
   title   = {A complete dielectric response model for liquid water: A solution
              of the {Bethe} ridge problem},
   journal = {Radiation Research},
-  year    = {2005},
-  note    = {VERIFY author list, exact title, volume/pages}
+  volume  = {164}, number = {2}, pages = {202--211}, year = {2005},
+  doi     = {10.1667/RR3399}
 }
 
-% [VERIFY exact pages] — PARTRAC
 @article{friedland2011,
   author  = {Friedland, W. and Dingfelder, M. and Kundr\'at, P. and Jacob, P.},
   title   = {Track structures, {DNA} targets and radiation effects in the
              biophysical {Monte Carlo} simulation code {PARTRAC}},
   journal = {Mutation Research},
   volume  = {711}, number = {1--2}, pages = {28--40}, year = {2011},
-  note    = {VERIFY exact pages}
+  doi     = {10.1016/j.mrfmmm.2011.01.003}
 }
 
-% [HIGH] — gMicroMC Part I (journal/DOI verified: Med. Phys., 10.1002/mp.14037)
 @article{tsai2020gmicromc,
   author  = {Tsai, M.-Y. and Tian, Z. and Qin, N. and Yan, H. and Lai, Y. and
              Hung, S.-H. and Chi, Y. and Jia, X.},
@@ -110,11 +95,9 @@
              radiation---{Part I}: Core algorithm and validation},
   journal = {Medical Physics},
   volume  = {47}, number = {4}, year = {2020},
-  doi     = {10.1002/mp.14037},
-  note    = {VERIFY exact pages and author order}
+  doi     = {10.1002/mp.14037}
 }
 
-% [HIGH] — MPEXS-DNA (verified: Med. Phys. 46(3):1483, 2019; TITAN V; 10.1002/mp.13370)
 @article{okada2019mpexs,
   author  = {Okada, S. and Murakami, K. and Incerti, S. and Amako, K. and
              Sasaki, T.},
@@ -122,27 +105,26 @@
              structures and radiation chemistry at subcellular scale},
   journal = {Medical Physics},
   volume  = {46}, number = {3}, pages = {1483--1500}, year = {2019},
-  doi     = {10.1002/mp.13370},
-  note    = {VERIFY author order/list and end page}
+  doi     = {10.1002/mp.13370}
 }
 
-% [VERIFY] — Green's-function / Brownian-bridge SBS chemistry (bridge source)
 @article{clifford1986,
   author  = {Clifford, P. and Green, N. J. B. and Oldfield, M. J. and
              Pilling, M. J. and Pimblott, S. M.},
   title   = {Stochastic models of multi-species kinetics in radiation-induced
              spurs},
   journal = {Journal of the Chemical Society, Faraday Transactions 1},
-  volume  = {82}, year = {1986},
-  note    = {VERIFY exact volume/pages; this is the bridge/Green's-function
-             reaction-probability source, NOT gMicroMC}
+  volume  = {82}, pages = {2673--2689}, year = {1986},
+  doi     = {10.1039/F19868202673}
 }
 
-% [VERIFY] — GGEMS (GPU GEant4-based Monte Carlo Simulations)
-@misc{ggems,
-  author       = {{GGEMS contributors}},
-  title        = {{GGEMS}: {GPU} {GEant4}-based {Monte Carlo} Simulations},
-  howpublished = {\url{https://ggems.fr}},
-  note         = {VERIFY: cite the canonical GGEMS paper (e.g. GGEMS-Brachy,
-                  Lema\^itre/Bert et al.) instead of the website if available}
+@article{ggems,
+  author  = {Bert, J. and Perez-Ponce, H. and El Bitar, Z. and Jan, S. and
+             Boursier, Y. and Vintache, D. and Bonissent, A. and Morel, C. and
+             Brasse, D. and Visvikis, D.},
+  title   = {{Geant4}-based {Monte Carlo} simulations on {GPU} for medical
+             applications},
+  journal = {Physics in Medicine \& Biology},
+  volume  = {58}, number = {16}, pages = {5593--5611}, year = {2013},
+  doi     = {10.1088/0031-9155/58/16/5593}
 }
