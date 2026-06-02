@@ -67,9 +67,13 @@ Deep-dive: [`ARCHITECTURE.md`](./ARCHITECTURE.md). Standing physics diagnoses: [
 Production (**webgpudna.com**) is **Cloudflare Pages**, deployed manually:
 
 ```bash
-npm run build                      # → dist/
-wrangler pages deploy dist         # needs `wrangler login` + the Pages project
+npm run build                                                   # → dist/
+wrangler pages deploy dist --project-name=webgpudna --branch=main
 ```
+
+The production Pages project is **`webgpudna`** (no hyphen) — it owns
+webgpudna.com. Do **not** use the `webgpu-dna` (hyphenated) project; that one
+is stale and only serves `webgpu-dna.pages.dev`.
 
 A Vercel GitHub integration also auto-builds a parallel mirror
 (`webgpu-dna.vercel.app`) on every push to `main`, but that mirror does **not**
