@@ -220,7 +220,11 @@ fn erfc_ns(x:f32)->f32{
 }
 
 // ============================================================================
-// SBS reaction with Brownian-bridge probability (gMicroMC/MPEXS2.1 method).
+// SBS reaction with Green's-function Brownian-bridge probability.
+// (NOTE: gMicroMC/MPEXS-DNA themselves use the simpler Smoluchowski
+// reaction-RADIUS contact test — react when r ≤ σ at a step — not this bridge.
+// The bridge below is from the step-by-step / Green's-function chemistry
+// literature, tried here as a refinement over that contact test.)
 // 2026-06-01: replaces the naive end-position contact test (which needed
 // dt ≲ 0.01 ns → ~8000 steps to 1 µs, 4.6× slower than IRT in E10L).
 //

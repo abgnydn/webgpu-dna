@@ -109,9 +109,12 @@ measurements collide:
 So even with the biggest speed lever fully applied, the accuracy step-count
 (~20k+) is still 3–10× over the wall-clock budget (~6k). There is no naive or
 uniformly-compacted schedule that is both convergent-accurate and faster than
-the existing IRT worker for this radical count. gMicroMC/MPEXS get their speed
-from datacenter-GPU parallelism over many independent histories + variable dt
-+ accepted approximations — not from a small step count.
+the existing IRT worker for this radical count. The CUDA codes (gMicroMC,
+MPEXS-DNA) use the same step-by-step + reaction-radius scheme and themselves
+note the chemical stage is the most time-consuming part; they get their speed
+from raw GPU parallelism over many histories (e.g. MPEXS-DNA on an NVIDIA
+TITAN V) plus pair-search acceleration (box-sorting) — not from a small step
+count. Our σ-bounded-step finding is consistent with that.
 
 ### E10Q — the dt bound is set by σ, not density (closes the hybrid too)
 The hybrid (`HYBRID_IRT_SBS_DESIGN.md`) bet that the sparse inter-track
@@ -148,8 +151,8 @@ inter-track production run moves off-browser.
    reacted. **Compaction** (drop dead radicals; dilute late steps become
    cheap) + occupied-cell-only clearing + a smaller/adaptive hash could cut
    per-step cost by 1–2 orders at late times, where most steps live.
-2. **Variable dt tied to local density**, with the small-dt regime only where
-   pairs are close. This is the actual gMicroMC/MPEXS scheme.
+2. **Variable / adaptive dt tied to local density**, with the small-dt regime
+   only where pairs are close (a standard step-by-step-chemistry tactic).
 3. **The hybrid is still attractive for a different reason:** run IRT for the
    dense intra-track chemistry (where it's accurate and the SBS would need the
    tiniest dt), and GPU-SBS *only* for the sparse inter-track residual — few
