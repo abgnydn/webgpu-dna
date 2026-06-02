@@ -9,6 +9,32 @@ from `0.1.0`.
 
 _Nothing pending. Open a PR or issue to start the next entry._
 
+## [0.4.1] — 2026-06-02
+
+Paper + parameter-free chemistry. Adds the arXiv-style preprint and resolves
+the chemistry stage's reliance on an unphysical knob.
+
+### Added
+
+- **`paper/`** — arXiv-style LaTeX preprint (`main.tex`, `refs.bib`, `main.pdf`)
+  with six figures generated from the committed artifacts (`figs/make_figs.py`).
+  All references verified against the publisher (exact pages + DOIs).
+- **E10r** — parameter-free chemistry measurement. Re-ran the IRT at
+  `RECOMB_BOOST = 1.0` (regenerated dump): the unphysical knob is **not
+  load-bearing** — removing it shifts the 5-species RMS vs chem6 @1µs by only
+  ~1.4 pp (18.3% → 19.7%), *improves* G(OH)/G(eaq), and removes the G(H)
+  overshoot. The paper now reports the parameter-free yields as primary.
+
+### Changed
+
+- **Corrected gMicroMC/MPEXS attribution**: both use a Smoluchowski
+  reaction-radius contact test, not the Brownian bridge; the bridge is
+  re-attributed to Clifford et al. 1986.
+- README documents the real deploy path (Cloudflare Pages via `wrangler`,
+  project `webgpudna`) and the parallel Vercel mirror.
+- `GEANT4_DIVERGENCES.md` B2 row updated with the measured non-load-bearing
+  result; removed the empty `tests/integration/` directory.
+
 ## [0.4.0] — 2026-06-02
 
 Audit-closure + structural-pivot release. Completes the post-joint-fix

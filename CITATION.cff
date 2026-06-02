@@ -38,7 +38,7 @@ keywords:
   - SSB
   - DSB
 license: MIT
-version: "0.4.0"
+version: "0.4.1"
 date-released: "2026-06-02"
 references:
   - type: software
@@ -62,9 +62,9 @@ preferred-citation:
   authors:
     - given-names: Ahmet Barış
       family-names: Günaydın
-  version: "0.4.0"
+  version: "0.4.1"
   year: 2026
   url: https://github.com/abgnydn/webgpu-dna
   notes: >-
     Replace this preferred-citation block with the Zenodo DOI once the
-    GitHub-Zenodo integration mints one against tag v0.4.0.
+    GitHub-Zenodo integration mints one against tag v0.4.1.
