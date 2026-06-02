@@ -1,0 +1,34 @@
+{
+  "protocol": "E10r-recomb-free-chemistry",
+  "status": "measured",
+  "date": "2026-06-02",
+  "git": "9b087bb",
+  "hypothesis": "The empirical RECOMB_BOOST=2.0 knob (no first-principles basis) is load-bearing for the chemistry G-values reported vs Geant4 chem6. Test: re-run with the knob at its neutral value 1.0 and report the parameter-free yields.",
+  "method": "Set RECOMB_BOOST=1.0 in src/shaders/helpers.wgsl (SIGMA_EXC_SCALE kept at 0.5), regenerated the 10 keV rad_buf dump via experiments/lib/regenerate-dumps.mjs (Phase A+B, chemistry disabled), then ran the IRT worker (tools/run_irt.cjs, n_therm=4096, E=10000) on the new dump. Production state (RECOMB_BOOST=2.0, dumps) restored afterward; this is a sensitivity measurement, not a production change.",
+  "config": { "energyEv": 10000, "nPrimaries": 4096, "nTherm": 4096, "SIGMA_EXC_SCALE": 0.5 },
+  "chem6_reference_1us": { "OH": 1.710, "eaq": 1.694, "H": 0.710, "H2": 0.622, "H2O2": 0.850 },
+  "results_1us": {
+    "parameter_free_RECOMB_1p0": {
+      "G": { "OH": 1.563, "eaq": 1.453, "H": 0.659, "H2": 0.461, "H2O2": 0.589 },
+      "ratio_vs_chem6": { "OH": 0.914, "eaq": 0.858, "H": 0.928, "H2": 0.741, "H2O2": 0.693 },
+      "rms_dev_pct": 19.7,
+      "dump_bytes": 84477472
+    },
+    "tuned_RECOMB_2p0": {
+      "G": { "OH": 1.531, "eaq": 1.379, "H": 0.778, "H2": 0.537, "H2O2": 0.589 },
+      "ratio_vs_chem6": { "OH": 0.895, "eaq": 0.814, "H": 1.096, "H2": 0.863, "H2O2": 0.693 },
+      "rms_dev_pct": 18.3,
+      "dump_bytes": 79521088
+    }
+  },
+  "parameter_free_timeline": {
+    "t_ns": [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000],
+    "G_OH":   [4.333, 4.318, 4.222, 3.842, 3.079, 2.372, 1.890, 1.563],
+    "G_eaq":  [3.754, 3.742, 3.680, 3.460, 3.013, 2.423, 1.862, 1.453],
+    "G_H":    [0.657, 0.657, 0.652, 0.636, 0.619, 0.640, 0.658, 0.659],
+    "G_H2":   [0.136, 0.139, 0.146, 0.168, 0.216, 0.295, 0.387, 0.461],
+    "G_H2O2": [0.028, 0.032, 0.054, 0.148, 0.346, 0.493, 0.555, 0.589]
+  },
+  "finding": "The RECOMB_BOOST knob is NOT load-bearing. Removing it (2.0 -> 1.0) changes the 5-species RMS deviation vs chem6 at 1 us by only ~1.4 pp (18.3% -> 19.7%). Per species, removing it IMPROVES OH (0.895->0.914), eaq (0.814->0.858), and H (eliminates the 1.096x overshoot -> 0.928x), and WORSENS only H2 (0.863->0.741); H2O2 unchanged (0.693x). The knob mainly props up G(H2) at the cost of an H overshoot. Conclusion: the parameter-free yields are reportable as the primary chemistry result with negligible loss of overall agreement, removing the need for the unphysical knob in the paper.",
+  "note": "Larger dump at RECOMB=1.0 (84.5 vs 79.5 MB) = more radicals survive (less recombination), as expected."
+}

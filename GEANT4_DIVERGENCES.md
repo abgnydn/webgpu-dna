@@ -42,7 +42,7 @@ faithful (L1, E5).
 | # | Knob | Value | Why it's there | Cost / tracked in |
 |---|---|---|---|---|
 | B1 | `SIGMA_EXC_SCALE` | 0.5 | Walks the Emfietzoglou inflation (A1) back from 2.55× to **1.27×** Geant4, into the [1.0, 1.5] target band. | Still 1.27× high → **cascade ions 27% low** (371.9 vs 509.2, 263σ) and **W-value +25.7%** (26.9 vs 21.4 eV ICRU 31). [E6c, E7, E5c] |
-| B2 | `RECOMB_BOOST` | 2.0 | **The one genuinely un-physical knob.** Stands in for missing time-integrated electron–hole recombination (Geant4's `G4DNAElectronHoleRecombination`). Lifts pre-chem G(H₂)/G(H₂O₂). | Reduces cascade-ion count further (structural tradeoff with B1). **Slated for removal** once the recomb is modelled physically. [E7b, E10i] |
+| B2 | `RECOMB_BOOST` | 2.0 (code); **1.0 for reported chem** | **The one genuinely un-physical knob.** Stands in for missing time-integrated electron–hole recombination (Geant4's `G4DNAElectronHoleRecombination`). | **E10r measured it is NOT load-bearing:** 2.0→1.0 shifts the 5-species RMS @1μs vs chem6 by only ~1.4 pp (18.3%→19.7%) and *improves* OH/eaq/H (kills the H 1.10× overshoot); it mainly props up H₂. The paper reports the parameter-free (1.0) yields. [E7b, E10i, **E10r**] |
 
 > B1 + B2 are coupled: improving CSDA/chemistry via these knobs *worsens*
 > cascade ions. This "two-knob structural limit" is documented in E10i/E7b and
