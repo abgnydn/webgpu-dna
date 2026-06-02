@@ -62,6 +62,20 @@ validation/        Geant4-DNA comparison harness (compare.py, analyze_g4.py)
 
 Deep-dive: [`ARCHITECTURE.md`](./ARCHITECTURE.md). Standing physics diagnoses: [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md). Research protocol: [`RESEARCH.md`](./RESEARCH.md). **Engineering standards** (the 15-principle canonical discipline shared with the sibling WebGPU/WGSL research projects): [`RESEARCH_STANDARDS.md`](./RESEARCH_STANDARDS.md). Forward roadmap with multi-agent wall-clock estimates: [`ROADMAP.md`](./ROADMAP.md). Recipe for adding a new physics model: [`EXTENDING.md`](./EXTENDING.md). Design docs for the two named structural fixes (one refuted via Geant4 source archaeology, one waiting on the headless native runtime): [`H2OP_TRACKING_DESIGN.md`](./H2OP_TRACKING_DESIGN.md) and [`CROSS_PRIMARY_IRT_DESIGN.md`](./CROSS_PRIMARY_IRT_DESIGN.md).
 
+## Deployment
+
+Production (**webgpudna.com**) is **Cloudflare Pages**, deployed manually:
+
+```bash
+npm run build                      # → dist/
+wrangler pages deploy dist         # needs `wrangler login` + the Pages project
+```
+
+A Vercel GitHub integration also auto-builds a parallel mirror
+(`webgpu-dna.vercel.app`) on every push to `main`, but that mirror does **not**
+serve the custom domain — pushing alone does not update webgpudna.com; the
+`wrangler` deploy above does.
+
 ## Regenerating cross sections
 
 The committed `public/cross_sections.wgsl` (1.3 MB) is generated from the G4EMLOW reference data (245 MB, not committed). To rebuild:
