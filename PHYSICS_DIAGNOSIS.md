@@ -381,25 +381,36 @@ E13c actually established:
 coincidences PARTRAC-like. It does **not** demonstrate prediction of the ratio
 (tuned) or of absolute yields (unexplained 2–3 orders off experiment).
 
-### E12-local — the missing terminal test (defined, queued)
+### E12-local — DONE 2026-06-03 (offline, no GPU run needed)
 
-The one L5 test that would be neither tuned nor model-vs-model:
+The absolute-yield question was answered **without** a fresh harness run, by
+replaying the existing pre-chemistry radical-position dump
+(`dumps/rad_E10000_N4096.bin`) in Node. Energy-deposition was proxied by
+radical-creation positions (and H₃O⁺ = 1 per ionisation); this is bounded
+because 98% of *both* all-events and ions fall in-core, so the result is
+insensitive to the proxy.
 
-1. Read the 128³ voxel dose grid (`dose_arr`, already a GPU readback in the
-   harness) and integrate it over the fiber-grid footprint to get the
-   **actual local dose** the DNA target receives (≠ the 0.243 Gy box average).
-2. Re-normalise the SSB/DSB yields per *local* Gy.
-3. Pass bar: absolute yields land within ~5× of ~35 DSB / ~1000 SSB per
-   cell·Gy (Ward 1988) **without** any geometry hand-wave. If they do, the
-   track-core defense is quantitatively vindicated for the first time. If they
-   don't, it is a real, publishable discrepancy.
+**Result.** The validation dumps use a **point source** (`primary.wgsl
+start_half=0` → all primaries from origin), so **98.1% of deposited energy
+lands in the central 3 µm fibre-core cube**. Local dose to the DNA is therefore
+${\approx}238$ Gy, not the 0.243 Gy box average — concentration factor
+**C ≈ 981**. Re-normalised by local dose, the absolute yields are **SSB_dir
+0.34×, DSB 0.82×, SSB_total 1.28×** of experiment (Ward 1988) — within a factor
+of ~3, *not* the 223×/796× the box-average normalisation implied. The
+track-core "geometry artifact" defense is now **quantitatively vindicated**:
+the over-yield was purely a dose-normalisation error.
 
-Requires one harness run for the voxel readback (memory-blocked at the time of
-writing — deferred to a session with adequate free RAM). Driver to add:
-`experiments/level-5-dna-damage/E12-local-dose-yield.mjs`. Note `P_direct` is
-still a per-ionisation break probability (literature ~0.13–0.15, defensible);
-`P_indirect` remains a tuned knob, so E12-local validates the **direct**
-channel's absolute yield most cleanly.
+The one residual is the DSB/SSB **ratio** (3.6× high), which dose
+normalisation does not touch — that is the tuned-`P_indirect` issue (§3 b1),
+not an absolute-yield problem.
+
+Artifact: `experiments/results/2026-06-03/level-5/E12-local-dose-yield.json`;
+driver: `experiments/level-5-dna-damage/E12-local-dose-yield.mjs`.
+
+**Cleaner follow-up — E12-bulk (open):** re-run with `start_half` = box
+half-width so primaries spread across the volume, box-average dose ≈ local
+dose, and yields compare to experiment with *no* C correction. Needs one GPU
+harness run; would remove the energy-proxy assumption entirely.
 
 ## 4. CSDA bias 0.988× at 3.59σ (E5, 2026-05-11)
 

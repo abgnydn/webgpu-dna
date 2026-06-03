@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "protocol": "E12-local-dose-yield",
+    "hypothesis": "The 223×/796× box-normalised over-yield is a point-source dose-normalisation artifact; normalised by the LOCAL dose the fibre core receives, absolute yields land within ~5× of experiment (Ward 1988).",
+    "passBar": "Local-dose-normalised direct-SSB and DSB yields within 5× of experiment AND concentration factor C derived, not asserted.",
+    "seed": "offline-replay of dumps/rad_E10000_N4096.bin (no RNG)",
+    "method": "energy-deposition proxy = radical-creation positions; ionisation = H3O+ (species 3); C = frac_in_core × box/core volume ratio",
+    "sources": {
+      "radBin": "dumps/rad_E10000_N4096.bin",
+      "e12": "experiments/results/2026-05-11/level-5/E12-ssb-yield-vs-friedland.json",
+      "wardRef": "Ward JF 1988, Prog Nucleic Acid Res Mol Biol 35:95 — ~35 DSB / ~1000 SSB per diploid cell per Gy, low-LET"
+    },
+    "assumptions": [
+      "energy ∝ event count spatially (bounded: 98% of both all-events and ions in-core)",
+      "core cube = fibre-grid footprint ±1500 nm",
+      "point source: primary.wgsl start_half=0 in the dumped run"
+    ]
+  },
+  "env": {
+    "gitSha": "a284f5b7fcdacc554fa4f418ff2cf3933f248b79",
+    "timestamp": "2026-06-03T12:51:48.313Z",
+    "runner": "node",
+    "radRecords": 4970068,
+    "ionsPerPrimary": 325.525634765625
+  },
+  "status": "pass",
+  "summary": {
+    "fracEnergyInCore": 0.9812360267686052,
+    "concentrationFactor_C": 981.2360267686053,
+    "boxDoseGy": 0.2430561293653333,
+    "localDoseGy": 238.49543066019578,
+    "box_miss_SSB": 223,
+    "box_miss_DSB": 796.43,
+    "local_yield_SSB_direct_perDa": 3.91837788104623e-11,
+    "local_yield_DSB_perDa": 3.2653149008718584e-12,
+    "local_ratio_SSB_direct_vs_exp": 0.34072851139532434,
+    "local_ratio_DSB_vs_exp": 0.8163287252179646,
+    "local_ratio_SSB_total_E13c_vs_exp": 1.2777319177324662,
+    "headline": "Point source → 98.1% of energy in central 3µm → C=981, local dose 238 Gy (not 0.243). Local-normalised: SSB_dir 0.34×, DSB 0.82× exp. Box-norm 223×/796× was a dose artifact."
+  },
+  "rows": [
+    {
+      "metric": "energy_concentration_profile_by_ion",
+      "cumulative_fraction_within_half_um": {
+        "3": 1,
+        "5": 1,
+        "15": 1,
+        "0.75": 0.6530191179680099,
+        "1.5": 0.9812360267686052
+      },
+      "status": "informational"
+    },
+    {
+      "metric": "concentration_factor",
+      "frac_in_core": 0.9812360267686052,
+      "vol_ratio": 1000,
+      "C": 981.2360267686053,
+      "local_dose_Gy": 238.49543066019578,
+      "status": "pass"
+    },
+    {
+      "metric": "local_normalised_yields_vs_experiment",
+      "SSB_direct_ratio": 0.34072851139532434,
+      "DSB_ratio": 0.8163287252179646,
+      "note": "DSB/SSB residual (3.57×) is unchanged by dose normalisation — that is the tuned-P_indirect / clustering issue, not absolute yield.",
+      "status": "pass"
+    }
+  ]
+}

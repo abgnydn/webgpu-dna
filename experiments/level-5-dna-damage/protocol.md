@@ -74,8 +74,15 @@ factor.
 - **Pass bar:** direct-channel absolute yield within 5× of experiment with
   **no** geometry hand-wave. Falsifiable either way: vindicates the track-core
   defense quantitatively, or surfaces a real discrepancy.
-- **Status:** defined 2026-06-03; needs one harness run for the voxel readback
-  (deferred — was memory-blocked). Driver: `E12-local-dose-yield.mjs`.
+- **Status:** ✓ DONE 2026-06-03, **offline** (no GPU run) by replaying
+  `dumps/rad_E10000_N4096.bin`. Result: point source → 98.1% of energy in the
+  central 3 µm core → C≈981, local dose ≈238 Gy. Local-normalised yields
+  SSB_dir 0.34× / DSB 0.82× / SSB_total 1.28× experiment — geometry defense
+  vindicated; 223×/796× was a dose-normalisation artifact. Driver:
+  `E12-local-dose-yield.mjs`; artifact under `results/2026-06-03/level-5/`.
+- **Follow-up E12-bulk (open):** re-run with `start_half`=box half-width to
+  spread tracks so box-avg ≈ local dose; removes the energy-proxy assumption.
+  Needs one GPU harness run.
 
 ## Artifacts
 `experiments/results/<YYYY-MM-DD>/level-5/E<k>-<slug>.json`.

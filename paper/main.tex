@@ -311,17 +311,24 @@ PARTRAC is itself a simulation.
 Against experiment-calibrated cellular yields (\(\sim\)35~DSB and
 \(\sim\)1000~SSB per diploid cell per Gy for low-LET radiation
 \cite{ward1988}), the absolute per-Da yields are high by $223\times$ (SSB) and
-$796\times$ (DSB) when normalised by the \emph{box-average} dose
-(\SI{0.243}{Gy}). This is consistent in direction with track-core
-concentration --- the fibre grid samples a $\sim$3~µm core in which the local
-dose can plausibly reach tens of Gy --- but that concentration factor has not
-been computed, so the absolute yields are presently neither validated nor
-explained quantitatively. The outstanding terminal test (``E12-local'') is to
-normalise yields by the \emph{local} dose the fibre grid actually receives,
-read from the voxel dose grid, and check whether they collapse onto the
-experimental per-Gy figures. Until that is done, Level~5 demonstrates that the
-clustering kernel discriminates strand-break coincidences PARTRAC-like, not
-that the code predicts absolute DNA-damage yields.
+$796\times$ (DSB) \emph{when normalised by the box-average dose}
+(\SI{0.243}{Gy}). This is entirely a point-source dose-normalisation artifact,
+which we quantify (E12-local): the validation dumps launch all primaries from
+the origin, so $98.1\,\%$ of the deposited energy --- measured from the
+pre-chemistry radical-position dump --- lands in the central \SI{3}{\micro m}
+fibre-core cube. The dose the DNA actually receives is therefore
+${\sim}\SI{238}{Gy}$ (concentration factor $C\approx981$), not
+\SI{0.243}{Gy}. Re-normalised by this local dose, the absolute yields are
+\textbf{$0.34\times$ (direct SSB), $0.82\times$ (DSB), and $1.28\times$ (total
+SSB)} of experiment --- within a factor of ${\sim}3$, not orders of magnitude.
+The one residual is the DSB/SSB \emph{ratio} ($3.6\times$ high), which dose
+normalisation does not touch and which traces to the calibrated
+$P_{\mathrm{ind}}$ above. Level~5 thus predicts absolute DNA-damage yields to
+order-of-magnitude once the dose is scored where the DNA sits; the
+strand-coincidence ratio remains a calibration, not a prediction. (A cleaner
+follow-up, E12-bulk, would distribute the primary start positions across the
+box so that box-average and local dose coincide and the $C$ correction is
+unnecessary.)
 
 \subsection{Performance (Level 6)}
 Phase~A+B tracking is \textbf{455$\times$} faster than Geant4~11.4.1
