@@ -122,7 +122,7 @@ to §Numbers → only then mention it elsewhere.
 
 Notable current findings (full descriptions in §Numbers):
 
-- **L0/L1**: 2 of 2 env + 9 of 9 cross-section bit-matches pass.
+- **L0/L1**: 2 of 2 env + 9 of 9 cross-section checks pass — these are **ratio-matches** (peak 0.975–1.000: σ_ion 0.9987, σ_exc 0.9970, σ_el **0.9751** is the worst), NOT bit-matches. Only Sanche σ_vib (E4) is genuinely bit-exact (max dev 6e-16). Do not call the cross sections "bit-matched".
 - **L2**: CSDA 0.988× @ 10 keV (3.59σ) [E5]; E5b shows the deficit is energy-dependent (0.587× @ 100 eV → 0.992× @ 20 keV); cascade ions 27% low [E7]; secondary KE spectrum 7/8 bins within 0.1-3.1% [E8].
 - **L3**: G(species) @ 0.1 ps pre-chem vs chem6 — OH/eaq/H all ~12% low, H₂/H₂O₂ ~50% low [E9].
 - **L4**: G-values vs chem6 @ 10 keV — OH 0.91×, eaq 0.83×, H 1.00×, H₂ 0.75×, H₂O₂ 0.71× [E10c]. G(eaq) V-shape 1→3 keV @ 126σ [E10b]. E10e refuted cross-event recomb (3.5% contribution); E10f confirmed per-primary partitioning is 96% of the 1 μs gap; E10i joint fix (σ_exc=0.5, B=2.0) lifts RMS dev 30% → 19% and CSDA @ 100 eV to 0.74×.
