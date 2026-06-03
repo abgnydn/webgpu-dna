@@ -48,12 +48,14 @@ artifact-backed ladder. Cross sections match the reference to peak ratios of
 \numrange{0.975}{1.000}; the continuous-slowing-down range at \SI{10}{keV} is
 \num{0.988}$\times$ Geant4. WebGPU track-structure tracking (Phases~A+B) runs
 \textbf{455$\times$} faster than Geant4 single-thread (280$\times$ vs.\ an
-8-thread build) on an Apple~M2~Pro, but we are explicit that this is
-\emph{not} apple-to-apple: the Geant4 figure is whole-process wall-clock
-(init, DNA physics-table construction, and per-event ntuple I/O included),
-whereas the WGSL figure is dispatch-only, and the kernel-fusion architecture
-itself accounts for only ${\sim}2\times$ of it (the fused Phase~A is 2\,\% of
-the tracking time; Phase~B is an un-fused wavefront). The honest like-for-like
+8-thread build) on an Apple~M2~Pro, but we are explicit about scope:
+the Geant4 figure is whole-process wall-clock and the WGSL figure is
+dispatch-only. We measured the gap --- Geant4 init plus DNA table-build is a
+negligible ${\sim}\SI{2}{s}$ (so event-loop-only the figure is $452\times$),
+the one real asymmetry being the ${\sim}\SI{6.8}{GB}$ of per-event ntuple I/O
+Geant4 writes and WGSL does not --- and we note that the kernel-fusion
+architecture itself accounts for only ${\sim}2\times$ of the speedup (the fused
+Phase~A is 2\,\% of the tracking time; Phase~B is an un-fused wavefront). The honest like-for-like
 figure is the \emph{end-to-end} \textbf{1.48$\times$}, where both pipelines do
 the same work and the IRT radiolysis chemistry on CPU dominates the
 wall-clock---we report all of these and are explicit about which is which. We also report the project's honest limits: a 27\,\%
@@ -335,16 +337,22 @@ Phase~A+B tracking is \textbf{455$\times$} faster than Geant4~11.4.1
 single-thread (\SI{635}{ms} vs.\ a \SI{289.1}{s} median over 3 trials, E15b)
 and \textbf{280$\times$} vs.\ an 8-thread build (\SI{178.0}{s}, E15c). Peak
 Phase~A throughput is \num{538947} primaries/s at $N=16384$ (E15). We state
-three caveats so these numbers are not over-read. \emph{First, the comparison
-is not apple-to-apple}: the Geant4 wall-clock is whole-process (process init,
-DNA physics-table construction, the event loop, and per-event ntuple I/O all
-included), while the WGSL \SI{635}{ms} is dispatch-only. \emph{Second, that
-overhead is large}: Geant4 MT-8 scales only $1.62\times$ over single-thread
-(not $8\times$), implying a substantial fixed/serial fraction --- a two-point
-Amdahl read places ${\sim}\SI{160}{s}$ of the \SI{289}{s} in serial overhead,
-so the pure-tracking speedup is materially below $455\times$ (we estimate
-${\sim}200\times$; a like-for-like event-loop-only re-measurement, E15-fair,
-is queued). \emph{Third, kernel fusion is not what delivers the large factor}:
+two caveats so these numbers are not over-read. \emph{First, on
+apple-to-apple scope}: the Geant4 wall-clock is whole-process while the WGSL
+\SI{635}{ms} is dispatch-only, but we measured the difference and it is small
+where it matters. A 16-primary init-probe runs in \SI{3.2}{s} (E15-fair), so
+Geant4 process init plus DNA physics-table construction is only
+${\sim}\SI{2.1}{s} (0.7\,\%$ of \SI{289}{s}); the \SI{289}{s} is ${\sim}99\,\%$
+genuine event-loop, and event-loop-only the speedup is $452\times$,
+statistically identical to $455\times$. The one material asymmetry is
+per-event ntuple I/O --- Geant4 writes ${\sim}\SI{6.8}{GB}$ to disk over the
+full run (the row-wise merge is the likely cause of the poor $1.62\times$
+MT-8 scaling), which the WGSL dispatch does not; a no-ntuple Geant4 build
+would lower its number somewhat, so $452\times$ is a mild over-estimate. (We
+note for transparency that an earlier draft mis-estimated the fixed overhead
+at ${\sim}\SI{160}{s}$ from the MT scaling alone; the direct measurement
+corrects this.) \emph{Second, kernel fusion is not what delivers the large
+factor}:
 a within-WebGPU comparison of the fused kernel against a modelled per-step
 dispatch gives a \textbf{40$\times$} factor \emph{for Phase~A} (E16), but
 Phase~A is only \SI{14.4}{ms} (2\,\%) of the \SI{635}{ms}; Phase~B is an

@@ -98,8 +98,16 @@ question this level answers. Existing claim "hours → 6 seconds" is
   the honest event-loop-only speedup and the corrected fusion
   contribution (~2× expected, from E16's Phase-A 40× being 2% of the
   pipeline).
-- **Status:** defined 2026-06-03. Needs a Geant4 re-run (~5 min × 3
-  trials × 2 variants) — memory- and rebuild-gated; deferred.
+- **Status:** ✓ DONE 2026-06-03 (init decomposition). 16-primary init-probe
+  = 3.2 s wall → fixed overhead (init + DNA table-build) ≈ **2.1 s** = 0.7% of
+  289 s. Event-loop-only speedup = **452×**, ≈ the 455× whole-process figure.
+  **This retracts the earlier "~160 s serial / ~200×" estimate** — init is
+  negligible; the MT-8 1.62× sublinearity is instead the row-wise ntuple merge,
+  not init. Artifact: `results/2026-06-03/level-6/E15-fair-event-loop-timing.json`.
+- **E15-fairer (open):** the one residual asymmetry is per-event ntuple I/O
+  (Geant4 writes ~6.8 GB to dna.root over the full run; WGSL excludes its dump).
+  A no-ntuple Geant4 build (or `/analysis` disabled) would isolate it and lower
+  the Geant4 number modestly. Needs a Geant4 rebuild/run; deferred.
 
 ## Artifacts
 `experiments/results/<YYYY-MM-DD>/level-6/E<k>-<slug>.json`. GPU runs;

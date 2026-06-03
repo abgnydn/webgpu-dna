@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "protocol": "E15-fair-event-loop-timing",
+    "hypothesis": "Decompose the Geant4 289 s single-thread wall-clock (E15b) into fixed overhead (process init + DNA physics-table construction) vs event-loop, to test the apple-to-apple concern that the 455x speedup is inflated by Geant4 init counted against it while WGSL is dispatch-only.",
+    "method": "Init-probe: identical validation macro with /run/beamOn 16 instead of 4096, timed externally. fixed + 16*p = probe; fixed + 4096*p = full(E15b). Solve for fixed and per-primary p.",
+    "passBar": "none — measurement. Reports the corrected event-loop-only speedup.",
+    "note_self_correction": "This REFUTES the earlier L6 doc claim (~160 s serial overhead / ~200x pure-tracking), which came from a 2-point Amdahl estimate on the MT-8 1.62x scaling. That estimate was wrong: measured init is ~2 s, not ~160 s. The MT-8 sublinearity is instead attributable to row-wise ntuple merging (a serialization point seen in the Geant4 stdout) and/or P/E-core heterogeneity, not init."
+  },
+  "env": { "gitSha": "08dfccfe2bc53e3fea660ddf13be0c1803f79289", "runner": "bash+geant4", "platform": "darwin-arm64-M2Pro", "geant4": "11.4.1", "macro": "validation/run_validation.mac (origin start, isotropic, 10 keV, DNA_Opt2)" },
+  "status": "pass",
+  "summary": {
+    "probe16_wall_sec": 3.2,
+    "full4096_wall_sec_E15b": 289.079,
+    "fixed_overhead_sec": 2.08,
+    "per_primary_sec": 0.07007,
+    "event_loop_4096_sec": 287.0,
+    "wgsl_phaseAB_dispatch_ms": 635,
+    "speedup_wholeProcess": 455.2,
+    "speedup_eventLoopOnly": 452.0,
+    "headline": "Geant4 init+table-build = ~2.1 s (0.7% of 289 s); event-loop-only speedup is 452x, statistically identical to the 455x whole-process figure. The init confound is NOT material — the earlier '~200x pure tracking' claim was wrong and is retracted.",
+    "residual_asymmetries_unquantified": [
+      "Geant4 289 s includes per-event ntuple I/O to dna.root (the row-wise merge is the likely cause of the poor MT-8 1.62x scaling); WGSL 635 ms excludes its rad_buf/dose dump write. A no-ntuple Geant4 build (E15-fairer) would lower the Geant4 number somewhat, bounding the true tracking speedup modestly below 452x.",
+      "WGSL 635 ms excludes device init + shader compile (~seconds, roughly symmetric with Geant4's ~2 s init)."
+    ],
+    "fusion_contribution_unchanged": "Kernel fusion contributes ~2x to the tracking pipeline (Phase A fused 14.4 ms vs ~704 ms naive is 2% of the 635 ms; Phase B is an un-fused wavefront) — independent of this Geant4 measurement, from E16+E15."
+  }
+}
