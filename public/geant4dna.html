@@ -3772,7 +3772,8 @@ async function runValidation() {
         for (const cp of cr.timeline) {
           lg(`    ${cp.label.padEnd(8)} ${cp.G_OH.toFixed(3).padStart(7)} ${cp.G_eaq.toFixed(3).padStart(7)} ${cp.G_H.toFixed(3).padStart(7)} ${cp.G_H2O2.toFixed(3).padStart(8)} ${cp.G_H2.toFixed(3).padStart(7)}`, 'data');
         }
-        lg(`    Karamitros 2011 reference (1 μs): G(OH)=2.5 G(eaq)=2.5 G(H)=0.57 G(H2O2)=0.73 G(H2)=0.42`, 'data');
+        lg(`    Low-LET escape-yield plateau (Karamitros 2011 / Buxton 1988, ≈MeV — NOT the 10 keV target): G(OH)=2.5 G(eaq)=2.5 G(H)=0.57 G(H2O2)=0.73 G(H2)=0.42`, 'data');
+        lg(`    (10 keV is higher-LET → lower escape yields; matched validation is vs chem6 @ 10 keV, E10c: OH 0.91× eaq 0.83×)`, 'data');
       }
     }
     lg('Validation run complete.', 'ok');

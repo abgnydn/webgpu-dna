@@ -284,8 +284,13 @@ function logChemistryTimeline(cr: ChemResult, log: LogFn): void {
     );
   }
   log(
-    `    Karamitros 2011 reference (1 μs): G(OH)=${KARAMITROS_2011.G_OH} G(eaq)=${KARAMITROS_2011.G_eaq} ` +
+    `    Low-LET escape-yield plateau (Karamitros 2011 / Buxton 1988, ≈MeV — NOT the 10 keV target): ` +
+      `G(OH)=${KARAMITROS_2011.G_OH} G(eaq)=${KARAMITROS_2011.G_eaq} ` +
       `G(H)=${KARAMITROS_2011.G_H} G(H2O2)=${KARAMITROS_2011.G_H2O2} G(H2)=${KARAMITROS_2011.G_H2}`,
+    'data',
+  );
+  log(
+    `    (10 keV is higher-LET → lower escape yields; matched validation is vs chem6 @ 10 keV, E10c: OH 0.91× eaq 0.83×)`,
     'data',
   );
 }

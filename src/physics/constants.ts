@@ -102,7 +102,20 @@ export const IRT_RXN_ONSAGER: readonly ReactionTuple[] = [
 
 // --- Reference G-values ---
 
-/** Karamitros 2011 G-values at 1 μs (molecules per 100 eV). */
+/**
+ * Karamitros 2011 G-values at 1 μs (molecules per 100 eV) — the **low-LET
+ * escape-yield plateau** (≈MeV electrons / ⁶⁰Co γ), near the Buxton 1988
+ * standard (G(e⁻aq)≈2.6, G(OH)≈2.7, G(H)≈0.6, G(H₂)≈0.45, G(H₂O₂)≈0.7).
+ *
+ * APPLE-TO-APPLE WARNING: this is NOT the matched-condition target for our
+ * 10 keV runs. A 10 keV electron deposits at higher effective LET (short
+ * ~2.7 µm track, dense end-of-track spurs → more intra-spur recombination →
+ * genuinely lower escape yields), so a direct ratio of our 10 keV G-values to
+ * these plateau numbers conflates real LET physics with implementation error.
+ * The matched validation is vs Geant4 chem6 run at the same 10 keV (E10c:
+ * OH 0.91×, eaq 0.83×). Use this constant only as the low-LET anchor, never as
+ * the 10 keV pass bar.
+ */
 export const KARAMITROS_2011 = {
   G_OH: 2.50,
   G_eaq: 2.50,

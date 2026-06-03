@@ -8,6 +8,21 @@ in `CHANGELOG.md`.
 
 ## 1. The H₂ / H₂O₂ deficit vs Geant4 chem6 (E10c, 2026-05-11)
 
+**Apple-to-apple note (added 2026-06-03).** All ratios in this section are
+against **chem6 run at the same 10 keV** — that is the only legitimate target.
+The harness also prints a "low-LET escape-yield plateau" line (G(OH)≈2.5,
+G(eaq)≈2.5; Karamitros 2011 / Buxton 1988, ≈MeV / ⁶⁰Co). Our 1 μs values
+(G(OH)=1.53, G(eaq)=1.38 at 10 keV) are ~0.6× of *that* plateau, but most of
+that gap is **real LET physics**, not implementation error: a 10 keV electron
+has a short (~2.7 µm) track with dense end-of-track spurs → more intra-spur
+radical–radical recombination before escape → genuinely lower G(OH)/G(eaq) and
+higher molecular G(H₂)/G(H₂O₂) than the low-LET plateau. Do **not** ratio our
+10 keV yields against the plateau and call the difference a deficit; the
+matched chem6@10keV ratios (OH 0.91×, eaq 0.83×) are the implementation signal.
+The plateau-line label and `KARAMITROS_2011` doc comment were corrected to say
+so (the old "Karamitros 2011 reference (1 μs)" label invited exactly this
+conditions-mismatch misread).
+
 **Observed.** At matched 10 keV LET, our IRT worker produces:
 - G(H₂) = 0.468 vs chem6 0.622 → **0.752× (13.8σ low)**
 - G(H₂O₂) = 0.605 vs chem6 0.850 → **0.711× (20.0σ low)**
