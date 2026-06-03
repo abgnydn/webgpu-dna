@@ -54,5 +54,28 @@ factor.
   per chromatid; report DSB / SSB ratio.
 - **Pass bar:** `|DSB/SSB_wgsl - DSB/SSB_ref| / DSB/SSB_ref < 0.5`.
 
+### E12-local — absolute yield vs experiment, per LOCAL dose (terminal test)
+- **Why:** E12/E13c normalise by the **box-average** dose (0.243 Gy), giving
+  absolute yields 223×/796× over experiment — attributed to track-core
+  concentration but never quantified. The strand-break *ratio* passes only
+  because `P_indirect` was tuned to PARTRAC's band, so it is a fit, not a
+  prediction. E12-local removes the box-average confound to test the absolute
+  yield directly.
+- **Hypothesis:** Normalised by the *local* dose the fiber grid actually
+  receives (integrated from the 128³ voxel `dose_arr` over the grid
+  footprint), the **direct** SSB yield lands within ~5× of the experimental
+  ~1000 SSB / cell·Gy (Ward 1988, *Prog Nucleic Acid Res Mol Biol* 35:95);
+  DSB within ~5× of ~35 / cell·Gy.
+- **Method:** (1) read `dose_arr`; (2) sum dose over voxels intersecting the
+  fiber footprint → local Gy; (3) yield = count / (local_Gy × target_Da);
+  (4) compare to Ward 1988 cellular yields (≈ E12's "Friedland" per-Da
+  numbers). Report `P_direct` separately since it is a literature value
+  (~0.13–0.15), unlike the tuned `P_indirect`.
+- **Pass bar:** direct-channel absolute yield within 5× of experiment with
+  **no** geometry hand-wave. Falsifiable either way: vindicates the track-core
+  defense quantitatively, or surfaces a real discrepancy.
+- **Status:** defined 2026-06-03; needs one harness run for the voxel readback
+  (deferred — was memory-blocked). Driver: `E12-local-dose-yield.mjs`.
+
 ## Artifacts
 `experiments/results/<YYYY-MM-DD>/level-5/E<k>-<slug>.json`.

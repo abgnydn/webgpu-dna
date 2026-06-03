@@ -340,6 +340,52 @@ shortfall):
   uniform-cell DNA distribution. Closes both this gap and E12's
   target-concentration artifact in one move.
 
+### Honest re-assessment 2026-06-03 — "closed" was an overstatement
+
+The "fully closed" language above (b1) is wrong and is corrected here. What
+E13c actually established:
+
+- The strand-break counts are **geometric reach × a hand-set probability**:
+  `SSB_dir = 26 = ⌊173 × 0.15⌋`, `SSB_ind = 64 ≈ 1423 × 0.05`. The physics
+  produces the reach counts (173 backbone-adjacent ionisations, 1423
+  OH-in-reach); the *break* numbers are those times `P_direct`/`P_indirect`.
+- `P_indirect` was tuned (0.4 → 0.05) **specifically to put the ratio in
+  PARTRAC's 2–3 band**. So the headline 2.46 is a fit to that band, not an
+  independent prediction — and PARTRAC is itself a Monte-Carlo simulation,
+  not experiment.
+- Measured against experiment-calibrated cellular yields (~35 DSB and
+  ~1000 SSB per diploid cell per Gy, low-LET; Ward 1988, *Prog Nucleic Acid
+  Res Mol Biol* 35:95), the **absolute** per-Da yields are high by 223× (SSB)
+  and 796× (DSB) when normalised by the box-average dose (0.243 Gy). The
+  README/E12 attributed this to fiber-grid concentration in the track core,
+  but **the concentration factor was never computed** — a back-of-envelope
+  (4096 × 10 keV concentrated into the ~3 µm core → local dose tens of Gy)
+  makes ~223× plausible, but plausible ≠ demonstrated.
+
+**Verdict:** L5 demonstrates the clustering kernel discriminates strand-break
+coincidences PARTRAC-like. It does **not** demonstrate prediction of the ratio
+(tuned) or of absolute yields (unexplained 2–3 orders off experiment).
+
+### E12-local — the missing terminal test (defined, queued)
+
+The one L5 test that would be neither tuned nor model-vs-model:
+
+1. Read the 128³ voxel dose grid (`dose_arr`, already a GPU readback in the
+   harness) and integrate it over the fiber-grid footprint to get the
+   **actual local dose** the DNA target receives (≠ the 0.243 Gy box average).
+2. Re-normalise the SSB/DSB yields per *local* Gy.
+3. Pass bar: absolute yields land within ~5× of ~35 DSB / ~1000 SSB per
+   cell·Gy (Ward 1988) **without** any geometry hand-wave. If they do, the
+   track-core defense is quantitatively vindicated for the first time. If they
+   don't, it is a real, publishable discrepancy.
+
+Requires one harness run for the voxel readback (memory-blocked at the time of
+writing — deferred to a session with adequate free RAM). Driver to add:
+`experiments/level-5-dna-damage/E12-local-dose-yield.mjs`. Note `P_direct` is
+still a per-ionisation break probability (literature ~0.13–0.15, defensible);
+`P_indirect` remains a tuned knob, so E12-local validates the **direct**
+channel's absolute yield most cleanly.
+
 ## 4. CSDA bias 0.988× at 3.59σ (E5, 2026-05-11)
 
 Already documented in E5's row note. Compounds finding #2: the

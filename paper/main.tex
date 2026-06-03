@@ -291,13 +291,32 @@ non-monotonic 1$\to$3~keV dip ($126\sigma$, E10b), independently reproduced by
 \end{figure}
 
 \subsection{DNA damage (Level 5)}
-On a $21\times21$ B-DNA fibre grid (\num{3.89}~Mbp target) the
-indirect/direct single-strand-break ratio is 2.46
-($\mathrm{SSB_{dir}}=26$, $\mathrm{SSB_{ind}}=64$, $\mathrm{DSB}=9$;
-post joint-fix, E13c), within PARTRAC's reported 2--3 band
-\cite{friedland2011}. Absolute per-Da yields are geometry-dependent because
-the concentrated fibre grid samples the track core rather than a uniform bulk;
-this is a stated geometric caveat, not a scoring error.
+We report Level~5 as a \emph{calibrated} damage model, not a validated
+prediction, and state the distinction plainly. On a $21\times21$ B-DNA fibre
+grid (\num{3.89}~Mbp target) the strand-break counts are the geometric
+backbone-reach counts multiplied by per-event break probabilities:
+$\mathrm{SSB_{dir}}=26=\lfloor 173\times P_{\mathrm{dir}}\rfloor$ with
+$P_{\mathrm{dir}}=0.15$, and $\mathrm{SSB_{ind}}=64\approx 1423\times
+P_{\mathrm{ind}}$ with $P_{\mathrm{ind}}=0.05$. The reported indirect/direct
+ratio of 2.46 lies within PARTRAC's 2--3 band \cite{friedland2011}, but
+$P_{\mathrm{ind}}$ was \emph{calibrated} (from the Geant4 default 0.4) to land
+in that band; the ratio is therefore a fit, not an independent test, and
+PARTRAC is itself a simulation.
+
+Against experiment-calibrated cellular yields (\(\sim\)35~DSB and
+\(\sim\)1000~SSB per diploid cell per Gy for low-LET radiation
+\cite{ward1988}), the absolute per-Da yields are high by $223\times$ (SSB) and
+$796\times$ (DSB) when normalised by the \emph{box-average} dose
+(\SI{0.243}{Gy}). This is consistent in direction with track-core
+concentration --- the fibre grid samples a $\sim$3~µm core in which the local
+dose can plausibly reach tens of Gy --- but that concentration factor has not
+been computed, so the absolute yields are presently neither validated nor
+explained quantitatively. The outstanding terminal test (``E12-local'') is to
+normalise yields by the \emph{local} dose the fibre grid actually receives,
+read from the voxel dose grid, and check whether they collapse onto the
+experimental per-Gy figures. Until that is done, Level~5 demonstrates that the
+clustering kernel discriminates strand-break coincidences PARTRAC-like, not
+that the code predicts absolute DNA-damage yields.
 
 \subsection{Performance (Level 6)}
 Phase~A+B tracking is \textbf{455$\times$} faster than Geant4~11.4.1

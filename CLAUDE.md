@@ -126,7 +126,7 @@ Notable current findings (full descriptions in §Numbers):
 - **L2**: CSDA 0.988× @ 10 keV (3.59σ) [E5]; E5b shows the deficit is energy-dependent (0.587× @ 100 eV → 0.992× @ 20 keV); cascade ions 27% low [E7]; secondary KE spectrum 7/8 bins within 0.1-3.1% [E8].
 - **L3**: G(species) @ 0.1 ps pre-chem vs chem6 — OH/eaq/H all ~12% low, H₂/H₂O₂ ~50% low [E9].
 - **L4**: G-values vs chem6 @ 10 keV — OH 0.91×, eaq 0.83×, H 1.00×, H₂ 0.75×, H₂O₂ 0.71× [E10c]. G(eaq) V-shape 1→3 keV @ 126σ [E10b]. E10e refuted cross-event recomb (3.5% contribution); E10f confirmed per-primary partitioning is 96% of the 1 μs gap; E10i joint fix (σ_exc=0.5, B=2.0) lifts RMS dev 30% → 19% and CSDA @ 100 eV to 0.74×.
-- **L5**: indirect SSB ratio closed 0 → 2.96 (PARTRAC 2-3 band) via 4-stage fix [E13c].
+- **L5**: indirect/direct SSB ratio = 2.46 — but this is a **calibrated fit, not a prediction** (`P_indirect` tuned 0.4→0.05 to land in PARTRAC's 2–3 band; counts are reach×probability). Absolute yields miss experiment (~35 DSB / ~1000 SSB per cell·Gy, Ward 1988) by 223×/796× on box-average dose — track-core concentration plausible but never computed. Missing terminal test: **E12-local** (yields per *local* dose). [E12, E13c]
 - **L6**: 455× vs Geant4 ST [E15b], 280× vs Geant4 MT-8 [E15c], 40× kernel-fusion factor [E16].
 - **46/46 unit tests** pass (`npm run test`, ~200 ms).
 

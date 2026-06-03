@@ -61,7 +61,7 @@ faithful (L1, E5).
 | # | Reference | This build | Why | Cost / tracked in |
 |---|---|---|---|---|
 | D1 | fp64 CPU | **fp32** GPU `atomicAdd` (fixed-point ×100/eV for dose) | WGSL atomics are integer-only; fp32 is the GPU native. | Results are statistically equivalent across vendors but **not bit-exact** (same machine+seed+shader *is*). [§Numbers reproducibility caveat] |
-| D2 | bulk / realistic DNA geometry | **21×21 concentrated fiber grid** sampling the track core | Simpler scoring target. | DSB/SSB **ratio is geometry-dependent**; absolute per-Da yields inflated by core concentration (geometric artifact, not a scoring bug). [E12, E13c] |
+| D2 | bulk / realistic DNA geometry | **21×21 concentrated fiber grid** sampling the track core | Simpler scoring target. | Absolute per-Da yields miss experiment (~35 DSB / ~1000 SSB per cell·Gy, Ward 1988) by **223×/796×** on box-average dose. Direction matches track-core concentration, but that factor was **never computed** — so the absolute yields are unvalidated, not merely "geometry-corrected". The strand-break counts are also reach×*tuned* probability (`P_dir=0.15`, `P_ind=0.05` calibrated to PARTRAC), so the 2.46 ratio is a fit, not a prediction. Missing terminal test = E12-local (yields per *local* dose). [E12, E13c] |
 
 ## The one-line version
 We use Geant4 the standard way (as the oracle), match it on the core
