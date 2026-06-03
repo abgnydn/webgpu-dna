@@ -22,9 +22,10 @@ Each item below lists: **(scope) (parallelism) (sequential bottleneck) (validati
 
 ## Tier 0 — Operational housekeeping (~minutes)
 
-- **Zenodo DOI for v0.3.0.** OAuth-based, must be done from a browser.
-  Updates `CITATION.cff` `preferred-citation` block with the real DOI.
-  (5 min · sequential · n/a · n/a — but you have to do it yourself)
+- ~~**Zenodo DOI.**~~ **DONE 2026-06-02 for v0.4.1.** Concept DOI
+  `10.5281/zenodo.20506339` (always resolves to latest), version DOI
+  `10.5281/zenodo.20506340` (v0.4.1). Wired into `CITATION.cff`
+  (top-level + `preferred-citation`), README badge, and the paper.
 
 - ~~**`shaderHashes` retrofit for pre-2026-05-12 artifacts**~~ **DONE
   2026-05-13.** `tools/retrofit-shader-hashes.mjs` walked
@@ -52,6 +53,17 @@ mechanism for it to approximate. It's a fudge that happens to improve
 chem6 agreement; the actual root cause of the chem6 deficit is
 elsewhere.
 
+**E10r (2026-06-02) measured that it is not load-bearing.** Setting
+`RECOMB_BOOST = 1.0` (parameter-free chemistry) shifts RMS deviation
+vs chem6 from 18.3 % → 19.7 % — a 1.4 pp cost — while *improving*
+OH and eaq agreement and removing an H overshoot. Artifact:
+`experiments/results/2026-06-02/level-4/E10r-recomb-free-chemistry.json`.
+The knob is therefore removable for a clean parameter-free v1.0; the
+blocker to making 1.0 the production default is the revalidation
+campaign it triggers (L2 CSDA, L2 cascade, L5 SSB all shift with it),
+not any physics dependency. See
+[`GEANT4_DIVERGENCES.md`](./GEANT4_DIVERGENCES.md) row B2.
+
 ### Cross-primary IRT (NEW Tier 1, sequenced behind Tier 3)
 
 The real structural fix per E10f. Replace the `priMap` per-primary
@@ -74,6 +86,23 @@ and recommends sequencing this fix BEHIND the headless native
 runtime (Tier 3) so memory becomes a host-OS concern rather than a
 browser tab concern. The naïve cross-primary IRT becomes a 30-minute
 drop-in in the native runtime.
+
+**Both browser-native routes closed 2026-06-02 (E10k–E10Q).** The
+investigation probed two ways to do inter-track chemistry without a
+native runtime, and *both* are non-viable in a browser tab:
+1. **Cross-primary IRT** — O(N²) over a 551.65 nm interaction horizon
+   (`R_CUT = 1.45 + 2√(8·D_max·t_max)`, D_max = 9.46 nm²/ns,
+   t_max = 1000 ns) for a point source; the ~1 GB heap is the wall.
+2. **GPU step-by-step (SBS) diffusion-reaction** (gMicroMC/MPEXS-style)
+   — the encounter-radius stability bound `Δt ≲ σ²/2D ≈ 0.02 ns` is
+   separation-independent, forcing ~50k sequential dispatches to reach
+   1 μs. That step count is the kill criterion, not memory.
+   (Side correction logged: gMicroMC/MPEXS use Smoluchowski
+   reaction-radius contact, **not** the Brownian-bridge; the bridge is
+   Clifford et al. 1986.)
+Findings: [`GPU_SBS_INTERTRACK_FINDINGS.md`](./GPU_SBS_INTERTRACK_FINDINGS.md).
+Net: the native runtime (Tier 3) is now the **sole** path to inter-track
+chemistry, not merely the most convenient one.
 
 The expected research-grade arc after this lands: `RECOMB_BOOST = 2.0`
 drops to 1.0, the chemistry side of the validation chain becomes
@@ -231,6 +260,13 @@ single-machine artifact, ratio across all 5 species within MC noise
 (σ-significance < 1 of single-machine baseline).
 
 ### Headless native runtime (`webgpu-dna-native`) (~2-3 hr)
+
+**Now the critical-path unblock for inter-track chemistry** — E10k–E10Q
+(see Tier 1) closed both browser-native routes, so this runtime is the
+sole way to land cross-primary IRT and remove the last big chem6 gap
+(the inter-track ΔG(H₂) ≈ +0.149). Candidate bindings found 2026-05-13:
+`@sylphx/webgpu-darwin-arm64` 1.0.4, `bun-webgpu` 0.1.7, or vendoring
+`wgpu-native` C bindings via Node N-API.
 
 Removes the browser-tab-lifetime ceiling. Node + `wgpu-native`
 (`@webgpu/node` or Dawn bindings) wraps the existing WGSL shaders.
