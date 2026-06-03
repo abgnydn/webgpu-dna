@@ -46,12 +46,17 @@ source and the G4EMLOW~8.8 tabulated cross sections, and use a
 normally-compiled Geant4~11.4.1 as a validation oracle on a falsifiable,
 artifact-backed ladder. Cross sections match the reference to peak ratios of
 \numrange{0.975}{1.000}; the continuous-slowing-down range at \SI{10}{keV} is
-\num{0.988}$\times$ Geant4. The \emph{fused track-structure kernel} is
+\num{0.988}$\times$ Geant4. WebGPU track-structure tracking (Phases~A+B) runs
 \textbf{455$\times$} faster than Geant4 single-thread (280$\times$ vs.\ an
-8-thread build) on an Apple~M2~Pro; \emph{end-to-end}, however, the speedup is
-\textbf{1.48$\times$}, because the IRT radiolysis chemistry runs on CPU and
-dominates the wall-clock---we report both and are explicit about which is
-which. We also report the project's honest limits: a 27\,\%
+8-thread build) on an Apple~M2~Pro, but we are explicit that this is
+\emph{not} apple-to-apple: the Geant4 figure is whole-process wall-clock
+(init, DNA physics-table construction, and per-event ntuple I/O included),
+whereas the WGSL figure is dispatch-only, and the kernel-fusion architecture
+itself accounts for only ${\sim}2\times$ of it (the fused Phase~A is 2\,\% of
+the tracking time; Phase~B is an un-fused wavefront). The honest like-for-like
+figure is the \emph{end-to-end} \textbf{1.48$\times$}, where both pipelines do
+the same work and the IRT radiolysis chemistry on CPU dominates the
+wall-clock---we report all of these and are explicit about which is which. We also report the project's honest limits: a 27\,\%
 cascade-ionisation deficit traceable to an intentional excitation
 cross-section choice, and the finding that the \emph{inter-track} chemistry
 contribution---which closes most of the residual \SI{1}{\micro s} gap against
@@ -322,12 +327,27 @@ that the code predicts absolute DNA-damage yields.
 Phase~A+B tracking is \textbf{455$\times$} faster than Geant4~11.4.1
 single-thread (\SI{635}{ms} vs.\ a \SI{289.1}{s} median over 3 trials, E15b)
 and \textbf{280$\times$} vs.\ an 8-thread build (\SI{178.0}{s}, E15c). Peak
-Phase~A throughput is \num{538947} primaries/s at $N=16384$ (E15). A
-within-WebGPU comparison of the fused kernel against a modelled per-step
-dispatch gives a \textbf{40$\times$} kernel-fusion factor (E16). The
-end-to-end pre-DNA pipeline is only $1.48\times$ faster, because the IRT
-chemistry runs on CPU and dominates the wall-clock (\SI{194}{s} of
-\SI{194.6}{s}); this motivates Sec.~\ref{sec:intertrack}.
+Phase~A throughput is \num{538947} primaries/s at $N=16384$ (E15). We state
+three caveats so these numbers are not over-read. \emph{First, the comparison
+is not apple-to-apple}: the Geant4 wall-clock is whole-process (process init,
+DNA physics-table construction, the event loop, and per-event ntuple I/O all
+included), while the WGSL \SI{635}{ms} is dispatch-only. \emph{Second, that
+overhead is large}: Geant4 MT-8 scales only $1.62\times$ over single-thread
+(not $8\times$), implying a substantial fixed/serial fraction --- a two-point
+Amdahl read places ${\sim}\SI{160}{s}$ of the \SI{289}{s} in serial overhead,
+so the pure-tracking speedup is materially below $455\times$ (we estimate
+${\sim}200\times$; a like-for-like event-loop-only re-measurement, E15-fair,
+is queued). \emph{Third, kernel fusion is not what delivers the large factor}:
+a within-WebGPU comparison of the fused kernel against a modelled per-step
+dispatch gives a \textbf{40$\times$} factor \emph{for Phase~A} (E16), but
+Phase~A is only \SI{14.4}{ms} (2\,\%) of the \SI{635}{ms}; Phase~B is an
+un-fused 2000-dispatch wavefront. Fusion's contribution to the full tracking
+pipeline is therefore ${\sim}2\times$ (\SI{1324}{ms} naive $\to$
+\SI{635}{ms} fused), with GPU data-parallelism over $N$ primaries supplying
+the rest. The single honest like-for-like number is the \emph{end-to-end}
+$1.48\times$, where both pipelines do the same work and the IRT chemistry on
+CPU dominates the wall-clock (\SI{194}{s} of \SI{194.6}{s}); this motivates
+Sec.~\ref{sec:intertrack}.
 
 \begin{figure}[t]
 \centering\includegraphics[width=0.58\linewidth]{figs/fig6_perf.pdf}

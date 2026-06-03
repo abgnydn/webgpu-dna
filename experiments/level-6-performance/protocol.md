@@ -75,6 +75,32 @@ question this level answers. Existing claim "hours → 6 seconds" is
   webgpu-dna. Without it, the kernelfusion.dev framing on the site
   is unsupported speculation.
 
+### E15-fair — apple-to-apple event-loop-only re-measurement (queued)
+- **Why:** E15b/E15c time the Geant4 *whole process* (init + DNA
+  physics-table construction + event loop + per-event ntuple I/O) but
+  time WGSL *dispatch-only*. The MT-8 scaling of only 1.62× (not 8×)
+  shows a large serial/fixed fraction counted only against Geant4, so
+  the headline 455×/280× over-state the pure-tracking speedup. This
+  test removes the asymmetry.
+- **Hypothesis:** With like-for-like scope — Geant4 timed around
+  `/run/beamOn` only (excluding init + table build; ntuple writing
+  disabled or measured separately), and WGSL timed including device
+  init + shader compile + dispatch + readback — the tracking speedup is
+  materially below 455× (working estimate ~200×, to be measured).
+- **Method:** (1) Parse Geant4's own `G4Run` timing or wrap a
+  `std::chrono` around `beamOn` in the dnaphysics `main`, OR run with
+  `/run/printProgress` + an init-only macro to subtract the fixed cost;
+  (2) disable `/analysis` ntuple output for a no-I/O variant and report
+  both; (3) time the WGSL path end-of-init → end-of-readback. Report the
+  event-loop-only ratio and, separately, the fusion contribution to the
+  *full* pipeline (Phase A fused vs naive, with Phase B held fixed).
+- **Pass bar:** none — this is a measurement, not a thesis test. Report
+  the honest event-loop-only speedup and the corrected fusion
+  contribution (~2× expected, from E16's Phase-A 40× being 2% of the
+  pipeline).
+- **Status:** defined 2026-06-03. Needs a Geant4 re-run (~5 min × 3
+  trials × 2 variants) — memory- and rebuild-gated; deferred.
+
 ## Artifacts
 `experiments/results/<YYYY-MM-DD>/level-6/E<k>-<slug>.json`. GPU runs;
 artifact carries the full adapter info + limits block per webgpu-q's
