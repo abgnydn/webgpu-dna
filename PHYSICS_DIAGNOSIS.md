@@ -370,16 +370,19 @@ E13c actually established:
   not experiment.
 - Measured against experiment-calibrated cellular yields (~35 DSB and
   ~1000 SSB per diploid cell per Gy, low-LET; Ward 1988, *Prog Nucleic Acid
-  Res Mol Biol* 35:95), the **absolute** per-Da yields are high by 223× (SSB)
-  and 796× (DSB) when normalised by the box-average dose (0.243 Gy). The
-  README/E12 attributed this to fiber-grid concentration in the track core,
-  but **the concentration factor was never computed** — a back-of-envelope
-  (4096 × 10 keV concentrated into the ~3 µm core → local dose tens of Gy)
-  makes ~223× plausible, but plausible ≠ demonstrated.
+  Res Mol Biol* 35:95), the **absolute** per-Da yields look high by 223× (SSB)
+  and 796× (DSB) when normalised by the box-average dose (0.243 Gy). **This was
+  subsequently computed (E12-local, see below): it is a point-source
+  dose-normalisation artifact, not a physics error** — 98.1% of energy deposits
+  in the central 3 µm core, so local dose ≈238 Gy (C≈981), and per local dose
+  the yields are SSB_dir 0.34× / DSB 0.82× / SSB_total 1.28× experiment, within
+  ~3×. The "geometry artifact" defense is therefore quantitatively vindicated.
 
-**Verdict:** L5 demonstrates the clustering kernel discriminates strand-break
-coincidences PARTRAC-like. It does **not** demonstrate prediction of the ratio
-(tuned) or of absolute yields (unexplained 2–3 orders off experiment).
+**Verdict:** L5 predicts absolute DNA-damage yields to within ~3× of experiment
+once the dose is scored where the DNA sits (E12-local). The clustering kernel
+also discriminates strand-break coincidences PARTRAC-like. The one thing it
+does **not** demonstrate is an independent prediction of the strand-coincidence
+*ratio*, which is calibrated via the tuned `P_indirect` (dose-invariant).
 
 ### E12-local — DONE 2026-06-03 (offline, no GPU run needed)
 
