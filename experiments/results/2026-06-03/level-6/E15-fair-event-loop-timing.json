@@ -18,8 +18,22 @@
     "speedup_wholeProcess": 455.2,
     "speedup_eventLoopOnly": 452.0,
     "headline": "Geant4 init+table-build = ~2.1 s (0.7% of 289 s); event-loop-only speedup is 452x, statistically identical to the 455x whole-process figure. The init confound is NOT material — the earlier '~200x pure tracking' claim was wrong and is retracted.",
-    "residual_asymmetries_unquantified": [
-      "Geant4 289 s includes per-event ntuple I/O to dna.root (the row-wise merge is the likely cause of the poor MT-8 1.62x scaling); WGSL 635 ms excludes its rad_buf/dose dump write. A no-ntuple Geant4 build (E15-fairer) would lower the Geant4 number somewhat, bounding the true tracking speedup modestly below 452x.",
+    "cross_check_256primary": {
+      "wall_sec_measured": 19.7,
+      "wall_sec_predicted": 20.0,
+      "predicted_from": "2.08 s fixed + 256 * 0.0701 s/primary",
+      "note": "A separate 256-primary run lands within 0.3 s of the linear model derived from the 16- and 4096-primary points — independently confirms the ~2 s init and 0.070 s/primary decomposition."
+    },
+    "ntuple_io_measured": {
+      "bytes_16primary": 26539082,
+      "bytes_256primary": 423015983,
+      "slope_bytes_per_primary": 1651987,
+      "fixed_bytes": 107290,
+      "full_run_4096_GB": 6.77,
+      "note": "MEASURED (2-point, near-perfectly linear: fixed overhead ~0.1 MB). Earlier ~6.8 GB was an extrapolation; now confirmed at 1.65 MB/primary."
+    },
+    "residual_asymmetries": [
+      "Geant4 289 s includes ~6.8 GB of per-event ntuple I/O to dna.root (MEASURED, 1.65 MB/primary; the row-wise merge is the likely cause of the poor MT-8 1.62x scaling); WGSL 635 ms excludes its ~87 MB rad_buf/dose dump write. A no-ntuple Geant4 build (E15-fairer) would isolate how much wall-time this adds — the 256-primary timing matching the model suggests the fast Apple SSD keeps up so it is interleaved rather than a large serial block, but this is not yet isolated. So 452x is a mild over-estimate of a compute-only comparison.",
       "WGSL 635 ms excludes device init + shader compile (~seconds, roughly symmetric with Geant4's ~2 s init)."
     ],
     "fusion_contribution_unchanged": "Kernel fusion contributes ~2x to the tracking pipeline (Phase A fused 14.4 ms vs ~704 ms naive is 2% of the 635 ms; Phase B is an un-fused wavefront) — independent of this Geant4 measurement, from E16+E15."

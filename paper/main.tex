@@ -345,10 +345,12 @@ Geant4 process init plus DNA physics-table construction is only
 ${\sim}\SI{2.1}{s} (0.7\,\%$ of \SI{289}{s}); the \SI{289}{s} is ${\sim}99\,\%$
 genuine event-loop, and event-loop-only the speedup is $452\times$,
 statistically identical to $455\times$. The one material asymmetry is
-per-event ntuple I/O --- Geant4 writes ${\sim}\SI{6.8}{GB}$ to disk over the
-full run (the row-wise merge is the likely cause of the poor $1.62\times$
-MT-8 scaling), which the WGSL dispatch does not; a no-ntuple Geant4 build
-would lower its number somewhat, so $452\times$ is a mild over-estimate. (We
+per-event ntuple I/O --- Geant4 writes \SI{6.8}{GB} to disk over the full run
+(measured: \SI{1.65}{MB}/primary from 16- and 256-primary probes, near-linear;
+the row-wise merge is the likely cause of the poor $1.62\times$ MT-8 scaling),
+which the WGSL dispatch does not; a no-ntuple Geant4 build would isolate how
+much wall-time this adds, so $452\times$ is a mild over-estimate of a
+compute-only comparison. (We
 note for transparency that an earlier draft mis-estimated the fixed overhead
 at ${\sim}\SI{160}{s}$ from the MT scaling alone; the direct measurement
 corrects this.) \emph{Second, kernel fusion is not what delivers the large
