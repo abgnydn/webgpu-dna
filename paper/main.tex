@@ -58,9 +58,10 @@ architecture itself accounts for only ${\sim}2\times$ of the speedup (the fused
 Phase~A is 2\,\% of the tracking time; Phase~B is an un-fused wavefront). The honest like-for-like
 figure is the \emph{end-to-end} \textbf{1.48$\times$}, where both pipelines do
 the same work and the IRT radiolysis chemistry on CPU dominates the
-wall-clock---we report all of these and are explicit about which is which. We also report the project's honest limits: a 27\,\%
-cascade-ionisation deficit traceable to an intentional excitation
-cross-section choice, and the finding that the \emph{inter-track} chemistry
+wall-clock---we report all of these and are explicit about which is which. We also report the project's honest limits: a 32\,\%
+cascade-ionisation deficit (in production, post-joint-fix) traceable to an
+intentional excitation cross-section choice compounded by the recombination
+boost, and the finding that the \emph{inter-track} chemistry
 contribution---which closes most of the residual \SI{1}{\micro s} gap against
 Geant4's \texttt{chem6}---is \emph{not} reachable browser-native, because
 cross-primary IRT is $O(N^2)$ for a point source and GPU step-by-step
@@ -229,11 +230,15 @@ artifacts E5b, E5d).}
 \end{figure}
 
 The mean free path is 5--11\,\% short of Geant4 across six energy bins
-(median $0.941$, E6). The full-cascade ionisation count is
-\num{371.9} per primary vs.\ Geant4's \num{509.2}---a 27\,\% deficit at
-$263\sigma$ (E7)---and the implicit $W$-value is \SI{26.89}{eV} vs.\ ICRU~31's
-\SI{21.4}{eV} (\cite{icru31}, $+25.7\,\%$, E5c). Both are the same physics:
-the intentional excitation inflation channels energy away from ionisation. The
+(median $0.941$, E6). In production (post-joint-fix) the full-cascade
+ionisation count is \num{344.6} per primary vs.\ Geant4's \num{509.2}---a
+32\,\% deficit (E7b; the pre-fix value was \num{371.9}, a 27\,\% deficit at
+$263\sigma$, E7)---and the implicit $W$-value is \SI{29.02}{eV} vs.\ ICRU~31's
+\SI{21.4}{eV} (\cite{icru31}, $+35.6\,\%$, E5c). Two compounding causes: the
+intentional excitation inflation channels energy away from ionisation, and the
+joint fix's recombination boost (which improves CSDA and chemistry) kills some
+source secondaries before they cascade-ionise---a two-knob tradeoff we report
+rather than hide. The
 secondary-electron kinetic-energy spectrum at creation matches to 1.0\,\%
 overall, with 7/8 log-bins within 0.1--3.1\,\% (E8). Table~\ref{tab:track}
 summarises.
@@ -248,7 +253,7 @@ Metric & This work & Geant4 & Ratio (exp.) \\
 \midrule
 CSDA range & \SI{2714.4}{nm} & \SI{2747.5}{nm} & 0.988 (E5) \\
 Energy cons. & 100.0\,\% & 99.99\,\% & 1.000 (E5) \\
-Ions / primary & 371.9 & 509.2 & 0.730 (E7) \\
+Ions / primary (production) & 344.6 & 509.2 & 0.677 (E7b) \\
 $W$-value & \SI{26.89}{eV} & \SI{21.4}{eV}$^\dagger$ & 1.257 (E5c) \\
 Sec.\ KE/primary & 143.4 & 144.9 & 1.010 (E8) \\
 \bottomrule
