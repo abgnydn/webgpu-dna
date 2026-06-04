@@ -166,6 +166,24 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
       } catch { /* no dump endpoint, ignore */ }
     }
 
+    // Optional voxel-dose-grid dump (same ?dump=1 path): the 128³ u32
+    // fixed-point (×100/eV) dose grid. Enables E12-local-exact — integrating
+    // the ACTUAL local dose over the fibre footprint, replacing the
+    // event-count energy proxy used in the offline E12-local estimate
+    // (C≈981). Box half-width is `boxNm` (WGSL p.box); voxel size = 2·box/128.
+    if (wantDump && r.dose_arr) {
+      const doseName = `dose_E${r.E}_N${np}.bin`;
+      const dab = new ArrayBuffer(r.dose_arr.byteLength);
+      new Uint32Array(dab).set(r.dose_arr);
+      const dblob = new Blob([dab], { type: 'application/octet-stream' });
+      try {
+        const resp = await fetch(`/dump/${doseName}`, { method: 'POST', body: dblob });
+        if (resp.ok) {
+          log(`  dumped dose grid (box=${boxNm}nm, ×100/eV) → /dump/${doseName} (${(r.dose_arr.byteLength / 1e6).toFixed(2)} MB)`, 'data');
+        }
+      } catch { /* no dump endpoint, ignore */ }
+    }
+
     const csdaRatio = r.mean_total / ref.csda;
     let damage: DamageRow | null = null;
 

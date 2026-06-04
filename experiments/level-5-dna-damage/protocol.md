@@ -80,9 +80,17 @@ factor.
   SSB_dir 0.34× / DSB 0.82× / SSB_total 1.28× experiment — geometry defense
   vindicated; 223×/796× was a dose-normalisation artifact. Driver:
   `E12-local-dose-yield.mjs`; artifact under `results/2026-06-03/level-5/`.
-- **Follow-up E12-bulk (open):** re-run with `start_half`=box half-width to
-  spread tracks so box-avg ≈ local dose; removes the energy-proxy assumption.
-  Needs one GPU harness run.
+- **Follow-up E12-local-exact (run-ready, 2026-06-04):** replace the
+  event-count energy *proxy* with the ACTUAL voxel dose. A dose-grid dump hook
+  was added to `src/app.ts` (writes `dumps/dose_E<E>_N<np>.bin`, the 128³ u32
+  ×100/eV grid, under `?dump=1`), and the offline analyzer
+  `E12-local-exact.mjs` integrates it over the fibre footprint. One physics
+  dump run produces the input (deferred — was memory-blocked at 58 MB free);
+  the analysis is then instant. Validates whether C_exact ≈ the C≈981 proxy.
+- **Follow-up E12-bulk (open, lower priority):** re-run with `start_half`=box
+  half-width to spread tracks so box-avg ≈ local dose. Note: only meaningful
+  if the DNA target is *also* distributed (currently a central grid), so
+  E12-local-exact is the better next step. Needs one GPU harness run.
 
 ## Artifacts
 `experiments/results/<YYYY-MM-DD>/level-5/E<k>-<slug>.json`.
