@@ -251,6 +251,41 @@ section + longer tracks (more steps per primary) at lower MFP.
 comparison (write OH-from-excitation events with a distinct species
 marker) would close this. **Pending.**
 
+### Verified mechanism + production update (2026-06-05)
+
+Production (post-joint-fix) is **344.6 ions/pri → 0.677× (32% deficit)**, E7b;
+the 371.9/0.730× above is the pre-joint-fix value. Source archaeology of the
+shader + Geant4 corrects the picture in two ways:
+
+1. **Autoionisation IS implemented, with the exact Geant4 branching.**
+   `primary.wgsl` (and `secondary.wgsl`) reproduce
+   `G4ChemDissociationChannels_option1.cc:219-364`: excited state A¹B₁
+   (level 0) never autoionises; B¹A₁ and the three Rydberg/diffuse levels
+   (1-4) autoionise **50%**, each emitting `OH + H3O+ + eaq` — a real H₃O⁺
+   ion, products verified against `G4DNAWaterDissociationDisplacer::Auto`-
+   `Ionisation` (line 379: H3O + OH + e⁻aq). So the deficit is **not** missing
+   physics. With ~520 exc/pri (above) × ~45% in levels 1-4 × 50%, the kernel
+   *generates* ~117 autoionisation ions/pri — almost exactly the ~120-ion gap.
+
+2. **`RECOMB_BOOST` then destroys a fraction of those ions.** Each
+   autoionisation H₃O⁺ recombines with its geminate eaq with probability
+   `min(1, RECOMB_BOOST · (1 − e^(−r_Onsager/r_sep)))` (`primary.wgsl:492`);
+   on recombination the H₃O⁺ is **replaced** by H₂Ovib dissociation products
+   (the ion vanishes). At `RECOMB_BOOST = 2.0` this destroys ~2× more
+   autoionisation ions than the physical Onsager value, suppressing the
+   surviving cascade count. This is the structural mechanism behind E7b's
+   observation that the joint fix *lowers* cascade ions (371.9 → 344.6).
+
+**Actionable consequence.** Flipping `RECOMB_BOOST → 1.0` (the parameter-free
+value the paper already reports, E10r) is a **triple win**: parameter-free
+chemistry (+1.4 pp RMS only), more surviving autoionisation ions (cascade-count
+recovery), and one fewer fudge. The ~117-ion autoionisation headroom is the
+reason this could close much of the gap. **Validation needed** (one GPU run,
+memory-blocked at time of writing): flip RECOMB to 1.0 at the current σ_exc=0.5
+and re-measure cascade ions — isolates the recomb contribution. The residual
+after that (the σ_exc=0.5 reduction of excitation *events*, hence fewer
+autoionisations) is the deeper two-knob-limit part (E7c).
+
 ## 3. Indirect SSB undercounted (ratio 0 vs PARTRAC's 2-3) — E13, 2026-05-11
 
 **Observed.** SSB_ind = 0 vs SSB_dir = 24 at N=4096 × 10 keV.
