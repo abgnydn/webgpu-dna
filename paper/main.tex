@@ -149,8 +149,13 @@ initial $G(\mathrm{H})=0.33$; and one tuning scalar,
 \texttt{SIGMA\_EXC\_SCALE}$=0.5$, scaling the excitation cross section. A
 second scalar present in the codebase, \texttt{RECOMB\_BOOST}, has no physical
 basis; we measured it to be nearly inconsequential (Sec.~\ref{sec:discussion},
-E10r) and set it to its neutral value $1.0$ for all reported chemistry, so the
-$G$-values of \S\ref{sec:results} are parameter-free in that knob.
+E10r) and report all chemistry at its neutral value $1.0$, so the
+$G$-values of \S\ref{sec:results} are parameter-free in that knob. We disclose
+that the \emph{shipped} browser demo currently defaults to
+\texttt{RECOMB\_BOOST}$=2.0$, matching the committed validation artifacts;
+because the knob also feeds the cascade-ion and strand-break endpoints,
+flipping the shipped default to $1.0$ is held pending their revalidation, and
+the two settings differ by only $1.4$~pp RMS in the chemistry (E10r).
 
 \begin{table}[t]\centering\footnotesize
 \caption{Deliberate divergences from Geant4-DNA \texttt{DNA\_Opt2}, with the
