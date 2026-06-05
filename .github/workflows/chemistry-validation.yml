@@ -1,0 +1,80 @@
+name: Chemistry validation (IRT)
+
+# Runs the IRT radiolysis chemistry (public/irt-worker.js logic, via
+# tools/run_irt.cjs) on a saved pre-chemistry rad_buf dump. This is the
+# CPU/memory-heavy half of the pipeline -- the IRT heap peaks at multiple GB
+# at 10 keV (~5M radicals), which starves a 16 GB laptop shared with other
+# apps but runs comfortably on a 16 GB GitHub runner.
+#
+# It deliberately does NOT touch WebGPU. The Phase A+B physics that produces
+# the dump needs a real GPU adapter, which default Ubuntu runners do not
+# expose (the same conclusion the sibling webgpu-q reached -- its CI skips
+# WebGPU E2E). So the dump is provided as a Release asset (the WebGPU output
+# the runner cannot regenerate) and only the GPU-free chemistry runs here.
+#
+# Manual-only, like webgpu-q gates its heaviest swarm benches.
+
+on:
+  workflow_dispatch:
+    inputs:
+      energy:
+        description: "Primary energy in eV (dump must exist in validation-inputs-v1)"
+        type: choice
+        default: "10000"
+        options:
+          - "10000"
+          - "1000"
+
+permissions:
+  contents: read
+
+jobs:
+  irt:
+    name: IRT chemistry
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ENERGY: ${{ inputs.energy }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Show runner memory (proves the 16 GB headroom)
+        run: |
+          free -h
+          echo "cores $(nproc)"
+
+      - name: Download rad_buf dump from validation-inputs release
+        run: |
+          mkdir -p dumps ci-results
+          gh release download validation-inputs-v1 \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "rad_E${ENERGY}_N4096.bin" --dir dumps --clobber
+          ls -la "dumps/rad_E${ENERGY}_N4096.bin"
+
+      - name: Run IRT chemistry (14 GB heap)
+        run: |
+          node --max-old-space-size=14000 tools/run_irt.cjs \
+            "dumps/rad_E${ENERGY}_N4096.bin" 4096 "$ENERGY" \
+            > "ci-results/irt_E${ENERGY}.json"
+
+      - name: Summarize 1 us G-values vs chem6
+        run: node tools/irt-summary.cjs "ci-results/irt_E${ENERGY}.json"
+
+      - name: Upload IRT result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: irt-result-E${{ inputs.energy }}
+          path: ci-results/irt_E${{ inputs.energy }}.json
+          if-no-files-found: error
