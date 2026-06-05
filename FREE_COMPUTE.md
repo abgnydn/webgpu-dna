@@ -77,13 +77,21 @@ time ./dnaphysics-nontuple validation/run_validation.mac # no dna.root
 This is CPU-only, so it runs on Oracle without the local memory pressure, and
 the box stays available for ad-hoc Geant4 reference regenerations.
 
-## 3. Colab / Kaggle — free GPU (gated on the native runtime)
+## 3. Colab / Kaggle — free GPU via wgpu-py
 
 Colab and Kaggle give free CUDA GPUs (T4; Kaggle ~30 GPU-hrs/week). They cannot
-run our WGSL directly — **but** the roadmap's `webgpu-dna-native` (`wgpu-native`
-wrapping the existing shaders) would run there. So building that runtime has a
-second payoff beyond inter-track IRT: **free GPU hours** for arbitrary-N physics
-that CI can't do. One build, two unlocks.
+run WGSL *directly*, but [`wgpu-py`](https://github.com/pygfx/wgpu-py) (Python
+bindings to the same `wgpu-native` the roadmap's `webgpu-dna-native` would use)
+runs WGSL compute on the GPU over Vulkan. So the native-runtime work can land in
+Python here and unlock **free GPU hours** for the Phase A+B physics that CI
+can't run.
+
+[`kaggle/webgpu_dna_kaggle.ipynb`](./kaggle/) is the probe: import it from
+GitHub into Kaggle, enable the GPU accelerator, and it confirms `wgpu-py`
+acquires the Tesla GPU and runs a WGSL compute kernel. If it passes, the only
+remaining work is porting the TS host orchestration
+(`src/gpu/{buffers,pipelines,dispatch}.ts`) to Python — the shaders compile
+unchanged. See [`kaggle/README.md`](./kaggle/README.md).
 
 ## 4. WebRTC swarm — volunteer WebGPU (roadmap)
 
