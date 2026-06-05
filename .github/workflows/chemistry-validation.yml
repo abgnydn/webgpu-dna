@@ -1,41 +1,63 @@
 name: Chemistry validation (IRT)
 
 # Runs the IRT radiolysis chemistry (public/irt-worker.js logic, via
-# tools/run_irt.cjs) on a saved pre-chemistry rad_buf dump. This is the
-# CPU/memory-heavy half of the pipeline -- the IRT heap peaks at multiple GB
-# at 10 keV (~5M radicals), which starves a 16 GB laptop shared with other
-# apps but runs comfortably on a 16 GB GitHub runner.
+# tools/run_irt.cjs) on saved pre-chemistry rad_buf dumps. CPU/memory-heavy:
+# the IRT heap peaks at multiple GB (10 keV ~5M radicals, 20 keV ~9.5M),
+# which starves a 16 GB laptop shared with other apps but is comfortable on a
+# 16 GB GitHub runner.
 #
-# It deliberately does NOT touch WebGPU. The Phase A+B physics that produces
-# the dump needs a real GPU adapter, which default Ubuntu runners do not
-# expose (the same conclusion the sibling webgpu-q reached -- its CI skips
-# WebGPU E2E). So the dump is provided as a Release asset (the WebGPU output
-# the runner cannot regenerate) and only the GPU-free chemistry runs here.
+# Does NOT touch WebGPU -- the Phase A+B physics that produces the dumps needs
+# a real GPU adapter that default Ubuntu runners do not expose (the same
+# conclusion the sibling webgpu-q reached). Dumps are provided as Release
+# assets (the WebGPU output the runner cannot regenerate); only the GPU-free
+# chemistry runs here.
 #
-# Manual-only, like webgpu-q gates its heaviest swarm benches.
+# Manual-only. Default runs the full 8-energy ESTAR sweep IN PARALLEL (one
+# runner per energy) -- the matrix that turns an 8x serial sweep into one
+# wall-clock.
 
 on:
   workflow_dispatch:
     inputs:
-      energy:
-        description: "Primary energy in eV (dump must exist in validation-inputs-v1)"
-        type: choice
-        default: "10000"
-        options:
-          - "10000"
-          - "1000"
+      energies:
+        description: "comma-separated energies in eV, or 'all' for the 8-energy ESTAR sweep"
+        type: string
+        default: "all"
 
 permissions:
   contents: read
 
 jobs:
+  setup:
+    name: build energy matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - name: Generate matrix
+        id: gen
+        run: |
+          if [ "${{ inputs.energies }}" = "all" ]; then
+            list="100,300,500,1000,3000,5000,10000,20000"
+          else
+            list="${{ inputs.energies }}"
+          fi
+          json=$(echo "$list" | tr ',' '\n' | sed 's/ //g' | grep -E '^[0-9]+$' \
+            | paste -sd, - | sed 's/[0-9]*/"&"/g')
+          echo "matrix={\"energy\":[$json]}" >> "$GITHUB_OUTPUT"
+          echo "matrix -> {\"energy\":[$json]}"
+
   irt:
-    name: IRT chemistry
+    name: IRT @ ${{ matrix.energy }} eV
+    needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
     env:
       GH_TOKEN: ${{ github.token }}
-      ENERGY: ${{ inputs.energy }}
+      ENERGY: ${{ matrix.energy }}
 
     steps:
       - name: Checkout
@@ -50,12 +72,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Show runner memory (proves the 16 GB headroom)
+      - name: Runner memory
         run: |
           free -h
           echo "cores $(nproc)"
 
-      - name: Download rad_buf dump from validation-inputs release
+      - name: Download rad_buf dump
         run: |
           mkdir -p dumps ci-results
           gh release download validation-inputs-v1 \
@@ -63,18 +85,18 @@ jobs:
             --pattern "rad_E${ENERGY}_N4096.bin" --dir dumps --clobber
           ls -la "dumps/rad_E${ENERGY}_N4096.bin"
 
-      - name: Run IRT chemistry (14 GB heap)
+      - name: Run IRT chemistry (13 GB heap)
         run: |
-          node --max-old-space-size=14000 tools/run_irt.cjs \
+          node --max-old-space-size=13000 tools/run_irt.cjs \
             "dumps/rad_E${ENERGY}_N4096.bin" 4096 "$ENERGY" \
             > "ci-results/irt_E${ENERGY}.json"
 
-      - name: Summarize 1 us G-values vs chem6
+      - name: Summarize 1 us G-values
         run: node tools/irt-summary.cjs "ci-results/irt_E${ENERGY}.json"
 
-      - name: Upload IRT result artifact
+      - name: Upload result artifact
         uses: actions/upload-artifact@v4
         with:
-          name: irt-result-E${{ inputs.energy }}
-          path: ci-results/irt_E${{ inputs.energy }}.json
+          name: irt-result-E${{ matrix.energy }}
+          path: ci-results/irt_E${{ matrix.energy }}.json
           if-no-files-found: error
