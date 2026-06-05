@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "protocol": "E10-ci-energy-sweep",
+    "hypothesis": "IRT chemistry G-values at 1 us are non-monotonic in primary energy (the LET-driven V-shape, cf E10b/E10d), and the full 8-energy ESTAR sweep can be produced on free GitHub Actions infra (16 GB runner, no WebGPU) from the committed rad_buf dumps.",
+    "method": "tools/run_irt.cjs replayed each rad_E<E>_N4096.bin dump on a separate runner (dynamic matrix, fail-fast:false), GPU-free. Dumps on validation-inputs-v1 release. Post-joint-fix shaders (sigma_exc=0.5, RECOMB_BOOST=2.0).",
+    "infra": "GitHub Actions ubuntu-latest (15 GiB, 4 cores), chemistry-validation.yml run 26995662317, 8 energies in parallel",
+    "note": "First validation artifact computed entirely on free CI infra rather than the local machine — see FREE_COMPUTE.md."
+  },
+  "env": {
+    "gitSha": "7581d48a01a83021131ddb4b930d5f4d02e0dadb",
+    "runner": "github-actions-ubuntu-latest",
+    "nPrimaries": 4096
+  },
+  "status": "pass",
+  "summary": {
+    "energies_eV": [
+      100,
+      300,
+      500,
+      1000,
+      3000,
+      5000,
+      10000,
+      20000
+    ],
+    "G_OH_minimum": {
+      "E_eV": 1000,
+      "G_OH": 0.9601
+    },
+    "G_eaq_minimum": {
+      "E_eV": 3000,
+      "G_eaq": 1.0322
+    },
+    "headline": "8-energy IRT sweep on free CI: G(OH) V-shape min at 1000 eV (0.9601), G(eaq) min at 3000 eV (1.0322) — LET-driven non-monotonicity (cf E10b 126 sigma). OH endpoints 2.52 (100 eV) / 1.77 (20 keV)."
+  },
+  "rows": [
+    {
+      "E_eV": 100,
+      "G_OH": 2.5217,
+      "G_eaq": 2.6921,
+      "G_H": 1.125,
+      "G_H2O2": 0.7786,
+      "G_H2": 0.4866,
+      "status": "informational"
+    },
+    {
+      "E_eV": 300,
+      "G_OH": 1.3863,
+      "G_eaq": 1.9722,
+      "G_H": 0.9087,
+      "G_H2O2": 1.0191,
+      "G_H2": 0.6198,
+      "status": "informational"
+    },
+    {
+      "E_eV": 500,
+      "G_OH": 1.1155,
+      "G_eaq": 1.5975,
+      "G_H": 0.8306,
+      "G_H2O2": 1.011,
+      "G_H2": 0.6919,
+      "status": "informational"
+    },
+    {
+      "E_eV": 1000,
+      "G_OH": 0.9601,
+      "G_eaq": 1.1879,
+      "G_H": 0.764,
+      "G_H2O2": 0.9214,
+      "G_H2": 0.7427,
+      "status": "informational"
+    },
+    {
+      "E_eV": 3000,
+      "G_OH": 1.0902,
+      "G_eaq": 1.0322,
+      "G_H": 0.7478,
+      "G_H2O2": 0.7586,
+      "G_H2": 0.6991,
+      "status": "informational"
+    },
+    {
+      "E_eV": 5000,
+      "G_OH": 1.2587,
+      "G_eaq": 1.1433,
+      "G_H": 0.7608,
+      "G_H2O2": 0.6829,
+      "G_H2": 0.6355,
+      "status": "informational"
+    },
+    {
+      "E_eV": 10000,
+      "G_OH": 1.5305,
+      "G_eaq": 1.3799,
+      "G_H": 0.7752,
+      "G_H2O2": 0.5884,
+      "G_H2": 0.5367,
+      "status": "informational"
+    },
+    {
+      "E_eV": 20000,
+      "G_OH": 1.7707,
+      "G_eaq": 1.6129,
+      "G_H": 0.78,
+      "G_H2O2": 0.5107,
+      "G_H2": 0.4517,
+      "status": "informational"
+    }
+  ]
+}
