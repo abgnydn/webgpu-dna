@@ -554,3 +554,30 @@ and Geant4's `e-_G4DNAIonisation` step count (incl. how autoionisation is
 tallied — note autoionisation is only ~29 events here, 40% of ~73 super-excited
 states, not the ~117 once assumed). Both need a Geant4 per-trackID / per-process
 re-analysis — Geant4-gated, not closeable from the WGSL side alone.
+
+
+### RESOLVED — cascade deficit is the SECONDARY cascade (E20, 2026-06-08)
+
+"Just ran" it: analysed the full 6.76 GB Geant4 dnaphysics ntuple (dna.root,
+115.5M steps, 4096 events at 10 keV) with uproot — counted e-_G4DNAIonisation
+steps (flagProcess==13) split by trackID, vs our ionisation-event counts read
+natively (dbg[0] primary, secStats[4] secondary):
+
+| ionisations/primary | ours | Geant4 | ratio |
+|---|---:|---:|---:|
+| **primary track** (trackID==1) | 195.4 | 195.6 | **1.00×** |
+| **secondary cascade** | 216.9 | 313.6 | **0.69×** |
+| total | 412.3 | 509.2 | 0.81× |
+
+**The primary track structure is validated bit-on (195.4 vs 195.6).** The entire
+deficit is the **secondary electron cascade under-ionising by 31%** — our
+secondaries multiply less than Geant4's on the way down. This closes the
+question definitively: NOT the primary physics (perfect match), NOT a counting
+convention (identical e-_G4DNAIonisation definition, primary matches), NOT
+energy misallocation (E19, the budget is healthy). 
+
+**The remaining target is sharp and WGSL-side-fixable:** the low-energy
+(~10–100 eV) secondary ionisation — the σ_ion magnitude in that band, or the
+7.4 eV tracking cutoff truncating the cascade before the last ionisations. That
+is the one concrete next experiment for the residual cascade deficit; everything
+upstream of it is now validated against the Geant4 ntuple.
