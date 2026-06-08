@@ -7,6 +7,25 @@ chemistry**, which E10f measured as 96% of the residual 1 µs chem6 gap but whic
 needs ~1 GB of heap that exceeds a browser tab (see
 [`CROSS_PRIMARY_IRT_DESIGN.md`](../CROSS_PRIMARY_IRT_DESIGN.md)).
 
+## ✅ Phase A+B — WORKING & VALIDATED 2026-06-08
+
+`run-phase-a.ts` runs the full primary+secondary track-structure physics
+natively in Deno (no browser) and reproduces the browser harness **bit-for-bit**:
+
+```
+$ deno run --unstable-webgpu --allow-read --allow-env native/run-phase-a.ts 10000 4096
+[init] GPU initialized: Apple M2 Pro
+{"E_eV":10000,"np":4096,"wall_ms":654,"rad_n":5279842,"mean_total_csda_nm":2733.3,
+ "ions_per_pri":195.4,"sec_per_pri":144.1,"E_cons":0.9995}
+```
+
+`rad_n = 5,279,842` is **identical** to the production browser dump
+(deterministic RNG seed → identical trajectories); CSDA, ions/pri, sec/pri, and
+E-conservation all match. It reuses `device.ts` / `buffers.ts` / `dispatch.ts`
+(`runAtEnergy`) verbatim — only the shader loader is swapped for
+`Deno.readTextFile`. Needs ~1.5 GB free for the fixed buffers (the same as a
+browser tab), so the *run* is memory-gated, not WebGPU-gated.
+
 ## Foundation — DE-RISKED 2026-06-08
 
 `foundation-probe.ts` proves the runtime is viable on **Deno** (which ships
@@ -43,9 +62,8 @@ nearly as-is — the browser-specific edges are small:
   unblocks the global (cross-primary) IRT pool.
 
 ### Next steps
-1. Port `loader.ts` + `initGPU` + Phase A (`primary.wgsl` dispatch) to a Deno
-   entry; match the browser dump bit-for-bit on one energy.
-2. Add Phase B (secondary wavefront) + dose readback.
+1. ~~Port loader + initGPU + Phase A/B to a Deno entry; match the browser dump.~~ **DONE** (`run-phase-a.ts`, bit-identical rad_n).
+2. ~~Add Phase B + dose readback.~~ **DONE** (runAtEnergy covers A+B).
 3. Swap the per-primary `priMap` IRT for a **global pool** (the cross-primary
    fix) now that host RAM is available — the ~30-minute drop-in the design doc
    describes.
