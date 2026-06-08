@@ -527,3 +527,30 @@ budget at low E — how much our model deposits via vibrational vs ionisation
 between ~10–100 eV — compared to Geant4; and (b) a Geant4 per-trackID ion split
 (primary vs secondary) to localise the deficit. Neither is a quick check; both
 are well-defined.
+
+
+### Energy partition measured — NOT a misallocation (E19, 2026-06-08)
+
+Instrumented per-channel deposited energy (atomic counters in primary+secondary
+shaders, read via the native runtime). Per 10 keV primary:
+
+| channel | eV | % |
+|---|---:|---:|
+| ionisation + binding + W_sec + DEA | ~8514 | 85.0 |
+| excitation | 730 (73 events) | 7.3 |
+| sub-cutoff (secondary thermalisation) | 651 | 6.5 |
+| vibrational | 100 | 1.0 |
+
+The budget is **healthy and ionisation-dominated, like Geant4** — excitation
+(73 events ≈ Geant4's 62.5), vibrational, and sub-cutoff are **all small**. The
+~2340 eV the missing ~120 ions represent does **not** go to a wrong channel.
+
+**So the 23% cascade deficit / W = 25.6-vs-19.6 is NOT energy misallocation.**
+With σ_exc, σ_ion, excitation, vibrational, and sub-cutoff all ruled out, only
+two causes remain: (a) a **secondary-cascade ionisation-multiplication
+shortfall** — our ~40 eV secondaries re-ionise less on the way down than
+Geant4's; or (b) a **counting-convention** difference between our H₃O⁺ records
+and Geant4's `e-_G4DNAIonisation` step count (incl. how autoionisation is
+tallied — note autoionisation is only ~29 events here, 40% of ~73 super-excited
+states, not the ~117 once assumed). Both need a Geant4 per-trackID / per-process
+re-analysis — Geant4-gated, not closeable from the WGSL side alone.

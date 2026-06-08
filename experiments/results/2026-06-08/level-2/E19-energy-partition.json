@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "protocol": "E19-energy-partition",
+    "hypothesis": "After ruling out sigma_exc/sigma_ion/excitation for the 23% cascade deficit, test the remaining lead: does the missing ionisation energy go to a non-ionising channel (vibrational or sub-cutoff thermalization)? Instrumented per-channel deposited energy via atomic counters in primary.wgsl + secondary.wgsl, read back through the native runtime.",
+    "method": "Added atomicAdd energy accumulators (counters[3]=E_exc, counters[6]=E_vib then E_subcutoff) to the deposit branches; ran native Phase A+B at 10 keV / 4096 primaries; read the counters buffer. Production shaders reverted after."
+  },
+  "env": {
+    "gitSha": "7fc84a220b349f3b20e50ab81632247c0b6eef16",
+    "runner": "local M2 Pro WebGPU via Deno",
+    "E_eV": 10000,
+    "np": 4096
+  },
+  "status": "pass (all energy-misallocation hypotheses falsified)",
+  "summary": {
+    "partition_eV_per_primary": {
+      "E_total": 9995,
+      "E_ion_binding_Wsec_DEA": 8514,
+      "E_exc": 730,
+      "E_subcutoff_sec_thermalization": 651,
+      "E_vib": 100
+    },
+    "partition_pct": {
+      "ionisation": 85,
+      "excitation": 7.3,
+      "subcutoff": 6.5,
+      "vibrational": 1
+    },
+    "exc_events": 73,
+    "geant4_exc_events": 62.5,
+    "headline": "The energy budget is HEALTHY and ionisation-dominated (85%), just like Geant4. Excitation (730 eV, 73 events ~ Geant4 62.5), vibrational (100 eV, 1%), and sub-cutoff sec-thermalization (651 eV, 6.5%) are ALL small. The missing ~120 ions worth of energy does NOT go to a wrong channel.",
+    "conclusion": "The 23% cascade deficit / W-value 25.6-vs-19.6 is NOT an energy-misallocation. With sigma_exc (E7e), sigma_ion (sign), excitation, vibrational, and sub-cutoff all ruled out, the only remaining causes are: (a) a secondary-cascade ionisation-MULTIPLICATION shortfall (our ~40 eV secondaries re-ionise less than Geant4 on the way down), or (b) a COUNTING-CONVENTION difference (our H3O+ records vs Geant4 e-_G4DNAIonisation step count, incl. how autoionisation is tallied). Both need a Geant4 per-trackID / per-process re-analysis — Geant4-gated, not a quick check."
+  }
+}
