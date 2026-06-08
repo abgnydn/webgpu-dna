@@ -116,6 +116,11 @@ to mirror. The only source of free WebGPU *at scale*.
 
 For **CPU / memory / Geant4** work, free compute is abundant — GitHub Actions
 (wired) and Oracle Always Free (a few hours of setup) cover it. For **WebGPU**
-there is no free shortcut today; the path is the native runtime (unlocks
-Colab/Kaggle) or the swarm (harnesses volunteer browsers) — both already on the
-roadmap, now with "free compute access" as a second reason to prioritize them.
+there is **no free *rented-GPU* path** — the free GPU clouds (Kaggle, Colab, and
+by extension the rest) run datacenter Tesla/A100 cards with compute-only CUDA
+drivers that expose no Vulkan, and every WebGPU implementation needs
+Vulkan/Metal/D3D (§3, tested both ways). A native runtime would *not* change
+this — it would still hit the missing-Vulkan wall on those images. The only free
+WebGPU is **consumer hardware with a real graphics driver**: the local machine,
+or volunteer browsers via the **swarm** (§4) — the latter being the sole free
+path *at scale*, and now the clear reason to prioritize it on the roadmap.
