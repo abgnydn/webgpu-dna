@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "protocol": "E17-cross-primary-irt",
+    "hypothesis": "Per-primary IRT partitioning loses inter-track reactions (E10f: 96% of the 1us H2 gap). Running the production IRT worker on a GLOBAL radical pool (cross-primary) should recover ~E10f ΔG(H2)=+0.149 at 128 primaries.",
+    "method": "tools/run_irt_xprimary.cjs: forces pid=0 in a copy of public/irt-worker.js so all radicals share one pool — the existing O(N^2) pairing, heap scheduler, and reaction handling run cross-primary unchanged. Runs per-primary AND cross-primary on the SAME 128-primary subset of the production 10 keV dump (σ_exc=0.5, RECOMB=1.0). Naive O(N^2), tractable at 128 primaries (~7 min); full-N is compute-bound by the dense point-source core (spatial-hash follow-up).",
+    "enabled_by": "webgpu-dna-native — the global pool needs host RAM, not a browser-tab heap."
+  },
+  "env": {
+    "gitSha": "a522cc8520c148a5494ee35664f9a8b37b9cba43",
+    "runner": "local Node",
+    "K_primaries": 128,
+    "radN": 165453
+  },
+  "status": "pass (mechanism validated, with caveat)",
+  "summary": {
+    "per_primary_1us": {
+      "OH": 1.559,
+      "eaq": 1.445,
+      "H": 0.658,
+      "H2O2": 0.586,
+      "H2": 0.458
+    },
+    "cross_primary_1us": {
+      "OH": 1.192,
+      "eaq": 0.908,
+      "H": 0.626,
+      "H2O2": 0.614,
+      "H2": 0.587
+    },
+    "delta_1us": {
+      "OH": -0.367,
+      "eaq": -0.537,
+      "H": -0.032,
+      "H2O2": 0.028,
+      "H2": 0.129
+    },
+    "dG_H2": 0.129,
+    "e10f_dG_H2": 0.149,
+    "headline": "Cross-primary IRT reproduces E10f: ΔG(H2)=+0.129 @128 primaries (E10f +0.149) — recovers G(H2) 0.458->0.587 (0.74x->0.94x chem6), confirming per-primary partitioning loses inter-track H2 formation. CAVEAT: it also OVER-recombines OH (0.91x->0.70x) and eaq (0.85x->0.54x) at the point-source density — so naive global pooling is not a clean production win; matching chem6 needs the density/geometry resolved (links to the E12-bulk point-source question)."
+  },
+  "conclusion": "The inter-track mechanism is confirmed and the cross-primary machinery works (enabled by the native runtime). It fixes H2 but over-recombines OH/eaq at our dense point-source core — turning it into a production improvement requires resolving the density/geometry (chem6 geometry vs our point source), and the spatial-hash optimisation for full N."
+}
