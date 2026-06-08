@@ -9,19 +9,19 @@ const NW=33.4;  // molecules/nm³ in liquid water
 //   by up to 41%; E7 showed it shortens cascade ions by 27%. 0.5×
 //   partial reduction (≈ Geant4 Born level) closes most of the CSDA
 //   deficit — E5d measured 8/8 energies monotonic improvement.
-// - RECOMB_BOOST: scales the Onsager P_recomb in EVERY e-h recombination
-//   check (sub-cutoff, autoionization, tracked-secondary alike) to
-//   approximate Geant4's process-step time-integrated recomb (our
-//   one-shot check at t=0 separation underestimates). E7c tested the
-//   asymmetric variant (boost only sub-cutoff / autoion, leave tracked-
-//   secondary at un-boosted Onsager) and found that recovers cascade
-//   ions but reverts chemistry to near-baseline (RMS dev 19% → 28%).
-//   The tracked-secondary path is the dominant lever for both effects
-//   — they can't be separated with this knob set. Uniform boost is
-//   the better chemistry choice; cascade-ion regression is the
-//   honest tradeoff documented in E7b / E7c.
+// - RECOMB_BOOST: scaled the Onsager P_recomb in every e-h recombination
+//   check. It had NO Geant4 physical basis (the H₂O⁺ refutation: Geant4's
+//   recomb is one-shot single-sample, not time-integrated) and E10r showed
+//   it was not load-bearing. SET TO 1.0 (neutral) 2026-06-08 after the
+//   RECOMB→1.0 validation passed all three gates: cascade ions recover
+//   0.677→0.766× [E7d], chemistry is parameter-free at +1.4 pp RMS and
+//   improves OH/eaq/H [E10r], and the SSB indirect/direct ratio holds in
+//   PARTRAC's 2–3 band at 2.32 with no recalibration [E13d]. The pipeline
+//   is now parameter-free in this knob; only SIGMA_EXC_SCALE remains, and
+//   it is a documented physics-data divergence (Emfietzoglou vs Born), not
+//   a tuning fudge.
 const SIGMA_EXC_SCALE:f32=0.5;
-const RECOMB_BOOST:f32=2.0;
+const RECOMB_BOOST:f32=1.0;
 
 // Cross sections (XE, XI, XC, XL, XSF*, XAE, XAC, XWE, XWS*) plus
 // their log-space indexing constants (LOG_XE0, INV_LOG_XE_STEP, ...)

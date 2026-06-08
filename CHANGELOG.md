@@ -9,6 +9,35 @@ from `0.1.0`.
 
 _Nothing pending. Open a PR or issue to start the next entry._
 
+## [0.5.0] — 2026-06-08 — parameter-free pipeline
+
+### Changed
+- **`RECOMB_BOOST` removed (set to 1.0 / neutral).** The last unphysical
+  tuning fudge is gone; the pipeline is now parameter-free (only
+  `SIGMA_EXC_SCALE = 0.5` remains, a documented Emfietzoglou-vs-Born physics
+  divergence). The flip passed all three validation gates:
+  - **Cascade ions recover** 0.677× → **0.766×** (32% → 23% deficit) — source
+    archaeology found `RECOMB_BOOST=2.0` was *destroying* ~⅓ of the
+    autoionisation ions via boosted geminate recombination (E7d).
+  - **Chemistry stays parameter-free** at +1.4 pp RMS and *improves*
+    OH/eaq/H, removing the H overshoot (E10r).
+  - **SSB ratio holds** in PARTRAC's 2–3 band at 2.32 (was 2.46) with no
+    `P_indirect` recalibration (E13d).
+- README §Numbers, the paper, the live site, and the shipped demo now all
+  report the same parameter-free config (the prior shipped-vs-reported split
+  is resolved).
+
+### Added
+- **E12-local-exact** (C=991 exact voxel dose, confirms the C≈981 proxy to 1%
+  — the L5 absolute-yield vindication now rests on measured dose).
+- **Free-compute infrastructure** (`FREE_COMPUTE.md`): IRT chemistry +
+  SSB/DSB validation run GPU-free on GitHub Actions 16 GB runners
+  (`chemistry-validation.yml`, `ssb-revalidation.yml`); dumps hosted as
+  release assets. Kaggle/Colab GPU path tested and closed (compute-only,
+  no Vulkan). Oracle Always Free runbook for the Geant4 side.
+- `tools/run_irt_ssb.cjs` — CI-runnable IRT + SSB/DSB scoring.
+- `kaggle/` — wgpu-py WebGPU probe notebook.
+
 ## [0.4.1] — 2026-06-02
 
 Paper + parameter-free chemistry. Adds the arXiv-style preprint and resolves

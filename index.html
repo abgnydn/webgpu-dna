@@ -514,7 +514,7 @@
         <tr>
           <td class="aspect">Physics fidelity @ 10 keV</td>
           <td class="old">Reference (by construction)</td>
-          <td class="new">CSDA <strong>0.988×</strong> @ 10 keV · energy conservation <strong>100.0%</strong> · cascade ions/primary 0.677× (post-joint-fix; 32% deficit) · chemistry G-values 0.71×–1.00× vs Geant4 chem6 at matched 10 keV LET · indirect/direct SSB ratio <strong>2.46</strong> (a calibrated fit, not a prediction — see §Numbers); absolute DNA-damage yields within ~3× of experiment per local dose<div class="hint">All numbers backed by JSON artifacts — see <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a> for the falsifiable source of truth</div></td>
+          <td class="new">CSDA <strong>0.988×</strong> @ 10 keV · energy conservation <strong>100.0%</strong> · cascade ions/primary <strong>0.766×</strong> (parameter-free; 23% deficit) · chemistry G-values 0.69×–0.93× vs Geant4 chem6 at matched 10 keV LET (<strong>parameter-free</strong>) · indirect/direct SSB ratio <strong>2.32</strong> (a calibrated fit, not a prediction — see §Numbers); absolute DNA-damage yields within ~3× of experiment per local dose<div class="hint">All numbers backed by JSON artifacts — see <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a> for the falsifiable source of truth</div></td>
         </tr>
         <tr>
           <td class="aspect">Reproducibility</td>
@@ -612,7 +612,7 @@
         <tr>
           <td class="aspect">Pre-chemistry</td>
           <td class="old">2 nm mother displacement · per-species product displacement · Onsager e-h recombination with time-integration during the chemistry step</td>
-          <td class="new"><strong>2 nm mother</strong> · species-specific displacement · Onsager geminate recomb (one-shot at t=0, with RECOMB_BOOST = 2.0 approximating time-integration) · B1A1 / L2-4 branching matches G4ChemDissociationChannels_option1 bit-identical <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E9, E10e-i]</a></td>
+          <td class="new"><strong>2 nm mother</strong> · species-specific displacement · Onsager geminate recomb (one-shot at t=0, RECOMB_BOOST = 1.0 / parameter-free) · B1A1 / L2-4 branching matches G4ChemDissociationChannels_option1 bit-identical <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E9, E10e-i]</a></td>
         </tr>
         <tr>
           <td class="aspect">Radiolysis chemistry</td>

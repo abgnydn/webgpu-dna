@@ -58,10 +58,11 @@ architecture itself accounts for only ${\sim}2\times$ of the speedup (the fused
 Phase~A is 2\,\% of the tracking time; Phase~B is an un-fused wavefront). The honest like-for-like
 figure is the \emph{end-to-end} \textbf{1.48$\times$}, where both pipelines do
 the same work and the IRT radiolysis chemistry on CPU dominates the
-wall-clock---we report all of these and are explicit about which is which. We also report the project's honest limits: a 32\,\%
-cascade-ionisation deficit (in production, post-joint-fix) traceable to an
-intentional excitation cross-section choice compounded by the recombination
-boost, and the finding that the \emph{inter-track} chemistry
+wall-clock---we report all of these and are explicit about which is which. We also report the project's honest limits: a 23\,\%
+cascade-ionisation deficit traceable to an intentional excitation
+cross-section choice (the remaining \texttt{SIGMA\_EXC\_SCALE} divergence; the
+formerly-compounding \texttt{RECOMB\_BOOST} fudge has been removed, recovering
+the count from 32\,\%), and the finding that the \emph{inter-track} chemistry
 contribution---which closes most of the residual \SI{1}{\micro s} gap against
 Geant4's \texttt{chem6}---is \emph{not} reachable browser-native, because
 cross-primary IRT is $O(N^2)$ for a point source and GPU step-by-step
@@ -147,15 +148,17 @@ to the similarly-named EM~Standard list \texttt{G4EmStandardPhysics\_option4}---
 rather than Born, because it yields the correct
 initial $G(\mathrm{H})=0.33$; and one tuning scalar,
 \texttt{SIGMA\_EXC\_SCALE}$=0.5$, scaling the excitation cross section. A
-second scalar present in the codebase, \texttt{RECOMB\_BOOST}, has no physical
-basis; we measured it to be nearly inconsequential (Sec.~\ref{sec:discussion},
-E10r) and report all chemistry at its neutral value $1.0$, so the
-$G$-values of \S\ref{sec:results} are parameter-free in that knob. We disclose
-that the \emph{shipped} browser demo currently defaults to
-\texttt{RECOMB\_BOOST}$=2.0$, matching the committed validation artifacts;
-because the knob also feeds the cascade-ion and strand-break endpoints,
-flipping the shipped default to $1.0$ is held pending their revalidation, and
-the two settings differ by only $1.4$~pp RMS in the chemistry (E10r).
+second scalar formerly in the codebase, \texttt{RECOMB\_BOOST}, had no physical
+basis; we measured it to be nearly inconsequential (E10r) and \textbf{removed
+it} (set to its neutral $1.0$), so production, this paper, and the shipped demo
+all run a pipeline that is \emph{parameter-free} in that knob. The removal was
+validated end-to-end: cascade ions \emph{recover} from $0.677$ to $0.766\times$
+(E7d, it had been destroying autoionisation ions), the chemistry shifts by only
+$1.4$~pp RMS while \emph{improving} OH/e$^-_{\mathrm{aq}}$/H (E10r), and the
+SSB indirect/direct ratio \emph{holds} in PARTRAC's 2--3 band at $2.32$ with no
+recalibration (E13d). The only remaining non-unity scalar,
+\texttt{SIGMA\_EXC\_SCALE}$=0.5$, is a documented physics-data divergence
+(Emfietzoglou vs Born), not a tuning fudge.
 
 \begin{table}[t]\centering\footnotesize
 \caption{Deliberate divergences from Geant4-DNA \texttt{DNA\_Opt2}, with the
@@ -235,15 +238,17 @@ artifacts E5b, E5d).}
 \end{figure}
 
 The mean free path is 5--11\,\% short of Geant4 across six energy bins
-(median $0.941$, E6). In production (post-joint-fix) the full-cascade
-ionisation count is \num{344.6} per primary vs.\ Geant4's \num{509.2}---a
-32\,\% deficit (E7b; the pre-fix value was \num{371.9}, a 27\,\% deficit at
-$263\sigma$, E7)---and the implicit $W$-value is \SI{29.02}{eV} vs.\ ICRU~31's
-\SI{21.4}{eV} (\cite{icru31}, $+35.6\,\%$, E5c). Two compounding causes: the
-intentional excitation inflation channels energy away from ionisation, and the
-joint fix's recombination boost (which improves CSDA and chemistry) kills some
-source secondaries before they cascade-ionise---a two-knob tradeoff we report
-rather than hide. The
+(median $0.941$, E6). In production (parameter-free) the full-cascade
+ionisation count is \num{389.9} per primary vs.\ Geant4's \num{509.2}---a
+23\,\% deficit (E7d), with an implicit $W$-value of ${\sim}\SI{25.6}{eV}$ vs.\
+ICRU~31's \SI{21.4}{eV} (\cite{icru31}, derived from the recovered count).
+Source archaeology found the deficit had two causes: the intentional excitation
+inflation channels energy away from ionisation (the residual 23\,\%), and
+\texttt{RECOMB\_BOOST}$=2.0$ had been \emph{destroying} ${\sim}$a third of the
+autoionisation ions via boosted geminate recombination. Setting it to the
+physical $1.0$ recovered them (E7d, $0.677\to0.766\times$) while keeping the
+chemistry parameter-free (E10r)---dissolving the former two-knob tradeoff rather
+than hiding it. The
 secondary-electron kinetic-energy spectrum at creation matches to 1.0\,\%
 overall, with 7/8 log-bins within 0.1--3.1\,\% (E8). Table~\ref{tab:track}
 summarises.
@@ -258,7 +263,7 @@ Metric & This work & Geant4 & Ratio (exp.) \\
 \midrule
 CSDA range & \SI{2714.4}{nm} & \SI{2747.5}{nm} & 0.988 (E5) \\
 Energy cons. & 100.0\,\% & 99.99\,\% & 1.000 (E5) \\
-Ions / primary (production) & 344.6 & 509.2 & 0.677 (E7b) \\
+Ions / primary (production) & 389.9 & 509.2 & 0.766 (E7d) \\
 $W$-value & \SI{26.89}{eV} & \SI{21.4}{eV}$^\dagger$ & 1.257 (E5c) \\
 Sec.\ KE/primary & 143.4 & 144.9 & 1.010 (E8) \\
 \bottomrule
@@ -312,13 +317,15 @@ We report Level~5 as a \emph{calibrated} damage model, not a validated
 prediction, and state the distinction plainly. On a $21\times21$ B-DNA fibre
 grid (\num{3.89}~Mbp target) the strand-break counts are the geometric
 backbone-reach counts multiplied by per-event break probabilities:
-$\mathrm{SSB_{dir}}=26=\lfloor 173\times P_{\mathrm{dir}}\rfloor$ with
-$P_{\mathrm{dir}}=0.15$, and $\mathrm{SSB_{ind}}=64\approx 1423\times
-P_{\mathrm{ind}}$ with $P_{\mathrm{ind}}=0.05$. The reported indirect/direct
-ratio of 2.46 lies within PARTRAC's 2--3 band \cite{friedland2011}, but
-$P_{\mathrm{ind}}$ was \emph{calibrated} (from the Geant4 default 0.4) to land
-in that band; the ratio is therefore a fit, not an independent test, and
-PARTRAC is itself a simulation.
+the counts are the geometric backbone-reach counts multiplied by per-event
+break probabilities ($P_{\mathrm{dir}}=0.15$, $P_{\mathrm{ind}}=0.05$). In
+parameter-free production ($\mathrm{SSB_{dir}}=28$, $\mathrm{SSB_{ind}}=65$),
+the indirect/direct ratio is $2.32$, within PARTRAC's 2--3 band
+\cite{friedland2011}. $P_{\mathrm{ind}}$ was \emph{calibrated} (from the Geant4
+default 0.4) to land in that band, so the ratio is a fit, not an independent
+test, and PARTRAC is itself a simulation---but it held in-band across the
+\texttt{RECOMB\_BOOST}$\to1.0$ flip with no recalibration (E13d; it was $2.46$
+at $2.0$), so it is at least robust to that change.
 
 Against experiment-calibrated cellular yields (\(\sim\)35~DSB and
 \(\sim\)1000~SSB per diploid cell per Gy for low-LET radiation
@@ -441,10 +448,11 @@ any modern GPU with no install, which is valuable for teaching, sharing, and
 independent re-checking of every artifact. The cost is the WebGPU feature
 envelope (integer-only atomics, no recursion) and---per
 Sec.~\ref{sec:intertrack}---an inter-track chemistry ceiling that pushes the
-last increment of fidelity off-browser. The cascade-ionisation deficit and the
-\texttt{RECOMB\_BOOST} fudge are open items with identified, falsifiable next
-steps (super-excitation autoionisation; an Onsager escape-probability
-treatment to replace the fudge). Relative to the CUDA codes gMicroMC and
+last increment of fidelity off-browser. The \texttt{RECOMB\_BOOST} fudge has
+been removed (the pipeline is now parameter-free in it); the residual 23\,\%
+cascade-ionisation deficit is the remaining open item, with an identified,
+falsifiable next step (super-excitation autoionisation tuning, to let
+\texttt{SIGMA\_EXC\_SCALE} relax toward unity). Relative to the CUDA codes gMicroMC and
 MPEXS-DNA, our speedups come from
 kernel fusion on a single consumer GPU (MPEXS-DNA, for reference, reports up
 to 2900$\times$ over single-core Geant4-DNA on an NVIDIA TITAN~V
