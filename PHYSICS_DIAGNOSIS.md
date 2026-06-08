@@ -499,3 +499,31 @@ Each row has a concrete cost estimate. Pulling them in priority order:
 4. **E16** (2-3 hours) — closes the marquee thesis.
 5. **E8** (1-2 hours) — secondary KE spectrum harness work.
 6. **E14** (1 day) — molecularDNA matched-geometry comparison.
+
+
+### Cascade-deficit research — leads ruled out, narrowed to the low-E budget (2026-06-08)
+
+The 23% production cascade deficit (389.9 vs Geant4 509.2; W = 25.6 vs Geant4
+10000/509 = 19.6 eV) has had three leads ruled out, the researcher way:
+
+1. **σ_exc — REFUTED (E7e).** Lowering 0.5→0.39 moved the cascade 0.766→0.770×.
+2. **σ_ion — wrong sign.** It is 6% *high* (E6b) → would *add* ions, not remove.
+3. **Excitation as the energy sink — ruled out by the partition.** Geant4's
+   per-event ntuple (`validation/g4_per_event.csv`) is **509.2 ions : 62.5 exc
+   per primary — 8.1:1, ionisation-dominated.** Our excitation is only ~78
+   (Emfietzoglou × 0.5 ≈ 1.28× Born; Geant4 Born = 62.5), so the ~16-event
+   excess is ~160 eV — far too small to be the ~2340 eV the missing ~120 ions
+   represent.
+
+**Narrowed lead:** the ~2340 eV/primary that fails to ionise (vs Geant4) goes to
+the **low-energy / secondary-cascade budget** — vibrational (Sanche) energy loss
+and sub-cutoff deposition near track ends — not to excitation or the primary
+cross sections. Our full cascade splits primary 195 + secondary 195 ions; if
+Geant4's primary is comparable, its secondaries out-ionise ours, pointing at the
+secondary stepper / low-E energy partition.
+
+**Decisive next experiment (memory- or Geant4-gated):** (a) a per-process energy
+budget at low E — how much our model deposits via vibrational vs ionisation
+between ~10–100 eV — compared to Geant4; and (b) a Geant4 per-trackID ion split
+(primary vs secondary) to localise the deficit. Neither is a quick check; both
+are well-defined.
