@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "protocol": "E13d-ssb-revalidation-recomb1",
+    "hypothesis": "Flipping RECOMB_BOOST 2.0->1.0 (E7d) shifts the chemistry (slightly more OH) and the cascade (more ionizations), so the SSB indirect/direct ratio could drift out of PARTRAC 2-3. Test: does it hold without recalibrating SSB_P_INDIRECT (which was tuned at 2.0)?",
+    "method": "Ran tools/run_irt_ssb.cjs (IRT chemistry + indirect SSB via the worker, direct SSB + DSB clustering ported from src/scoring/ssb-dsb.ts) on the RECOMB=1.0 10 keV dump (rad_E10000_recomb1.bin), on a GitHub 16 GB runner (GPU-free). Constants UNCHANGED from production (P_indirect=0.05, P_direct=0.15, r_indirect=1.0).",
+    "infra": "GitHub Actions ssb-revalidation.yml run 27134163944",
+    "passBar": "indirect/direct ratio stays in PARTRAC [2,3] band without recalibration."
+  },
+  "env": {
+    "gitSha": "3af4fe1c0ec2fa402d469ba48586b44ca8566921",
+    "runner": "github-actions-ubuntu-latest",
+    "recomb_boost": 1,
+    "nPrimaries": 4096
+  },
+  "status": "pass",
+  "summary": {
+    "recomb_1_0": {
+      "ssb_dir": 28,
+      "ssb_ind": 65,
+      "dsb": 11,
+      "ratio": 2.32,
+      "G_OH_1us": 1.563
+    },
+    "recomb_2_0_baseline_E13c": {
+      "ssb_dir": 26,
+      "ssb_ind": 64,
+      "dsb": 9,
+      "ratio": 2.46,
+      "G_OH_1us": 1.53
+    },
+    "headline": "RECOMB->1.0 SSB ratio = 2.32 (was 2.46 @ 2.0) — STILL in PARTRAC 2-3 band, NO P_indirect recalibration needed. The production flip does not break strand-break validation. With E7d (cascade 0.677->0.766x) and E10r (parameter-free chemistry), all three gates pass."
+  },
+  "conclusion": "RECOMB_BOOST->1.0 is fully validated: cascade ions recover [E7d], chemistry is parameter-free [E10r], SSB ratio holds in band [this]. Production can flip to 1.0 for a parameter-free pipeline."
+}
