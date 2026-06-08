@@ -600,3 +600,25 @@ validation snapshot the fix targets.
    after an E10f-style synthetic experiment measures the
    boundary-product-loss rate and confirms it is within the validation
    bars. Do not ship a static-halo chunking without that measurement.
+
+
+## RESOLVED 2026-06-08 (E17) — cross-primary is a coupled tradeoff, not a clean fix
+
+Built and ran (enabled by the native runtime; `tools/run_irt_xprimary.cjs`,
+global pool via pid=0 in the production worker). It reproduces E10f's
+dG(H2)=+0.129 @128 primaries (E10f +0.149) — but a density sweep (K=16->128)
+shows dH2 up and dOH/eaq down are **monotonically coupled** (~3 OH lost per H2):
+
+| K | dH2 | dOH | deaq |
+|---|----|-----|------|
+| 16 | +0.012 | -0.081 | -0.077 |
+| 32 | +0.050 | -0.131 | -0.208 |
+| 64 | +0.083 | -0.229 | -0.372 |
+| 128 | +0.129 | -0.367 | -0.537 |
+
+**No density matches chem6** (high H2 AND high OH). This corrects E10f, which
+pinned per-primary partitioning as "96% of the 1 us gap" by looking at **H2
+only** — fixing H2 via cross-primary *breaks* OH/eaq. So the chem6 gap is NOT a
+partitioning artifact; chem6's high-H2-and-high-OH must come from a
+reaction/diffusion-physics difference (rate constants, radii, initial spatial
+distribution) — the real open question. Production keeps per-primary IRT.

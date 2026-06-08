@@ -11,7 +11,7 @@
     "K_primaries": 128,
     "radN": 165453
   },
-  "status": "pass (mechanism validated, with caveat)",
+  "status": "pass (mechanism validated; E10f framing corrected — coupled tradeoff, not a clean fix)",
   "summary": {
     "per_primary_1us": {
       "OH": 1.559,
@@ -36,7 +36,32 @@
     },
     "dG_H2": 0.129,
     "e10f_dG_H2": 0.149,
-    "headline": "Cross-primary IRT reproduces E10f: ΔG(H2)=+0.129 @128 primaries (E10f +0.149) — recovers G(H2) 0.458->0.587 (0.74x->0.94x chem6), confirming per-primary partitioning loses inter-track H2 formation. CAVEAT: it also OVER-recombines OH (0.91x->0.70x) and eaq (0.85x->0.54x) at the point-source density — so naive global pooling is not a clean production win; matching chem6 needs the density/geometry resolved (links to the E12-bulk point-source question)."
+    "headline": "Cross-primary IRT reproduces E10f: ΔG(H2)=+0.129 @128 primaries (E10f +0.149) — recovers G(H2) 0.458->0.587 (0.74x->0.94x chem6), confirming per-primary partitioning loses inter-track H2 formation. CAVEAT: it also OVER-recombines OH (0.91x->0.70x) and eaq (0.85x->0.54x) at the point-source density — so naive global pooling is not a clean production win; matching chem6 needs the density/geometry resolved (links to the E12-bulk point-source question).",
+    "density_sweep": {
+      "note": "cross-primary minus per-primary dG @1us vs K primaries (density in the point-source core)",
+      "K16": {
+        "dH2": 0.012,
+        "dOH": -0.081,
+        "deaq": -0.077
+      },
+      "K32": {
+        "dH2": 0.05,
+        "dOH": -0.131,
+        "deaq": -0.208
+      },
+      "K64": {
+        "dH2": 0.083,
+        "dOH": -0.229,
+        "deaq": -0.372
+      },
+      "K128": {
+        "dH2": 0.129,
+        "dOH": -0.367,
+        "deaq": -0.537
+      },
+      "coupling": "dH2 up and dOH/eaq down monotonically together (~3 OH lost per H2 gained) — a coupled tradeoff"
+    },
+    "decisive_conclusion": "No density reproduces chem6 (high H2 AND high OH); the inter-track recombination couples them. E12-bulk (density via spreading) would NOT close the gap. Corrects E10f, which pinned per-primary partitioning as 96% of the 1us gap by looking at H2 ONLY: fixing H2 via cross-primary breaks OH/eaq. chem6 high-H2-and-high-OH must come from a reaction/diffusion difference, not cross-primary pooling. Production keeps per-primary IRT (better OH/eaq)."
   },
   "conclusion": "The inter-track mechanism is confirmed and the cross-primary machinery works (enabled by the native runtime). It fixes H2 but over-recombines OH/eaq at our dense point-source core — turning it into a production improvement requires resolving the density/geometry (chem6 geometry vs our point source), and the spatial-hash optimisation for full N."
 }
