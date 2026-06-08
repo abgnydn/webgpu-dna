@@ -12,8 +12,8 @@ same conclusion: its CI skips WebGPU E2E but runs heavy CPU/WASM work on the
 | Phase A+B track-structure physics | **WebGPU** | local (Apple Metal) | local only |
 | IRT radiolysis chemistry (the memory hog) | CPU / Node | **GitHub Actions** (16 GB runner) | ✅ wired |
 | Geant4 reference + E15-fairer | CPU | **Oracle Always Free** (24 GB ARM) | runbook below |
-| Multi-GPU / arbitrary-N physics | native WebGPU | Colab/Kaggle (free GPU) | needs `webgpu-dna-native` |
-| Citizen-science WebGPU at scale | volunteer WebGPU | WebRTC swarm + Cloudflare Workers | roadmap |
+| Multi-GPU / arbitrary-N physics | native WebGPU | ~~Colab/Kaggle~~ | ❌ **closed** — see §3 |
+| Citizen-science WebGPU at scale | volunteer WebGPU | WebRTC swarm + Cloudflare Workers | roadmap (the real free-WebGPU path) |
 
 ## 1. GitHub Actions — IRT chemistry (wired)
 
@@ -77,21 +77,33 @@ time ./dnaphysics-nontuple validation/run_validation.mac # no dna.root
 This is CPU-only, so it runs on Oracle without the local memory pressure, and
 the box stays available for ad-hoc Geant4 reference regenerations.
 
-## 3. Colab / Kaggle — free GPU via wgpu-py
+## 3. Colab / Kaggle — free GPU via wgpu-py — ❌ TESTED, CLOSED (2026-06-08)
 
-Colab and Kaggle give free CUDA GPUs (T4; Kaggle ~30 GPU-hrs/week). They cannot
-run WGSL *directly*, but [`wgpu-py`](https://github.com/pygfx/wgpu-py) (Python
-bindings to the same `wgpu-native` the roadmap's `webgpu-dna-native` would use)
-runs WGSL compute on the GPU over Vulkan. So the native-runtime work can land in
-Python here and unlock **free GPU hours** for the Phase A+B physics that CI
-can't run.
+The hypothesis was: Colab/Kaggle give free CUDA GPUs, and
+[`wgpu-py`](https://github.com/pygfx/wgpu-py) (bindings to `wgpu-native`) could
+run WGSL on them over Vulkan, unlocking free GPU hours for the physics.
 
-[`kaggle/webgpu_dna_kaggle.ipynb`](./kaggle/) is the probe: import it from
-GitHub into Kaggle, enable the GPU accelerator, and it confirms `wgpu-py`
-acquires the Tesla GPU and runs a WGSL compute kernel. If it passes, the only
-remaining work is porting the TS host orchestration
-(`src/gpu/{buffers,pipelines,dispatch}.ts`) to Python — the shaders compile
-unchanged. See [`kaggle/README.md`](./kaggle/README.md).
+**Probed and refuted.** `kaggle/webgpu_dna_kaggle.ipynb` on a Kaggle GPU T4 x2
+instance (accelerator ON) — even after detecting/registering the NVIDIA Vulkan
+ICD — reports:
+
+```
+device       llvmpipe (LLVM 15.0.7)
+adapter_type CPU
+backend_type OpenGL
+```
+
+i.e. `wgpu` found **no GPU-accessible Vulkan device**, fell back to OpenGL, and
+that too is only Mesa's **software** rasterizer (`llvmpipe`). Kaggle's Tesla
+driver is **compute-only (CUDA), with no Vulkan and no GPU OpenGL** — and *every*
+WebGPU implementation (wgpu-native, Dawn) is Vulkan/Metal/D3D, never CUDA. So the
+GPU is reachable for PyTorch but **not for WGSL/WebGPU**. Colab uses the same
+Tesla images and almost certainly behaves identically.
+
+**Verdict:** free *datacenter* GPUs cannot run our physics. The probe (2 min)
+saved the entire Python host-port effort it would have gated. The notebook is
+kept as the reusable diagnostic. **The only free path to WebGPU is §4 (the
+swarm) — volunteer *consumer* browsers, whose GPUs expose real Vulkan/Metal/D3D.**
 
 ## 4. WebRTC swarm — volunteer WebGPU (roadmap)
 
