@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "protocol": "E7e-sigma-exc-sweep",
+    "hypothesis": "The residual 23% cascade-ion deficit at 10 keV is driven by σ_exc inflation (PHYSICS_DIAGNOSIS §2); lowering SIGMA_EXC_SCALE from 0.5 toward Born (~0.39) should recover the cascade count toward Geant4 509.",
+    "method": "Flipped SIGMA_EXC_SCALE 0.5->0.39 in helpers.wgsl, regenerated all 8 ESTAR dumps (WebGPU physics, chem off), recounted H3O+ cascade ions + read CSDA and G(H)_init from the harness log. RECOMB_BOOST held at 1.0 (production).",
+    "passBar": "cascade ratio increases materially toward 1.0 (hypothesis confirmed) OR stays flat (hypothesis REFUTED)."
+  },
+  "env": {
+    "gitSha": "98e677ae06047eacaac1cdbf636e25db01789130",
+    "runner": "local M2 Pro WebGPU",
+    "sigma_exc_scale": 0.39,
+    "recomb_boost": 1,
+    "nPrimaries": 4096
+  },
+  "status": "refuted",
+  "summary": {
+    "cascade_ratio": {
+      "sigma_0_50": 0.766,
+      "sigma_0_39": 0.77
+    },
+    "cascade_ions_per_pri": {
+      "sigma_0_50": 389.9,
+      "sigma_0_39": 391.9
+    },
+    "csda_ratio_10keV": {
+      "sigma_0_50": 0.994,
+      "sigma_0_39": 0.997
+    },
+    "G_H_init_10keV": {
+      "sigma_0_50": "~0.62",
+      "sigma_0_39": 0.62
+    },
+    "headline": "REFUTED: lowering σ_exc 22% (0.5->0.39) moved the 10 keV cascade ratio only 0.766->0.770x (+2 ions/pri). σ_exc is NOT the lever for the residual 23% deficit — at 10 keV excitation is a minority energy-loss channel (ionization dominates), so it is saturated by 0.5. The deficit has a different, still-unidentified cause (not σ_exc; σ_ion is the wrong direction per E6b)."
+  },
+  "conclusion": "Corrects PHYSICS_DIAGNOSIS §2: the residual cascade deficit at 10 keV is NOT a σ_exc-vs-G(H) tradeoff. σ_exc matters at sub-keV (CSDA, E5d) but is saturated for the 10 keV cascade. Production keeps σ_exc=0.5 (0.39 gave no meaningful gain). The cause of the 23% is reopened."
+}

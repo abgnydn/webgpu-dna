@@ -286,12 +286,25 @@ reason this could close much of the gap.
 the 10 keV dump, re-counted: cascade ions **344.6 → 389.9/pri** (0.677× →
 **0.766×**; 32% → **23%** deficit), +45 ions/primary recovered. Confirms the
 mechanism — RECOMB=2.0 was destroying ~a third of the autoionisation ions. The
-residual 23% is the σ_exc=0.5 reduction of excitation *events* (fewer
-autoionisations), the deeper two-knob-limit part (E7c). Chemistry at 1.0 is the
-parameter-free E10r (RMS 19.7% vs 18.3%, improves OH/eaq/H). So RECOMB→1.0 is a
-confirmed triple win; the production flip is gated only on SSB/DSB revalidation
-(SSB_P_INDIRECT was calibrated at 2.0). Artifact:
+residual 23% was *assumed* to be the σ_exc reduction — **but E7e refuted that
+(2026-06-08).** Chemistry at 1.0 is the parameter-free E10r (RMS 19.7% vs 18.3%,
+improves OH/eaq/H). So RECOMB→1.0 is a confirmed triple win. Artifact:
 `experiments/results/2026-06-08/level-2/E7d-recomb-flip-cascade.json`.
+
+### σ_exc REFUTED as the residual-deficit lever (E7e, 2026-06-08)
+
+Tested the natural hypothesis that the residual 23% at 10 keV is σ_exc
+inflation: flipped `SIGMA_EXC_SCALE` 0.5→0.39 (≈Born) and re-measured. The
+cascade ratio moved only **0.766→0.770×** (+2 ions/pri) for a 22% σ_exc cut;
+CSDA 0.994→0.997×, G(H)_init unchanged. **σ_exc is NOT the lever.** Physically:
+at 10 keV ionisation dominates the energy loss and excitation is a minority
+channel, so σ_exc is saturated by 0.5 (it matters at *sub-keV*, where E5d saw
+the big CSDA gains going 1.0→0.5). σ_ion is the wrong sign (6% high, E6b → would
+*add* ions). **So the cause of the residual 23% cascade deficit at 10 keV is
+reopened and unidentified** — candidates now point at the secondary-electron
+cascade (sec/pri, the wavefront stepper) or a Geant4 counting-convention
+difference, not the excitation cross section. Artifact:
+`experiments/results/2026-06-08/level-2/E7e-sigma-exc-sweep.json`.
 
 ## 3. Indirect SSB undercounted (ratio 0 vs PARTRAC's 2-3) — E13, 2026-05-11
 
