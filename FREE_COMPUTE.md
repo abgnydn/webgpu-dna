@@ -97,8 +97,8 @@ i.e. `wgpu` found **no GPU-accessible Vulkan device**, fell back to OpenGL, and
 that too is only Mesa's **software** rasterizer (`llvmpipe`). Kaggle's Tesla
 driver is **compute-only (CUDA), with no Vulkan and no GPU OpenGL** — and *every*
 WebGPU implementation (wgpu-native, Dawn) is Vulkan/Metal/D3D, never CUDA. So the
-GPU is reachable for PyTorch but **not for WGSL/WebGPU**. Colab uses the same
-Tesla images and almost certainly behaves identically.
+GPU is reachable for PyTorch but **not for WGSL/WebGPU**. Colab was tested too (2026-06-08): same Tesla T4, `NVIDIA Vulkan lib: NONE
+FOUND` — identical compute-only result. Both Google free GPUs confirmed.
 
 **Verdict:** free *datacenter* GPUs cannot run our physics. The probe (2 min)
 saved the entire Python host-port effort it would have gated. The notebook is
