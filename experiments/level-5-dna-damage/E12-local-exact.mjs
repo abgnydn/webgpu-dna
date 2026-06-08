@@ -62,6 +62,6 @@ const artifact = {
     headline: `EXACT (voxel dose): ${(fracCore*100).toFixed(1)}% of energy in central 3µm → C=${C.toFixed(0)}, local dose ${localDose.toFixed(0)} Gy. Proxy E12-local gave C≈981.`,
   },
 };
-mkdirSync('experiments/results/2026-06-04/level-5', { recursive: true });
-writeFileSync('experiments/results/2026-06-04/level-5/E12-local-exact.json', JSON.stringify(artifact, null, 2));
+mkdirSync('experiments/results/2026-06-08/level-5', { recursive: true });
+writeFileSync('experiments/results/2026-06-08/level-5/E12-local-exact.json', JSON.stringify(artifact, null, 2));
 console.log(artifact.summary.headline);

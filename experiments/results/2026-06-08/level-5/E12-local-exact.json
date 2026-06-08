@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "protocol": "E12-local-exact",
+    "method": "integrate actual 128³ voxel dose grid over fibre footprint vs whole box",
+    "source": "dumps/dose_E10000_N4096.bin",
+    "compares_to": "E12-local proxy C≈981"
+  },
+  "env": {
+    "gitSha": "7b37249a2c26d3d69ca0b103888c548ae46c078e",
+    "runner": "node",
+    "voxelCount": 128,
+    "voxNm": 234.375,
+    "coreVoxelRange": [
+      57,
+      70
+    ]
+  },
+  "status": "pass",
+  "summary": {
+    "totalEnergy_eV": 40937712.71000009,
+    "frac_energy_in_core": 0.9912550829955739,
+    "C_exact": 991.2550829955738,
+    "C_proxy_E12local": 981,
+    "localDose_Gy": 240.9306236866164,
+    "boxDose_Gy": 0.2430561293653333,
+    "headline": "EXACT (voxel dose): 99.1% of energy in central 3µm → C=991, local dose 241 Gy. Proxy E12-local gave C≈981."
+  }
+}
