@@ -280,11 +280,18 @@ shader + Geant4 corrects the picture in two ways:
 value the paper already reports, E10r) is a **triple win**: parameter-free
 chemistry (+1.4 pp RMS only), more surviving autoionisation ions (cascade-count
 recovery), and one fewer fudge. The ~117-ion autoionisation headroom is the
-reason this could close much of the gap. **Validation needed** (one GPU run,
-memory-blocked at time of writing): flip RECOMB to 1.0 at the current σ_exc=0.5
-and re-measure cascade ions — isolates the recomb contribution. The residual
-after that (the σ_exc=0.5 reduction of excitation *events*, hence fewer
-autoionisations) is the deeper two-knob-limit part (E7c).
+reason this could close much of the gap.
+
+**VALIDATED 2026-06-08 (E7d).** Flipped RECOMB to 1.0 at σ_exc=0.5, regenerated
+the 10 keV dump, re-counted: cascade ions **344.6 → 389.9/pri** (0.677× →
+**0.766×**; 32% → **23%** deficit), +45 ions/primary recovered. Confirms the
+mechanism — RECOMB=2.0 was destroying ~a third of the autoionisation ions. The
+residual 23% is the σ_exc=0.5 reduction of excitation *events* (fewer
+autoionisations), the deeper two-knob-limit part (E7c). Chemistry at 1.0 is the
+parameter-free E10r (RMS 19.7% vs 18.3%, improves OH/eaq/H). So RECOMB→1.0 is a
+confirmed triple win; the production flip is gated only on SSB/DSB revalidation
+(SSB_P_INDIRECT was calibrated at 2.0). Artifact:
+`experiments/results/2026-06-08/level-2/E7d-recomb-flip-cascade.json`.
 
 ## 3. Indirect SSB undercounted (ratio 0 vs PARTRAC's 2-3) — E13, 2026-05-11
 
