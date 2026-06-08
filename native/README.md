@@ -64,9 +64,14 @@ nearly as-is — the browser-specific edges are small:
 ### Next steps
 1. ~~Port loader + initGPU + Phase A/B to a Deno entry; match the browser dump.~~ **DONE** (`run-phase-a.ts`, bit-identical rad_n).
 2. ~~Add Phase B + dose readback.~~ **DONE** (runAtEnergy covers A+B).
-3. Swap the per-primary `priMap` IRT for a **global pool** (the cross-primary
-   fix) now that host RAM is available — the ~30-minute drop-in the design doc
-   describes.
-4. Validate G-values vs the browser harness within MC noise.
+3. ~~Swap the per-primary `priMap` IRT for a global pool (the cross-primary fix).~~
+   **DONE & characterized (E17, `tools/run_irt_xprimary.cjs`).** The global pool
+   works, reproduces E10f's ΔG(H₂)=+0.129 @128 primaries — but a density sweep
+   showed it's a **coupled tradeoff** (H₂↑ couples to OH/eaq↓, ~3:1), not a clean
+   win. It does **not** close the chem6 gap, which E18 then localised to the
+   radical spatial distribution (the IRT rates are bit-identical to Geant4).
+4. ~~Validate G-values vs the browser harness.~~ The native Phase A+B already
+   matches bit-for-bit (rad_n identical); the chemistry G-value path is the IRT
+   worker, validated separately (E17/E18).
 
 Install Deno (user-space, no sudo): `curl -fsSL https://deno.land/install.sh | sh`.
