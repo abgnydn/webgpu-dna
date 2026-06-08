@@ -22,6 +22,18 @@ Each item below lists: **(scope) (parallelism) (sequential bottleneck) (validati
 
 ## Tier 0 — Operational housekeeping (~minutes)
 
+- ~~**`RECOMB_BOOST` removal → parameter-free pipeline.**~~ **DONE 2026-06-08 (v0.5.0).**
+  The flip RECOMB 2.0→1.0 passed all three gates — cascade ions *recover*
+  0.677→0.766× [E7d], chemistry parameter-free [E10r], SSB holds at 2.32 [E13d].
+  Production, README, paper, and live site all parameter-free. Zenodo v0.5.0
+  DOI `10.5281/zenodo.20593367`. The only non-unity scalar left is
+  `SIGMA_EXC_SCALE=0.5` (a documented physics-data divergence, not a fudge).
+- ~~**Free-compute infrastructure.**~~ **DONE 2026-06-08.** IRT chemistry +
+  SSB/DSB validation run GPU-free on GitHub Actions 16 GB runners
+  (`chemistry-validation.yml`, `ssb-revalidation.yml`); dumps on the
+  `validation-inputs-v1` release. Kaggle/Colab GPU tested and CLOSED
+  (compute-only, no Vulkan). Oracle Always Free runbook for Geant4. See
+  [`FREE_COMPUTE.md`](./FREE_COMPUTE.md).
 - ~~**Zenodo DOI.**~~ **DONE 2026-06-02 for v0.4.1.** Concept DOI
   `10.5281/zenodo.20506339` (always resolves to latest), version DOI
   `10.5281/zenodo.20506340` (v0.4.1). Wired into `CITATION.cff`

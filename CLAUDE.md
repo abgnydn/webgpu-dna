@@ -2,7 +2,9 @@
 
 ## Next session — start here
 
-**Status as of 2026-05-14**: 40 commits past v0.3.0, all pushed (HEAD = `a9e4f146`). Production live at `webgpudna.com`. The last session ended with the structural narrative pivot below, after which a host-side Ghostty TCC drop blocked further local work.
+**Status as of 2026-06-08 — `v0.5.0`, parameter-free pipeline.** `RECOMB_BOOST` removed (set to 1.0); the only non-unity scalar left is `SIGMA_EXC_SCALE=0.5` (a documented Emfietzoglou-vs-Born divergence). The flip passed all 3 gates: cascade ions recover 0.677→0.766× [E7d], chemistry parameter-free [E10r], SSB holds at 2.32 [E13d]. Zenodo v0.5.0 DOI `10.5281/zenodo.20593367`. **Free-compute infra wired** (`FREE_COMPUTE.md`): IRT chemistry + SSB scoring run GPU-free on GitHub Actions (`chemistry-validation.yml`, `ssb-revalidation.yml`); Kaggle/Colab GPU ruled out (no Vulkan); Oracle Always Free runbook for Geant4. **The one open physics gap: the residual 23% cascade-ion deficit** — a σ_exc-vs-G(H) tension (lowering σ_exc toward Born fixes cascade+CSDA but breaks G(H)); the next experiment is a σ_exc sweep to map whether it's closeable or the honest Emfietzoglou floor.
+
+<details><summary>Earlier session notes (pre-v0.5.0, kept for provenance)</summary>
 
 ### The structural pivot to read first
 
@@ -37,6 +39,8 @@ This ordering produces a clean research-grade arc: joint fix v0.3.0 (empirical) 
 ### Memory of host-side gotchas
 
 If `ls ~/Downloads/` returns `Operation not permitted` in the next session: it's the recurring Ghostty TCC drop documented in `~/.claude/.../memory/macos_tcc_ghostty.md` and `~/.claude/.../memory/macos_tcc_ghostty_downloads.md`. Recovery: System Settings → Privacy & Security → Files and Folders → Ghostty, toggle Downloads off+on, then quit and reopen Ghostty. Or `tccutil reset SystemPolicyDownloadsFolder com.mitchellh.ghostty` from a non-Ghostty terminal.
+
+</details>
 
 ---
 
