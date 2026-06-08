@@ -1,0 +1,73 @@
+name: SSB revalidation (IRT + scoring)
+
+# Runs the IRT chemistry WITH SSB/DSB scoring (tools/run_irt_ssb.cjs) on a
+# rad_buf dump, on a 16 GB runner. GPU-free (the dump is the WebGPU output).
+# Used to revalidate the strand-break endpoints after a shader change — e.g.
+# RECOMB_BOOST 2.0->1.0 (E7d), where SSB_P_INDIRECT was calibrated at 2.0 and
+# the indirect/direct ratio must be re-checked against PARTRAC's 2-3 band.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dump:
+        description: "dump asset name on validation-inputs-v1"
+        type: string
+        default: "rad_E10000_recomb1.bin"
+      energy:
+        description: "primary energy in eV"
+        type: string
+        default: "10000"
+      label:
+        description: "label for the result artifact"
+        type: string
+        default: "recomb1"
+
+permissions:
+  contents: read
+
+jobs:
+  ssb:
+    name: SSB/DSB @ ${{ inputs.energy }} eV (${{ inputs.label }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      DUMP: ${{ inputs.dump }}
+      ENERGY: ${{ inputs.energy }}
+      LABEL: ${{ inputs.label }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Runner memory
+        run: |
+          free -h
+          echo "cores $(nproc)"
+      - name: Download dump
+        run: |
+          mkdir -p dumps ci-results
+          gh release download validation-inputs-v1 --repo "$GITHUB_REPOSITORY" \
+            --pattern "$DUMP" --dir dumps --clobber
+          ls -la "dumps/$DUMP"
+      - name: Run IRT + SSB/DSB scoring (13 GB heap)
+        run: |
+          node --max-old-space-size=13000 tools/run_irt_ssb.cjs \
+            "dumps/$DUMP" 4096 "$ENERGY" \
+            > "ci-results/ssb_${LABEL}_E${ENERGY}.json"
+          echo "--- result ---"; cat "ci-results/ssb_${LABEL}_E${ENERGY}.json"
+      - name: Compare to RECOMB=2.0 baseline (E13c)
+        run: |
+          echo "RECOMB=2.0 baseline (E13c): SSB_dir=26 SSB_ind=64 DSB=9 ratio=2.46 (PARTRAC 2-3 band)"
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssb-${{ inputs.label }}-E${{ inputs.energy }}
+          path: ci-results/ssb_${{ inputs.label }}_E${{ inputs.energy }}.json
+          if-no-files-found: error
