@@ -261,6 +261,10 @@ items:
   (where excitation is a bigger energy-loss fraction than at the 10 keV primary — why
   E7e saw σ_exc barely move the primary). The **honest floor**: lowering σ_exc would
   close it but break the initial G(H)/G(H₂) Emfietzoglou is chosen for. Not a fixable bug.
-- **Slight G(H) overshoot** (1.085× vs chem6) — the full cascade pushed G(H) from
-  0.93× to a mild overshoot; worth a look but small.
+- **Slight G(H) overshoot** (1.085× vs chem6) — likely the *same* σ_exc=0.5
+  Emfietzoglou root as the cascade residual (E26): over-excitation produces more
+  A¹B₁ dissociation (OH+H) → more H. So the two residuals are one knob in opposite
+  directions — lowering σ_exc would close the cascade deficit *and* tame the H
+  overshoot, but break the initial G(H₂); the chosen Emfietzoglou config trades a
+  small H overshoot for correct molecular yields. Small and characterised.
 - **E14 vs molecularDNA** (~1 day — full chromatin geometry comparison; deferred).
