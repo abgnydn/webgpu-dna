@@ -133,15 +133,20 @@ export async function runAtEnergy(
   let t_sec = 0;
   if (sec_n > 0) {
     const t1 = performance.now();
-    const CHUNK = 100; // steps per chunk before re-reading the wavefront size
+    const CHUNK = 100; // steps per chunk while the cascade wavefront is growing
     let cur_sec_n = sec_n;
-    for (let base = 0; base < MAX_SEC_STEPS; base += CHUNK) {
+    let base = 0;
+    // Phase B-1: track cascade growth, re-reading the wavefront size each chunk
+    // UNTIL it stabilises. Particle energies only decrease, so once a chunk emits
+    // no new tertiaries (counter unchanged) none ever will — the readbacks (the
+    // expensive GPU syncs) can then stop.
+    while (base < MAX_SEC_STEPS) {
+      const steps = Math.min(CHUNK, MAX_SEC_STEPS - base);
       writeSecondaryParams(device, buffers.secParams, cur_sec_n, boxNm, ceEV, E_eV, dna);
       const enc2 = device.createCommandEncoder();
       const pass2 = enc2.beginComputePass();
       pass2.setPipeline(pipelines.secondary);
       pass2.setBindGroup(0, pipelines.secondaryBG);
-      const steps = Math.min(CHUNK, MAX_SEC_STEPS - base);
       const wg = Math.ceil(cur_sec_n / 256);
       for (let step = 0; step < steps; step++) pass2.dispatchWorkgroups(wg);
       pass2.end();
@@ -149,11 +154,25 @@ export async function runAtEnergy(
       device.queue.submit([enc2.finish()]);
       await device.queue.onSubmittedWorkDone();
       await buffers.countersRB.mapAsync(GPUMapMode.READ);
-      const cc = new Uint32Array(buffers.countersRB.getMappedRange().slice(0) as ArrayBuffer);
-      cur_sec_n = Math.min(cc[6], MAX_SEC);
+      const grown = Math.min(new Uint32Array(buffers.countersRB.getMappedRange().slice(0) as ArrayBuffer)[6], MAX_SEC);
       buffers.countersRB.unmap();
-      // Keep processing all chunks even after the wavefront stops growing, so
-      // every tracked particle finishes thermalising and creates its eaq.
+      base += steps;
+      if (grown === cur_sec_n) break; // wavefront stable — cascade emission complete
+      cur_sec_n = grown;
+    }
+    // Phase B-2: thermalise the (now-fixed) wavefront for the remaining steps in a
+    // single submitted pass — no per-chunk readbacks needed.
+    if (base < MAX_SEC_STEPS) {
+      writeSecondaryParams(device, buffers.secParams, cur_sec_n, boxNm, ceEV, E_eV, dna);
+      const encR = device.createCommandEncoder();
+      const passR = encR.beginComputePass();
+      passR.setPipeline(pipelines.secondary);
+      passR.setBindGroup(0, pipelines.secondaryBG);
+      const wg = Math.ceil(cur_sec_n / 256);
+      for (let step = base; step < MAX_SEC_STEPS; step++) passR.dispatchWorkgroups(wg);
+      passR.end();
+      device.queue.submit([encR.finish()]);
+      await device.queue.onSubmittedWorkDone();
     }
     const encS = device.createCommandEncoder();
     encS.copyBufferToBuffer(buffers.secStats, 0, buffers.secStatsRB, 0, 32);
