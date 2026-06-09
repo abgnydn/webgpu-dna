@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "protocol": "E33-OER-damage-level-negative",
+    "question": "Does the dissolved-O2 model (E32) translate into a DNA-damage-level OER (more SSB/DSB with O2)?",
+    "method": "SSB/DSB scoring on the 10 keV electron dump at [O2] = 0 vs 50 uM (anoxic vs normoxic)."
+  },
+  "result": {
+    "ssb_total": {"anoxic_0uM": 101, "normoxic_50uM": 97},
+    "dsb": {"anoxic_0uM": 15, "normoxic_50uM": 17},
+    "OER_damage_ratio": "~1.0 (101->97 is within MC noise, slightly DOWN) — NO damage-level oxygen enhancement.",
+    "diagnosis": "HONEST NEGATIVE. My hypothesis (O2 depletes eaq -> more surviving OH -> more indirect SSB) was wrong: O2 converts eaq->O2-, but O2- itself consumes OH (O2-+OH->O2+OH-, k 1.07e10), so no net OH gain. More fundamentally, the real OER mechanism is O2 FIXING the DNA radical (R. + O2 -> RO2., making damage permanent vs repairable) — DNA-radical chemistry that this water-radiolysis model does not have. The radiolysis-level oxygen effect (eaq scavenging) is real and captured (E32); the damage-level OER requires modelling DNA radicals + their O2 fixation, which is beyond the current chemistry.",
+    "what_works": "E31 (oxygen network functional) + E32 (dose-dependent eaq scavenging) stand. This experiment found the LIMIT: the OER endpoint needs DNA-radical fixation, not just water chemistry."
+  },
+  "status": "honest negative — damage-level OER not reproduced; root cause identified (missing DNA-radical fixation chemistry)"
+}
