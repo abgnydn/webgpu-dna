@@ -46,12 +46,13 @@ source and the G4EMLOW~8.8 tabulated cross sections, and use a
 normally-compiled Geant4~11.4.1 as a validation oracle on a falsifiable,
 artifact-backed ladder. Cross sections match the reference to peak ratios of
 \numrange{0.975}{1.000}; the continuous-slowing-down range at \SI{10}{keV} is
-\num{0.988}$\times$ Geant4. WebGPU track-structure tracking (Phases~A+B) runs
-\textbf{455$\times$} faster than Geant4 single-thread (280$\times$ vs.\ an
-8-thread build) on an Apple~M2~Pro, but we are explicit about scope:
+\num{0.988}$\times$ Geant4. WebGPU track-structure tracking (Phases~A+B, full cascade) runs
+\textbf{${\sim}241\times$} faster than Geant4 single-thread (${\sim}148\times$
+vs.\ an 8-thread build) on an Apple~M2~Pro---a like-for-like both-full-cascade
+comparison---but we are explicit about scope:
 the Geant4 figure is whole-process wall-clock and the WGSL figure is
 dispatch-only. We measured the gap --- Geant4 init plus DNA table-build is a
-negligible ${\sim}\SI{2}{s}$ (so event-loop-only the figure is $452\times$),
+negligible ${\sim}\SI{2}{s}$ ---
 the one real asymmetry being the ${\sim}\SI{6.8}{GB}$ of per-event ntuple I/O
 Geant4 writes and WGSL does not --- and we note that the kernel-fusion
 architecture itself accounts for only ${\sim}2\times$ of the speedup (the fused
@@ -361,18 +362,21 @@ box so that box-average and local dose coincide and the $C$ correction is
 unnecessary.)
 
 \subsection{Performance (Level 6)}
-Phase~A+B tracking is \textbf{455$\times$} faster than Geant4~11.4.1
-single-thread (\SI{635}{ms} vs.\ a \SI{289.1}{s} median over 3 trials, E15b)
-and \textbf{280$\times$} vs.\ an 8-thread build (\SI{178.0}{s}, E15c). Peak
+With the full electron cascade (v0.6.0), Phase~A+B tracking is
+\textbf{${\sim}241\times$} faster than Geant4~11.4.1 single-thread
+(${\sim}\SI{1.2}{s}$ vs.\ a \SI{289.1}{s} median over 3 trials, E15d) and
+\textbf{${\sim}148\times$} vs.\ an 8-thread build (\SI{178.0}{s}). This is a
+fair both-full-cascade comparison; an earlier figure of $455\times/280\times$
+(E15b/E15c, \SI{635}{ms}) compared our \emph{truncated}-cascade WGSL to Geant4's
+full cascade, and tracking the full cascade roughly doubled Phase~A+B. Peak
 Phase~A throughput is \num{538947} primaries/s at $N=16384$ (E15). We state
 two caveats so these numbers are not over-read. \emph{First, on
 apple-to-apple scope}: the Geant4 wall-clock is whole-process while the WGSL
-\SI{635}{ms} is dispatch-only, but we measured the difference and it is small
+figure is dispatch-only, but we measured the difference and it is small
 where it matters. A 16-primary init-probe runs in \SI{3.2}{s} (E15-fair), so
 Geant4 process init plus DNA physics-table construction is only
 ${\sim}\SI{2.1}{s} (0.7\,\%$ of \SI{289}{s}); the \SI{289}{s} is ${\sim}99\,\%$
-genuine event-loop, and event-loop-only the speedup is $452\times$,
-statistically identical to $455\times$. The one material asymmetry is
+genuine event-loop. The one material asymmetry is
 per-event ntuple I/O --- Geant4 writes \SI{6.8}{GB} to disk over the full run
 (measured: \SI{1.65}{MB}/primary from 16- and 256-primary probes, near-linear;
 the row-wise merge is the likely cause of the poor $1.62\times$ MT-8 scaling),
@@ -490,7 +494,7 @@ dose is a natural, if substantially larger, direction.
 A browser-native, kernel-fused WebGPU re-implementation reproduces Geant4-DNA
 track structure to within a fraction of a percent on cross sections,
 $0.988\times$ on CSDA range, $0.931\times$ on cascade ions, and a five-species
-chemistry RMS of $7.6\,\%$ vs.\ \texttt{chem6}, at 455$\times$/280$\times$ the
+chemistry RMS of $7.6\,\%$ vs.\ \texttt{chem6}, at ${\sim}241\times$/${\sim}148\times$ the
 speed of single-/multi-threaded Geant4, with an honest, artifact-backed account
 of its limits. A central result is that tracking the full electron cascade
 closes both the cascade-ion deficit and the residual \SI{1}{\micro s} chemistry

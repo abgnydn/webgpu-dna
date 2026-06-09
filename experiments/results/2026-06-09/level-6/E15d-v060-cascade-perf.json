@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "protocol": "E15d-v060-cascade-perf",
+    "question": "v0.6.0 tracks the full electron cascade (more particles + chunked Phase B), so the v0.5.0 Phase A+B timing (635 ms) and the 455x/280x speedups are stale. Re-measure, and note the comparison is now FAIR (both full cascade).",
+    "supersedes_framing": "The v0.5.0 455x compared our TRUNCATED-cascade WGSL (depth-2) to Geant4's FULL cascade — apples-to-oranges, flattering to WGSL. v0.6.0 tracks the full cascade, so the comparison is now like-for-like."
+  },
+  "env": { "runner": "Apple M2 Pro, native Deno wgpu-native", "note": "measured under memory pressure (~90 MB free); a clean browser re-measure may run faster" },
+  "measurements": {
+    "phase_a_b_v060_full_cascade_ms": { "fast": 1163, "typical": "1163-1322", "v050_truncated": 635 },
+    "geant4_single_thread_s": 289.1,
+    "geant4_mt8_s": 178.0
+  },
+  "result": {
+    "speedup_vs_g4_st": { "v060_fair": 241, "v050_truncated": 455 },
+    "speedup_vs_g4_mt8": { "v060_fair": 148, "v050_truncated": 280 },
+    "phase_b_optimisation": "Stopping the cascade-growth readbacks once the wavefront stabilises (energies only decrease) cut Phase A+B ~1776 -> ~1200 ms, bit-identical (rad_n 6,440,202).",
+    "headline": "v0.6.0 full-cascade Phase A+B is ~1.2 s (was 635 ms truncated), so the tracking speedup vs Geant4 is ~241x single-thread / ~148x MT-8 — LOWER than the old 455x/280x, but now a FAIR both-full-cascade comparison rather than truncated-vs-full.",
+    "unchanged": "The end-to-end like-for-like 1.48x (IRT chemistry on CPU dominates) and the kernel-fusion ~2x (Phase-A-only) are essentially unaffected — the cascade cost is in Phase B, not Phase A or the chemistry."
+  },
+  "status": "pass — performance re-characterised honestly for the full cascade"
+}
