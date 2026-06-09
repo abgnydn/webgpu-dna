@@ -514,7 +514,7 @@
         <tr>
           <td class="aspect">Physics fidelity @ 10 keV</td>
           <td class="old">Reference (by construction)</td>
-          <td class="new">CSDA <strong>0.997×</strong> @ 10 keV · energy conservation <strong>100.0%</strong> · cascade ions/primary <strong>0.937×</strong> (full electron cascade + σ_exc=0.39, v0.6.1; primary track bit-exact vs Geant4) · chemistry G-values <strong>RMS 6.8%</strong> vs Geant4 chem6 at matched 10 keV LET (H₂/H₂O₂ gap closed) · indirect/direct SSB ratio <strong>2.72</strong> (a calibrated fit, not a prediction — see §Numbers); absolute DNA-damage yields within ~3× of experiment per local dose<div class="hint">All numbers backed by JSON artifacts — see <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a> for the falsifiable source of truth</div></td>
+          <td class="new">CSDA <strong>0.956–1.005×</strong> across all 8 energies (100 eV–20 keV; the chronic sub-keV deficit closed by real Born excitation, v0.7.0) · energy conservation <strong>100.0%</strong> · cascade ions/primary <strong>0.942×</strong> (full electron cascade; primary track bit-exact vs Geant4) · chemistry G-values <strong>RMS 7.0%</strong> vs Geant4 chem6 at matched 10 keV LET (H₂/H₂O₂ gap closed) · indirect/direct SSB ratio <strong>3.26</strong> (a calibrated fit, reported honestly — see §Numbers); DNA-damage yields are methodology, not validated absolute physics<div class="hint">All numbers backed by JSON artifacts — see <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a> for the falsifiable source of truth</div></td>
         </tr>
         <tr>
           <td class="aspect">Reproducibility</td>
@@ -582,7 +582,7 @@
         <tr>
           <td class="aspect">Excitation (e⁻)</td>
           <td class="old">Born, Emfietzoglou, CPA100, Dingfelder, Miller-Green, Quinn plasmon, Dirac-RMatrix, RPWBA</td>
-          <td class="new"><strong>Emfietzoglou</strong> (5 levels: A¹B₁, B¹A₁, Ryd A+B, Ryd C+D, Diffuse) with data-driven branching · σ_exc scaled to ≈ Born (SIGMA_EXC_SCALE = 0.39, v0.6.1) <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E2, E2b]</a></td>
+          <td class="new"><strong>Born</strong> (5 water levels: A¹B₁, B¹A₁, Ryd A+B, Ryd C+D, Diffuse) with data-driven branching · real Born XS, parameter-free, matches G4EmDNAPhysics_option2 (v0.7.0) <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">[E2, E2b, E29]</a></td>
         </tr>
         <tr>
           <td class="aspect">Elastic scattering (e⁻)</td>
@@ -676,7 +676,7 @@
       <ul>
         <li>Product tracking: H₂O₂ and OH⁻ with full re-pairing</li>
         <li>7 time checkpoints, 0.1 ps → 1 μs</li>
-        <li>Chemistry vs chem6 @ matched 10 keV LET: 5-species RMS <strong>6.8%</strong> (v0.6.1, full cascade + σ_exc=0.39 — H₂/H₂O₂ gap closed); G(OH) 0.94×, G(eaq) 0.90×, G(H) 1.06× — full breakdown in <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a></li>
+        <li>Chemistry vs chem6 @ matched 10 keV LET: 5-species RMS <strong>7.0%</strong> (v0.7.0, full cascade + real Born excitation — H₂/H₂O₂ gap closed); G(OH) 0.93×, G(eaq) 0.94×, G(H) 0.94× — full breakdown in <a href="https://github.com/abgnydn/webgpu-dna#numbers" style="color:inherit;text-decoration:underline">README § Numbers</a></li>
       </ul>
     </div>
 
