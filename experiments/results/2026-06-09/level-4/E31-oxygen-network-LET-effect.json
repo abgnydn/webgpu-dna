@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "protocol": "E31-oxygen-network-LET-effect",
+    "question": "Does the ported option3 oxygen network (38 reactions, 8 species) function end-to-end, and does the full chemistry reproduce the LET dependence of water radiolysis (electron vs proton)?",
+    "method": "Wired O(3p) seed from the '2H+O' dissociation channels (dump code 4) -> IRT worker maps to species 10. Ran the IRT chemistry on an electron (10 keV, low LET) and a proton (100 keV, high LET, ~16k radicals) dump, both with the O source."
+  },
+  "result": {
+    "oxygen_network_alive": "YES — O2/HO2/O2- form at 1ns-100ns (HO2 peaks ~0.02), the 38 reactions fire from the O seed. The project went from ZERO oxygen species to a live peroxyl network.",
+    "LET_effect_5species_G_at_1us": {
+      "electron_10keV_lowLET": {"OH": 1.55, "eaq": 1.58, "H2": 0.60, "H2O2": 0.74},
+      "proton_100keV_highLET": {"OH": 0.36, "eaq": 0.31, "H2": 0.90, "H2O2": 0.98},
+      "verdict": "TEXTBOOK LET dependence: high-LET dense track suppresses radical yields (OH/eaq collapse) and boosts molecular yields (H2/H2O2 rise). Qualitatively correct radiobiology."
+    },
+    "persistent_O2_at_1us": "~0 for both — consistent with PURE-water radiolysis (radiolytic O2 is minor in deaerated water; the clinical oxygen effect needs DISSOLVED O2, not modelled). The network correctly processes transient oxygen then funnels it to H2O2/OH via H3O+ + radical-radical sinks.",
+    "proton_normalization_fixed": "n_therm=1 for a single proton (dep = n_therm*E_eV) — the earlier near-zero G-values were a 100x normalization error.",
+    "known_limits": [
+      "1 MeV proton crashes the IRT: ~160k radicals in ONE primary, per-primary IRT is O(N^2) ~2.5e10 + huge arrays. The per-primary IRT does not scale to high-energy proton tracks (needs spatial partitioning or a grid search).",
+      "Dissolved-O2 background (the actual radiobiological oxygen effect) not yet modelled.",
+      "Reaction types all TDC (PDC refinement pending); oxygen G-values not yet validated against a chem6/option3 oracle."
+    ]
+  },
+  "status": "pass — oxygen network functional + LET effect qualitatively correct; persistent-O2 and IRT-scaling are characterised follow-ups"
+}
