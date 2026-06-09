@@ -9,6 +9,27 @@ from `0.1.0`.
 
 _Nothing pending. Open a PR or issue to start the next entry._
 
+## [0.7.0] — 2026-06-09 — real Born excitation, σ_exc fudge removed
+
+### Changed
+- **Excitation model: scaled-Emfietzoglou → real Born cross section** (`sigma_excitation_e_born.dat`),
+  and **`SIGMA_EXC_SCALE` 0.39 → 1.0 (removed)** — the excitation is now parameter-free.
+  A physics-list audit (E29) showed both Geant4 oracles — `dnaphysics` (cascade) and
+  `chem6` (chemistry) — register `G4EmDNAPhysics_option2`, which uses
+  `G4DNABornExcitationModel` for **all** electron energies (no Emfietzoglou for opt2).
+  So Born is the reference, and the old flat 0.39×Emfietzoglou approximation left
+  low-energy secondaries over-excited ~4× (Emf/Born is ~2.5× at keV but ~10× at ~10 eV).
+- **Closes the chronic sub-keV CSDA deficit** — the project's weakest spot, and the
+  energy range where Geant4-DNA matters most:
+  - CSDA 100 eV **0.782→0.956×**, 300 eV 0.852→**0.986×**, 500 eV 0.894→**0.994×**,
+    1 keV 0.933→**0.987×**; all 8 energies now **0.956–1.005×**
+  - cascade ions 0.937→**0.942×**; chemistry RMS 6.8→7.0% (flat; G(H) overshoot 1.055→0.939× fixed)
+  - energy conservation 99.89%, primary bit-exact, 46/46 tests
+- **No physics-list seam**: cascade and chemistry are validated against the *same*
+  reference (option2) — resolves a methodological concern.
+- SSB ratio drifted 2.72→3.26 (the calibrated `P_indirect`, tuned for the prior
+  physics) — reported honestly as a calibrated fit, **not** re-tuned to the band.
+
 ## [0.6.1] — 2026-06-09 — σ_exc → Born level (clean win)
 
 ### Changed

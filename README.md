@@ -35,11 +35,11 @@ Each experiment in §Numbers can be re-run on a contributor's machine via `npm r
 
 ## What's implemented
 
-- **Physics:** Born ionization (5 shells, data-driven CDF sampling), Emfietzoglou excitation (5 levels, dissociative branching 0.65 / 0.55 / 0.80), Champion tabulated elastic angular CDF (< 200 eV), screened-Rutherford elastic (> 200 eV), Sanche 9-mode vibrational (2–100 eV), full primary-momentum conservation.
+- **Physics:** Born ionization (5 shells, data-driven CDF sampling), Born excitation (5 water levels, dissociative branching 0.65 / 0.55 / 0.80; matches G4EmDNAPhysics_option2), Champion tabulated elastic angular CDF (< 200 eV), screened-Rutherford elastic (> 200 eV), Sanche 9-mode vibrational (2–100 eV), full primary-momentum conservation.
 - **Chemistry:** Karamitros 2011 9-reaction IRT in a Web Worker (Smoluchowski TDC + Onsager-screened PDC for charged pairs, G4EmDNAChemistry_option1). 2.0 nm mother displacement, species-specific product displacement, e⁻aq thermalization at 1.7 eV, H₂O₂ / OH⁻ tracked as reactive products with full re-pairing.
 - **DNA scoring:** Event-level direct SSB from `rad_buf` ionization sites, indirect SSB scored during the IRT timeline (every OH-death event + 1 μs survivors), greedy ±10 bp DSB clustering, kernel-level backbone hit counter as a cross-check.
 - **Grid target:** 21×21 parallel B-DNA fibers × 3 μm × 150 nm spacing = 3.89 Mbp.
-- **Full electron cascade** (v0.6.0): the secondary shader tracks the tertiary (gen3+) electron cascade, which resolved the cascade-ion deficit (0.766→0.931×) and closed the chem6 1 µs chemistry gap (RMS 19.7→7.6%) [E20–E25]. The only tuning scalar is `SIGMA_EXC_SCALE = 0.39` in `src/shaders/helpers.wgsl` (≈ Born level — v0.6.1 lowered it from 0.5, improving CSDA/cascade/chemistry [E28]; the remaining Emfietzoglou-vs-Born divergence is now small); the former `RECOMB_BOOST` knob was **removed (set to 1.0)** in v0.5.0, so the pipeline is parameter-free in that knob. See [PHYSICS_DIAGNOSIS.md](./PHYSICS_DIAGNOSIS.md).
+- **Full electron cascade** (v0.6.0): the secondary shader tracks the tertiary (gen3+) electron cascade, which resolved the cascade-ion deficit (0.766→0.931×) and closed the chem6 1 µs chemistry gap (RMS 19.7→7.6%) [E20–E25]. **v0.7.0 made the excitation parameter-free**: it now uses the real Born excitation cross section (matching `G4EmDNAPhysics_option2`, which both Geant4 oracles register — no physics-list seam), replacing the empirical `SIGMA_EXC_SCALE` fudge. This closed the chronic sub-keV CSDA deficit (100 eV 0.78→0.96×) [E29]. With `RECOMB_BOOST` removed in v0.5.0, **the pipeline now has no tuning scalars** in the track-structure physics. See [PHYSICS_DIAGNOSIS.md](./PHYSICS_DIAGNOSIS.md).
 
 ## Project layout
 
@@ -106,9 +106,9 @@ Every row is backed by a committed JSON artifact under [`experiments/results/`](
 
 All Geant4-side numbers were produced by a freshly-built **Geant4 11.4.1 / G4EMLOW 8.8** install (`~/Downloads/geant4-v11.4.1-install/`) running `dnaphysics` on `validation/run_validation.mac`, single-thread, on the same Apple M2 Pro that ran WebGPU. Production-realistic Geant4 MT-8 comparison ships separately as E15c.
 
-Reference snapshot for the WebGPU side: `N = 4096` primaries at 10 keV unless otherwise stated, DNA_Opt2 physics list, 30 μm cube, **v0.6.0 full electron cascade**, shader constants `SIGMA_EXC_SCALE = 0.39`, `RECOMB_BOOST = 1.0` (**parameter-free** in that knob), `SSB_R_DAMAGE_NM = 0.29`, `SSB_R_DAMAGE_INDIRECT_NM = 1.0`, `SSB_P_INDIRECT = 0.05`.
+Reference snapshot for the WebGPU side: `N = 4096` primaries at 10 keV unless otherwise stated, DNA_Opt2 physics list, 30 μm cube, **v0.7.0 full cascade + real Born excitation**, no tuning scalars in the track-structure physics (`SIGMA_EXC_SCALE` removed, `RECOMB_BOOST = 1.0`), `SSB_R_DAMAGE_NM = 0.29`, `SSB_R_DAMAGE_INDIRECT_NM = 1.0`, `SSB_P_INDIRECT = 0.05`.
 
-> **The pipeline is parameter-free in `RECOMB_BOOST`, and v0.6.0 tracks the full electron cascade.** `RECOMB_BOOST` was `2.0` (a tuning scalar with no Geant4 physical basis — the H₂O⁺ refutation); E10r showed it was not load-bearing and the RECOMB→1.0 flip (v0.5.0) removed it. **Then v0.6.0 tracks the full tertiary (gen3+) electron cascade** — previously the secondary shader absorbed tertiary electrons in place — which resolves the cascade-ion deficit (ions **0.766→0.931×**, [E25]) *and* closes the long-standing chem6 1 µs chemistry gap (5-species RMS **19.7→7.6%**; H₂/H₂O₂ deficits closed). **v0.6.1 then lowered `SIGMA_EXC_SCALE` 0.5→0.39 (≈Born)** — the full cascade unlocked it, nudging every axis better still (cascade **0.937×**, RMS **6.8%**, SSB **2.72**, E28). The primary track is bit-exact vs Geant4 (E20). README §Numbers, the paper, and the shipped demo all report v0.6.1. The only remaining non-unity scalar is `SIGMA_EXC_SCALE = 0.39` (v0.6.1, ≈ Born), a small documented physics-data divergence, not a tuning fudge — see [GEANT4_DIVERGENCES.md](./GEANT4_DIVERGENCES.md).
+> **The pipeline is parameter-free in `RECOMB_BOOST`, and v0.6.0 tracks the full electron cascade.** `RECOMB_BOOST` was `2.0` (a tuning scalar with no Geant4 physical basis — the H₂O⁺ refutation); E10r showed it was not load-bearing and the RECOMB→1.0 flip (v0.5.0) removed it. **Then v0.6.0 tracks the full tertiary (gen3+) electron cascade** — previously the secondary shader absorbed tertiary electrons in place — which resolves the cascade-ion deficit (ions **0.766→0.931×**, [E25]) *and* closes the long-standing chem6 1 µs chemistry gap (5-species RMS **19.7→7.6%**; H₂/H₂O₂ deficits closed). **v0.6.1 then lowered `SIGMA_EXC_SCALE` 0.5→0.39 (≈Born)** — the full cascade unlocked it, nudging every axis better still (cascade **0.937×**, RMS **6.8%**, SSB **2.72**, E28). The primary track is bit-exact vs Geant4 (E20). README §Numbers, the paper, and the shipped demo all report v0.6.1. **v0.7.0 then removed the last scalar**: the excitation now uses the real Born cross section (matching option2, the physics list both Geant4 oracles register), so the track-structure physics is **parameter-free** — see [GEANT4_DIVERGENCES.md](./GEANT4_DIVERGENCES.md).
 
 **Reproducibility caveat:** fp32 `atomicAdd` reductions on the dose grid and `rad_buf` counters are not order-deterministic across GPU vendors — same WGSL on different hardware (Apple Metal vs Nvidia Vulkan vs Intel iGPU) yields **statistically equivalent results within MC noise, NOT bit-exact**. The same machine + same seed + same shader hash IS bit-exact across re-runs. Every artifact emits `env.shaderHashes.{helpers,primary,secondary,chemistry}_wgsl` (added 2026-05-12) so you can group rows by shader version when the joint-fix scales or other shader-side tunables shift the baseline.
 
@@ -202,27 +202,27 @@ After all 2026-05-12 fixes (L5 indirect SSB closure, joint physics tuning):
 
 | Metric                                       | This build       | Reference                                   | Ratio                                                                |
 | -------------------------------------------- | ---------------- | ------------------------------------------- | -------------------------------------------------------------------- |
-| CSDA range (nm) @ 10 keV (v0.6.1 σ_exc=0.39) | 2739.7           | 2747.5 (Geant4 11.4.1)                      | **0.997×** (was 0.994× @ σ=0.5) [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
-| CSDA @ 100 eV (vs Geant4) — v0.6.1 σ_exc=0.39 | 20.5 nm          | 26.21 nm                                    | **0.782×** (was 0.736× @ σ=0.5, E28) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
-| CSDA @ 300 eV — v0.6.1 σ_exc=0.39             | 30.6 nm          | 35.91 nm                                    | **0.852×** (was 0.810× @ σ=0.5) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
-| CSDA @ 500 eV — v0.6.1 σ_exc=0.39             | 43.0 nm          | 48.07 nm                                    | **0.894×** (was 0.857× @ σ=0.5) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
-| CSDA @ 1 keV — v0.6.1 σ_exc=0.39             | 84.3 nm          | 90.32 nm                                    | **0.933×** (was 0.912× @ σ=0.5) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
+| CSDA range (nm) @ 10 keV (**v0.7.0 Born**) | 2739.6           | 2747.5 (Geant4 11.4.1)                      | **0.997×** [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
+| CSDA @ 100 eV (vs Geant4) — **v0.7.0 Born excitation** | 25.1 nm          | 26.21 nm                                    | **0.956×** (was 0.782× @ scaled-Emf; real Born XS closes the sub-keV deficit, E29) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
+| CSDA @ 300 eV — **v0.7.0 Born**             | 35.4 nm          | 35.91 nm                                    | **0.986×** (was 0.852×, E29) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
+| CSDA @ 500 eV — **v0.7.0 Born**             | 47.8 nm          | 48.07 nm                                    | **0.994×** (was 0.894×, E29) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
+| CSDA @ 1 keV — **v0.7.0 Born**             | 89.2 nm          | 90.32 nm                                    | **0.987×** (was 0.933×, E29). 3/5/20 keV: 1.002/1.005/0.993× — **all 8 energies now 0.956–1.005×** [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
 | Energy conservation                          | 100.0 %          | 99.99 %                                     | 1.000× [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
-| Ions / primary (full cascade) — **production (v0.6.1, σ_exc=0.39)** | 477.1 | 509.2 (Geant4) | **0.937× (6% deficit)** [[E28]](./experiments/results/2026-06-09/level-2/E28-sigma-exc-039-clean-win.json) — full tertiary cascade ([[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json), recovered from 0.766×) + σ_exc→0.39 (v0.6.1). Primary track is **bit-exact** (195.6 vs Geant4 195.6, [[E20]](./experiments/results/2026-06-08/level-2/E20-ion-split.json)) |
+| Ions / primary (full cascade) — **production (v0.7.0, Born excitation)** | 479.6 | 509.2 (Geant4) | **0.942×** [[E29]](./experiments/results/2026-06-09/level-2/E29-physics-list-audit-born-excitation.json) — full tertiary cascade ([[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json), recovered from 0.766×) + σ_exc→0.39 (v0.6.1). Primary track is **bit-exact** (195.6 vs Geant4 195.6, [[E20]](./experiments/results/2026-06-08/level-2/E20-ion-split.json)) |
 | G(OH) @ 1 μs vs chem6 — pre joint-fix         | 1.551            | 1.710                                       | **0.907× (4.8σ)** [[E10c]](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
-| G(OH) @ 1 μs vs chem6 — **production (v0.6.1, σ_exc=0.39)** | 1.610            | 1.710                                       | **0.942×** [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) (was 0.914× pre-cascade) |
+| G(OH) @ 1 μs vs chem6 — **production (v0.7.0, Born)** | 1.594            | 1.710                                       | **0.932×** [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) (was 0.914× pre-cascade) |
 | G(e⁻aq) @ 1 μs vs chem6 — pre joint-fix       | 1.406            | 1.694                                       | **0.830× (9.7σ)** [[E10c]](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
-| G(e⁻aq) @ 1 μs vs chem6 — **production (v0.6.1, σ_exc=0.39)** | 1.519            | 1.694                                       | **0.899×** [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) (was 0.858× pre-cascade) |
+| G(e⁻aq) @ 1 μs vs chem6 — **production (v0.7.0, Born)** | 1.584            | 1.694                                       | **0.937×** [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) (was 0.858× pre-cascade) |
 | G(H) @ 1 μs vs chem6 — pre joint-fix          | 0.708            | 0.710                                       | 0.997× ✓ [[E10c]](./experiments/results/2026-05-11/level-4/E10c-vs-chem6-at-10keV.json) |
-| G(H) @ 1 μs vs chem6 — **production (v0.6.1, σ_exc=0.39)** | 0.749            | 0.710                                       | **1.055×** [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) (slight overshoot; was 0.928× pre-cascade) |
-| G(H₂) @ 1 μs vs chem6 — **production (v0.6.1, σ_exc=0.39)** | 0.617            | 0.622                                       | **0.992×** [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) — the long-standing H₂ deficit (0.741×) is **closed** by the tertiary cascade |
-| G(H₂O₂) @ 1 μs vs chem6 — **production (v0.6.1, σ_exc=0.39)** | 0.784            | 0.850                                       | **0.922×** [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) — the H₂O₂ deficit (0.693×) largely closed |
+| G(H) @ 1 μs vs chem6 — **production (v0.7.0, Born)** | 0.666            | 0.710                                       | **0.939×** (overshoot gone) [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) (slight overshoot; was 0.928× pre-cascade) |
+| G(H₂) @ 1 μs vs chem6 — **production (v0.7.0, Born)** | 0.604            | 0.622                                       | **0.970×** [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) — the long-standing H₂ deficit (0.741×) is **closed** by the tertiary cascade |
+| G(H₂O₂) @ 1 μs vs chem6 — **production (v0.7.0, Born)** | 0.760            | 0.850                                       | **0.894×** (5-species RMS **7.0%**) [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) — the H₂O₂ deficit (0.693×) largely closed |
 | Implicit W-value (E_total / N_ions, full cascade) | ~22.1 eV (v0.6.0) | 21.4 eV (ICRU 31, low-LET liquid water)     | **~1.03×** — the tertiary cascade recovers the missing ions, closing most of the old 1.257× gap (same physics as the cascade-ion recovery, [E25]) [[E5c]](./experiments/results/2026-05-12/level-2/E5c-w-value.json) |
 | G(H₂) @ 0.1 ps (pre-chem, joint fix applied) | 0.197            | 0.251 (chem6)                               | **0.78× (was 0.51× pre-fix)** [[E10i]](./experiments/results/2026-05-12/level-4/E10i-joint-fix-validation.json) |
 | G(H₂O₂) @ 0.1 ps (joint fix applied)         | 0.041            | 0.053 (chem6)                               | **0.77× (was 0.58×)** [[E10i]](./experiments/results/2026-05-12/level-4/E10i-joint-fix-validation.json) |
 | RMS deviation across 5 species @ 0.1 ps      | **19.0 %**       | (vs chem6)                                  | down from 30.3 % baseline [[E10i]](./experiments/results/2026-05-12/level-4/E10i-joint-fix-validation.json) |
 | G(e⁻aq) V-shape drop 1→3 keV                 | 12.5 %           | 0 (smooth-monotonic null)                   | **126σ significant** [[E10b]](./experiments/results/2026-05-11/level-4/E10b-vshape-bootstrap-sigma.json) |
-| SSB direct / indirect / DSB @ 10 keV (**production, v0.6.0 full cascade**) | 32 / 81 / 17      | indirect/direct ratio PARTRAC = 2-3         | **2.72 ratio** (v0.6.1 σ_exc=0.39; was 2.53 @ σ=0.5, no recalibration [E28]). ⚠ ratio is still a **calibrated fit** (`P_indirect` tuned) — but it is **robust to the target geometry**: a 4× fibre-spacing sweep (75→300 nm) holds the ratio at 2.24–2.53, all in-band, while absolute counts scale ~4× [[E27]](./experiments/results/2026-06-09/level-5/E27-ssb-geometry-sensitivity.json). Absolute yields per *local* dose: SSB 0.34–1.28× / DSB 0.82× exp (C=991 exact, [E12-local-exact]) [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) [[E12-local-exact]](./experiments/results/2026-06-08/level-5/E12-local-exact.json) |
+| SSB direct / indirect / DSB @ 10 keV (**production, v0.6.0 full cascade**) | 32 / 81 / 17      | indirect/direct ratio PARTRAC = 2-3         | **3.26 ratio** (v0.7.0 Born physics; the calibrated `P_indirect` was tuned for the prior physics so the ratio drifted out of band — reported honestly, **not** re-tuned. This *is* the acknowledged 'calibrated fit' caveat in action [E29]). ⚠ ratio is still a **calibrated fit** (`P_indirect` tuned) — but it is **robust to the target geometry**: a 4× fibre-spacing sweep (75→300 nm) holds the ratio at 2.24–2.53, all in-band, while absolute counts scale ~4× [[E27]](./experiments/results/2026-06-09/level-5/E27-ssb-geometry-sensitivity.json). Absolute yields per *local* dose: SSB 0.34–1.28× / DSB 0.82× exp (C=991 exact, [E12-local-exact]) [[E25]](./experiments/results/2026-06-08/level-4/E25-tertiary-cascade-CLEAN-WIN.json) [[E12-local-exact]](./experiments/results/2026-06-08/level-5/E12-local-exact.json) |
 | Phase A wall-clock @ N=4096, 10 keV          | 14.4 ms          | —                                           | n/a [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | Phase A peak throughput                      | 538,947 primaries/sec @ N=16384 | —                            | n/a [[E15]](./experiments/results/2026-05-11/level-6/E15-phase-a-alpha-beta.json) |
 | Phase A + B vs Geant4 11.4.1 single-thread (**v0.6.0 full cascade**) | ~1.2 s | 289.1 s (median/3) | **~241×** — now a **fair both-full-cascade** comparison (the old 455× compared our *truncated* cascade to Geant4's full one). Tracking the full cascade roughly doubled Phase A+B (635 ms→~1.2 s) [[E15d]](./experiments/results/2026-06-09/level-6/E15d-v060-cascade-perf.json) |
@@ -248,20 +248,27 @@ Each is a falsifiable claim only visible because of the protocol — not from re
 
 ## Ongoing physics work
 
-Documented in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md). The two big gaps —
-the cascade-ion deficit and the chem6 1 µs H₂/H₂O₂ deficit — were **both closed in
-v0.6.0** by tracking the full electron cascade (E20–E25), and `RECOMB_BOOST` was
-removed in v0.5.0, so the project is parameter-free in that knob. Remaining open
-items:
+Documented in [`PHYSICS_DIAGNOSIS.md`](./PHYSICS_DIAGNOSIS.md). The major gaps are
+closed: the cascade-ion deficit and the chem6 1 µs H₂/H₂O₂ deficit (v0.6.0, full
+cascade), and the chronic **sub-keV CSDA deficit** (v0.7.0, real Born excitation —
+100 eV 0.78→0.96×, all 8 energies now 0.956–1.005×). The track-structure physics
+is now **parameter-free** (`RECOMB_BOOST` and `SIGMA_EXC_SCALE` both gone).
 
-- **Residual ~6 % cascade-ion deficit** (ion events ~0.937× vs Geant4; *entirely*
-  the secondary cascade — the primary is bit-exact, E26). E26 had attributed this to
-  a σ_exc "floor," but **E28 refuted that**: lowering σ_exc 0.5→0.39 *improved* the
-  cascade (and CSDA, chemistry, SSB) instead of being blocked by it. The exact cause
-  of the small remaining secondary-cascade gap is therefore **re-opened** (not the
-  σ_exc floor it was thought to be) — a well-bounded ~6 % open question.
-- **Slight G(H) overshoot** (now **1.055×** vs chem6, reduced from 1.085× by the
-  v0.6.1 σ_exc=0.39, E28). Small; the same change that improved everything else also
-  tamed it.
-- **E14 vs molecularDNA** (~1 day — full chromatin geometry comparison; needs the
-  molecularDNA example built; deferred).
+**Validated envelope (be explicit about scope):** the comparisons here are for
+**electrons, 100 eV – 20 keV, low LET** (10 keV primaries), against
+`G4EmDNAPhysics_option2` + `G4EmDNAChemistry_option3` — the physics list **both**
+the cascade (`dnaphysics`) and chemistry (`chem6`) oracles register, so there is
+**no physics-list seam** (E29). Per-primary IRT is valid at this low LET; it is a
+*coupled tradeoff*, not the chem6-gap fix, at high LET (E17). Out of scope (future
+work): **protons / heavier ions** (the main clinical use of Geant4-DNA), and a
+**realistic chromatin geometry**.
+
+Remaining open items:
+- **Residual ~5.8 % cascade-ion deficit** (0.942× vs Geant4; entirely the
+  secondary cascade, primary bit-exact). Small and well-bounded.
+- **DNA damage is methodology, not validated absolute physics.** The 21×21 fibre
+  grid is a track-core stand-in, not chromatin, and `P_indirect` is a **calibrated
+  fit**. The SSB ratio is robust to grid spacing (E27) but the *calibration* is
+  physics-dependent — v0.7.0's Born excitation shifted it 2.72→3.26 (we report this
+  honestly rather than re-tune). Treat SSB/DSB as indicative; the real validation
+  needs molecularDNA geometry (**E14**, deferred — needs the example built).
