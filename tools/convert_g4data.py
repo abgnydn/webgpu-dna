@@ -157,12 +157,17 @@ def main():
 
     # ===== EXCITATION =====
     print("\n--- Excitation ---")
-    # Emfietzoglou excitation (8 - 10000 eV): 2.2-2.4× larger than Born,
-    # produces correct initial G(H) ≈ 0.5 needed for Karamitros G-values.
-    # Same scale factor as Born: (1e-22 / 3.343) * m*m = 2.993e-5 nm²
-    e_exc, s_exc = load_sigma_file("sigma_excitation_e_emfietzoglou.dat")
+    # Born excitation (9 - 10000 eV) — matches G4EmDNAPhysics_option2, which uses
+    # G4DNABornExcitationModel for ALL electron energies (emaxE=0 for opt2, so the
+    # Emfietzoglou block is never registered). This replaces the earlier
+    # Emfietzoglou×SIGMA_EXC_SCALE=0.39 approximation: a flat scale can't match
+    # Born's energy dependence (Emf/Born ≈ 2.5× at keV but ≈10× at ~10 eV), which
+    # left the low-energy secondary cascade over-excited. Same 5 water levels
+    # (8.22/10.0/11.24/12.61/13.77 eV, G4DNAWaterExcitationStructure) as before.
+    # Scale factor: (1e-22 / 3.343) * m*m = 2.993e-5 nm².
+    e_exc, s_exc = load_sigma_file("sigma_excitation_e_born.dat")
     if e_exc is None:
-        e_exc, s_exc = load_sigma_file("sigma_excitation_e_born.dat")
+        e_exc, s_exc = load_sigma_file("sigma_excitation_e_emfietzoglou.dat")
     
     # ===== ELASTIC =====
     print("\n--- Elastic ---")

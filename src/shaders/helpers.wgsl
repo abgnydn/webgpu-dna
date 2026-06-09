@@ -20,7 +20,7 @@ const NW=33.4;  // molecules/nm³ in liquid water
 //   is now parameter-free in this knob; only SIGMA_EXC_SCALE remains, and
 //   it is a documented physics-data divergence (Emfietzoglou vs Born), not
 //   a tuning fudge.
-const SIGMA_EXC_SCALE:f32=0.39;
+const SIGMA_EXC_SCALE:f32=1.0;
 const RECOMB_BOOST:f32=1.0;
 
 // Cross sections (XE, XI, XC, XL, XSF*, XAE, XAC, XWE, XWS*) plus

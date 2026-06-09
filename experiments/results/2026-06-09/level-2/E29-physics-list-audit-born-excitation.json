@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "protocol": "E29-physics-list-audit-born-excitation",
+    "question": "Reviewer concern #1/#2: are the cascade (dnaphysics) and chemistry (chem6) oracles the same physics list (no seam)? And should the empirical SIGMA_EXC_SCALE=0.39 be replaced by the real excitation cross section?",
+    "method": "Read the Geant4 11.3 source: dnaphysics/PhysicsList.cc, chem6/PhysicsList.cc, G4EmDNAPhysics_option2.cc, G4EmDNABuilder::ConstructDNAElectronPhysics. Then swapped the excitation data Emfietzoglou->Born in the convert tool, set SIGMA_EXC_SCALE=1.0, regenerated, and revalidated CSDA (8 energies) + cascade + chemistry + SSB + energy conservation."
+  },
+  "audit": {
+    "dnaphysics_cascade_oracle": "registers G4EmDNAPhysics_option2",
+    "chem6_chemistry_oracle": "registers G4EmDNAPhysics_option2 (physics) + G4EmDNAChemistry_option3 (chemistry)",
+    "seam": "NONE — both oracles use the SAME track-structure physics list, option2. Cascade and chemistry are validated against one consistent reference.",
+    "option2_electron_models": "For opt=2 the Emfietzoglou energy limit emaxE=0 (only opt=4 sets it to 10 keV), so the Emfietzoglou block is never registered. option2 uses G4DNABornIonisationModel + G4DNABornExcitationModel across the whole range. The reference excitation is BORN, not Emfietzoglou.",
+    "implication": "SIGMA_EXC_SCALE=0.39 was approximating Born by flat-scaling Emfietzoglou. But Emf/Born is energy-dependent (~2.5x at keV, ~10x at ~10 eV), so a flat 0.39 left low-energy secondaries over-excited ~4x vs Born — the cause of the residual cascade deficit AND the chronic sub-keV CSDA deficit."
+  },
+  "born_excitation_result": {
+    "csda_vs_geant4": {
+      "100eV": {"s039": 0.782, "born": 0.956}, "300eV": {"s039": 0.852, "born": 0.986},
+      "500eV": {"s039": 0.894, "born": 0.994}, "1keV": {"s039": 0.933, "born": 0.987},
+      "3keV": {"born": 1.002}, "5keV": {"born": 1.005}, "10keV": {"s039": 0.997, "born": 0.997}, "20keV": {"born": 0.993}
+    },
+    "cascade_ions": {"s039": 0.937, "born": 0.942},
+    "chemistry_rms_vs_chem6": {"s039": "6.8%", "born": "7.0%", "note": "flat; G(H) overshoot 1.055->0.939x fixed, G(eaq) 0.899->0.937x better, OH/H2/H2O2 slightly lower"},
+    "ssb_ratio": {"s039": 2.72, "born": 3.26, "note": "drifted above PARTRAC 2-3 band — P_indirect was calibrated for the old physics; re-calibration follow-up"},
+    "energy_conservation": 0.9989,
+    "primary_bit_exact": "195.4 ions/pri",
+    "tests": "46/46 pass"
+  },
+  "headline": "option2 uses Born excitation; switching to the real Born XS (removing the SIGMA_EXC_SCALE fudge entirely) CLOSES the chronic sub-keV CSDA deficit (100eV 0.782->0.956x, all 8 energies now 0.956-1.005x), slightly improves the cascade (0.942x), keeps chemistry flat (7.0%, G(H) overshoot fixed), and makes the excitation PARAMETER-FREE and exactly matched to the reference physics list.",
+  "addresses_reviewer": "#1 (no seam — both oracles are option2), #2 (real Born XS, σ_exc fudge removed), #3 (sub-keV CSDA closed — the low-E physics where Geant4-DNA matters most).",
+  "followup": "SSB ratio drifted to 3.26 (P_indirect calibrated for old physics) — re-center the calibrated fit.",
+  "status": "pass — adopted v0.7.0; excitation now parameter-free Born, matched to option2"
+}
