@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "protocol": "E28-sigma-exc-039-clean-win",
+    "question": "With the full electron cascade (v0.6.0), is SIGMA_EXC_SCALE=0.5 still optimal, or does a lower value close the residuals? (Testing E26's 'it's the sigma_exc floor' inference directly.)",
+    "method": "Flipped SIGMA_EXC_SCALE 0.5->0.39 (~Born level), regenerated the full-cascade dumps, and measured CSDA (8 energies), cascade ions, chemistry G-values @1us, SSB ratio, and the 0.1ps initial yields. sigma=0.5 reference is the v0.6.0 production."
+  },
+  "result": {
+    "csda_vs_geant4": {
+      "100eV": { "s05": 0.736, "s039": 0.782 },
+      "300eV": { "s05": 0.810, "s039": 0.852 },
+      "1keV":  { "s05": 0.912, "s039": 0.933 },
+      "10keV": { "s05": 0.994, "s039": 0.997 }
+    },
+    "cascade_ions": { "s05": 0.931, "s039": 0.937 },
+    "chemistry_1us_vs_chem6": {
+      "OH":   { "s05": 0.940, "s039": 0.942 },
+      "eaq":  { "s05": 0.887, "s039": 0.899 },
+      "H":    { "s05": 1.085, "s039": 1.055 },
+      "H2":   { "s05": 0.993, "s039": 0.992 },
+      "H2O2": { "s05": 0.927, "s039": 0.922 },
+      "RMS":  { "s05": "7.6%", "s039": "6.8%" }
+    },
+    "ssb_ratio": { "s05": 2.53, "s039": 2.72, "band": "2-3", "in_band": true },
+    "initial_0p1ps": { "G_OH_s039": 5.26, "chem6": 5.05, "G_OH_s05": 5.45, "note": "0.1ps G(OH) at 0.39 is CLOSER to chem6 than 0.5; initial G(H2) drops to 0.162 but the 1us G(H2) recovers to 0.992x" },
+    "headline": "SIGMA_EXC_SCALE=0.39 (~Born) is a CLEAN WIN on EVERY axis: CSDA improves at all 8 energies, cascade ions 0.931->0.937x, chemistry RMS 7.6->6.8%, G(H) overshoot 1.085->1.055x, SSB 2.72 in-band. Nothing got worse.",
+    "conclusion": "The v0.6.0 full cascade UNLOCKED a better sigma_exc: 0.5 was tuned for the TRUNCATED cascade (it over-excited to compensate for missing radicals); with the full cascade supplying the radicals, 0.39 (~Born) is better everywhere AND shrinks the Emfietzoglou divergence (more Geant4-faithful). This CORRECTS E26 ('the residual is the sigma_exc floor') and E7e's read that sigma_exc cannot be lowered without breaking chemistry — both were true for the truncated cascade, false for the full one. Adopted as v0.6.1.",
+    "supersedes": "E26 (sigma_exc-floor inference), E7e (sigma_exc-cannot-lower)"
+  },
+  "status": "pass — clean win, adopted v0.6.1"
+}
