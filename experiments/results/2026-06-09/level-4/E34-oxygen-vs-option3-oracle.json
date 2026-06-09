@@ -1,0 +1,18 @@
+{
+  "meta": {
+    "protocol": "E34-oxygen-vs-option3-oracle",
+    "question": "Validate our ported oxygen network (E31) QUANTITATIVELY against the real chem6/option3 oracle (verify-before-asserting close).",
+    "method": "Ran chem6 (G4EmDNAPhysics_option2 + G4EmDNAChemistry_option3, IRT) — the actual oracle — for a 100 keV proton (LET 49.4 keV/um) to 1 us, extracted per-species G-values (Species.txt). Compared to our 100 keV proton chemistry."
+  },
+  "result": {
+    "oracle_G_at_1us": {"OH": 0.230, "eaq": 0.169, "H": 0.339, "H2": 1.153, "H2O2": 1.121, "O2": 0.029, "HO2": 0.041, "O2m": 0.015, "Om": 0.036, "HO2m": 0.0095, "O": 0.0015, "O3m": 0.00075},
+    "ours_G_at_1us": {"OH": 0.36, "eaq": 0.31, "H2": 0.90, "H2O2": 0.98, "total_oxygen": "~0"},
+    "findings": [
+      "DISCREPANCY 1 — oxygen over-consumed: the oracle KEEPS persistent oxygen at 1 us (G(O2)~0.029, G(HO2)~0.041, G(O2-)~0.015, total ~0.13); ours funnels to ~0. Our network forms oxygen (E31) but does not persist it — a real quantitative bug.",
+      "DISCREPANCY 2 — recombination too weak: ours has MORE radicals (OH 0.36 vs 0.23, eaq 0.31 vs 0.17) and FEWER molecular products (H2 0.90 vs 1.15, H2O2 0.98 vs 1.12) than the oracle. Our track under-recombines at this LET.",
+      "REVISES E33: the anti-OER is partly BECAUSE our O2 vanishes — the oracle retains O2 that the (still-missing) DNA-radical fixation could act on."
+    ],
+    "verdict": "The oracle validation did its job: 'oxygen forms' (E31, qualitatively true) is NOT 'oxygen is correct'. Quantitatively we are off — oxygen over-consumed + recombination too weak. Likely causes: reaction TYPES all forced TDC (no PDC), missing back-reactions/stability, or per-primary-IRT over-consumption. Next: diagnose the oxygen sink + the recombination deficit against this oracle row."
+  },
+  "status": "honest discrepancy found — oxygen network forms but is quantitatively over-consumed vs option3 oracle"
+}
