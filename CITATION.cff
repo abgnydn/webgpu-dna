@@ -38,7 +38,7 @@ keywords:
   - SSB
   - DSB
 license: MIT
-version: "0.6.0"
+version: "0.6.1"
 date-released: "2026-06-09"
 doi: "10.5281/zenodo.20506339"
 references:
@@ -63,7 +63,7 @@ preferred-citation:
   authors:
     - given-names: Ahmet Barış
       family-names: Günaydın
-  version: "0.6.0"
+  version: "0.6.1"
   year: 2026
   url: https://github.com/abgnydn/webgpu-dna
   doi: "10.5281/zenodo.20606566"

@@ -9,6 +9,24 @@ from `0.1.0`.
 
 _Nothing pending. Open a PR or issue to start the next entry._
 
+## [0.6.1] — 2026-06-09 — σ_exc → Born level (clean win)
+
+### Changed
+- **`SIGMA_EXC_SCALE` 0.5 → 0.39 (≈ Born level).** The v0.6.0 full cascade
+  unlocked a better excitation scale: 0.5 had been tuned for the *truncated*
+  cascade (over-exciting to compensate for the missing tertiary radicals). With
+  the full cascade supplying the radicals, ≈Born excitation improves **every
+  axis** and nothing regresses — and it shrinks the Emfietzoglou divergence
+  (more Geant4-faithful):
+  - CSDA: 100 eV 0.736→**0.782×**, 300 eV 0.810→**0.852×**, 500 eV 0.857→**0.894×**,
+    1 keV 0.912→**0.933×**, 10 keV 0.994→**0.997×**
+  - cascade ions: 0.931→**0.937×**
+  - chemistry RMS vs chem6: 7.6→**6.8%** (G(H) overshoot 1.085→1.055×, G(eaq) 0.887→0.899×)
+  - SSB ratio: **2.72** (in PARTRAC band)
+- This corrects E26 (which had inferred the residual was an immovable σ_exc
+  floor) and E7e (σ_exc can't be lowered without breaking chemistry) — both were
+  true for the truncated cascade, false for the full one (E28).
+
 ## [0.6.0] — 2026-06-09 — full electron cascade
 
 ### Changed
