@@ -61,7 +61,7 @@ function writeSecondaryParams(
   su[4] = MAX_RAD;
   su[5] = (dna && E_eV === 10000) ? 1 : 0;
   su[6] = dna ? dna.grid_N : 0;
-  su[7] = 0;
+  su[7] = MAX_SEC;   // max_sec — bound for tertiary-cascade emission into sec_buf
   sf[8] = dna ? dna.rise : 0.0;
   sf[9] = dna ? dna.spacing_nm : 0.0;
   sf[10] = dna ? dna.x0 : 0.0;
@@ -125,21 +125,39 @@ export async function runAtEnergy(
   const sec_n = Math.min(sec_n_raw, MAX_SEC);
   const sec_dropped = Math.max(0, sec_n_raw - MAX_SEC);
 
-  // ---- Phase B: secondary wavefront ----
+  // ---- Phase B: secondary wavefront (with tertiary-cascade growth) ----
+  // The secondary shader now emits tertiary electrons into sec_buf (counters[6]
+  // grows). We process in chunks, re-reading the wavefront size between chunks
+  // so newly-emitted tertiaries (gen3+) get tracked — recovering the cascade
+  // ionisations Geant4 produces (E21).
   let t_sec = 0;
   if (sec_n > 0) {
-    writeSecondaryParams(device, buffers.secParams, sec_n, boxNm, ceEV, E_eV, dna);
     const t1 = performance.now();
-    const enc2 = device.createCommandEncoder();
-    const pass2 = enc2.beginComputePass();
-    pass2.setPipeline(pipelines.secondary);
-    pass2.setBindGroup(0, pipelines.secondaryBG);
-    for (let step = 0; step < MAX_SEC_STEPS; step++) {
-      pass2.dispatchWorkgroups(Math.ceil(sec_n / 256));
+    const CHUNK = 100; // steps per chunk before re-reading the wavefront size
+    let cur_sec_n = sec_n;
+    for (let base = 0; base < MAX_SEC_STEPS; base += CHUNK) {
+      writeSecondaryParams(device, buffers.secParams, cur_sec_n, boxNm, ceEV, E_eV, dna);
+      const enc2 = device.createCommandEncoder();
+      const pass2 = enc2.beginComputePass();
+      pass2.setPipeline(pipelines.secondary);
+      pass2.setBindGroup(0, pipelines.secondaryBG);
+      const steps = Math.min(CHUNK, MAX_SEC_STEPS - base);
+      const wg = Math.ceil(cur_sec_n / 256);
+      for (let step = 0; step < steps; step++) pass2.dispatchWorkgroups(wg);
+      pass2.end();
+      enc2.copyBufferToBuffer(buffers.counters, 0, buffers.countersRB, 0, 32);
+      device.queue.submit([enc2.finish()]);
+      await device.queue.onSubmittedWorkDone();
+      await buffers.countersRB.mapAsync(GPUMapMode.READ);
+      const cc = new Uint32Array(buffers.countersRB.getMappedRange().slice(0) as ArrayBuffer);
+      cur_sec_n = Math.min(cc[6], MAX_SEC);
+      buffers.countersRB.unmap();
+      // Keep processing all chunks even after the wavefront stops growing, so
+      // every tracked particle finishes thermalising and creates its eaq.
     }
-    pass2.end();
-    enc2.copyBufferToBuffer(buffers.secStats, 0, buffers.secStatsRB, 0, 32);
-    device.queue.submit([enc2.finish()]);
+    const encS = device.createCommandEncoder();
+    encS.copyBufferToBuffer(buffers.secStats, 0, buffers.secStatsRB, 0, 32);
+    device.queue.submit([encS.finish()]);
     await device.queue.onSubmittedWorkDone();
     t_sec = performance.now() - t1;
   }

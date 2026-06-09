@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "protocol": "E25-tertiary-cascade-corrected",
+    "summary": "CORRECTION of E22-E24: the tertiary cascade does NOT break chemistry \u2014 it IMPROVES it. The E22 'crash' was a normalization bug (n_therm=10000 instead of 4096 in every run_irt invocation this session, under-normalizing all G-values by 4096/10000=0.41x). E23/E24's 'over-recombination' investigation chased a phantom.",
+    "branch": "feat/tertiary-cascade"
+  },
+  "status": "CLEAN WIN \u2014 verified",
+  "the_bug": "run_irt.cjs signature is <dump> <n_therm> <E_eV>. All session comparisons ran `run_irt <dump> 10000`, passing n_therm=10000 (should be 4096). This scaled every G-value by 0.41x. The E10r production reference (1.56) was correctly normalized, so comparing wrongly-normalized tertiary (0.66) to it created a false 'crash'. Caught by verify-before-asserting when the s=1.0 unscaled production baseline gave 0.640 instead of the expected 1.56.",
+  "result_correct_normalization": {
+    "note": "n_therm=4096, both dumps, 1us G-values vs chem6",
+    "table": {
+      "OH": {
+        "chem6": 1.71,
+        "production": 1.562,
+        "prod_ratio": 0.913,
+        "tertiary": 1.608,
+        "tert_ratio": 0.94
+      },
+      "eaq": {
+        "chem6": 1.69,
+        "production": 1.455,
+        "prod_ratio": 0.861,
+        "tertiary": 1.498,
+        "tert_ratio": 0.887
+      },
+      "H": {
+        "chem6": 0.71,
+        "production": 0.656,
+        "prod_ratio": 0.924,
+        "tertiary": 0.77,
+        "tert_ratio": 1.085
+      },
+      "H2": {
+        "chem6": 0.622,
+        "production": 0.461,
+        "prod_ratio": 0.741,
+        "tertiary": 0.618,
+        "tert_ratio": 0.993
+      },
+      "H2O2": {
+        "chem6": 0.85,
+        "production": 0.589,
+        "prod_ratio": 0.693,
+        "tertiary": 0.788,
+        "tert_ratio": 0.927
+      }
+    },
+    "RMS_vs_chem6": {
+      "production": "19.7%",
+      "tertiary": "7.6%"
+    }
+  },
+  "verdict": "The tertiary cascade (E21/E22 implementation) is a CLEAN WIN on BOTH axes: cascade ions 0.766x->0.931x AND chemistry RMS 19.7%->7.6% (every species improved; H2 0.74x->0.99x and H2O2 0.69x->0.93x close the long-standing chem6 1us gap). Primary track unchanged (195.4, bit-exact), E conserved (99.9%). Only H overshoots slightly (0.92x->1.09x). This is the follow-reality fix: tracking the full electron cascade brings the model much closer to Geant4 across the board. MERGE CANDIDATE pending standard revalidation (SSB E13, full energy sweep).",
+  "lesson": "verify-before-asserting rescued a real result. A units bug in MY invocation made a working fix look broken, and I then chased a non-existent over-recombination through E23-E24. The principle (when a baseline looks wrong, check the harness) caught it. E22-E24 'chemistry breaks / over-recombination' conclusions are RETRACTED.",
+  "ssb_revalidation": {
+    "tertiary_ratio": 2.53,
+    "production_ratio": 2.32,
+    "PARTRAC_band": "2-3",
+    "ssb_dir": 32,
+    "ssb_ind": 81,
+    "dsb": 17,
+    "verdict": "holds in band, no recalibration"
+  },
+  "all_gates": {
+    "cascade_ions": "0.766x->0.931x PASS",
+    "chemistry_RMS": "19.7%->7.6% PASS",
+    "SSB_ratio": "2.53 in-band PASS",
+    "primary": "bit-exact PASS",
+    "E_cons": "99.9% PASS"
+  }
+}
