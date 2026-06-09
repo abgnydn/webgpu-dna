@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "protocol": "E21-cascade-generation-decomposition",
+    "question": "What is the MECHANISM of the secondary-cascade ionisation deficit (E20: 216.9 vs 313.6)? Is it the untracked tertiary cascade (secondary.wgsl absorbs tertiaries in place)?",
+    "method": "Counted Geant4 dna.root ionisations (flag 13) by cascade generation using step trackID+parentID: gen1=trackID==1, gen2=trackID>1 & parentID==1, gen3+=parentID>1. Compared to our model (tracks gen1+gen2, absorbs gen3+)."
+  },
+  "env": {
+    "gitSha": "49d3cf79a62c9045e257fe2623a87d58036c9b75",
+    "geant4_ntuple": "dna.root / 115.5M steps / 4096 events"
+  },
+  "status": "pass — mechanism identified",
+  "summary": {
+    "ionisations_by_generation_per_primary": {
+      "gen1_primary": {
+        "ours": 195.4,
+        "geant4": 195.6,
+        "ratio": 1
+      },
+      "gen2_secondary": {
+        "ours": 216.9,
+        "geant4": 236.4,
+        "ratio": 0.92
+      },
+      "gen3plus_tertiary": {
+        "ours": 0,
+        "geant4": 77.2,
+        "ratio": 0
+      }
+    },
+    "deficit_decomposition": {
+      "total_deficit": 96.9,
+      "untracked_tertiary_gen3plus": 77.2,
+      "gen2_underionisation": 19.5,
+      "pct_from_tertiary": 80
+    },
+    "headline": "The cascade deficit is 80% the UNTRACKED TERTIARY+ CASCADE (gen3+ = 77.2 ions/primary that our secondary.wgsl absorbs in place rather than tracking) + 20% a small gen2 under-ionisation (216.9 vs 236.4). gen1 (primary) matches Geant4 exactly.",
+    "fix": "Emit tertiary electrons from secondary ionisations (W_sec>cutoff) into sec_buf instead of depositing in place, and let the Phase B wavefront grow to process them (dispatch.ts re-reads sec_n). Recovers ~77 of the 97 missing ionisations -> total ~489 vs Geant4 509 (0.96x). It is a deliberate architectural simplification (depth-2 cascade), not a physics error — but it is the fixable root of the cascade deficit."
+  }
+}
