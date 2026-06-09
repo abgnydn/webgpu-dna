@@ -22,6 +22,14 @@ Each item below lists: **(scope) (parallelism) (sequential bottleneck) (validati
 
 ## Tier 0 — Operational housekeeping (~minutes)
 
+- ~~**Full electron cascade → cascade-ion deficit + chem6 gap resolved.**~~ **DONE 2026-06-09 (v0.6.0).**
+  The secondary shader now tracks the tertiary (gen3+) cascade (`secondary.wgsl`
+  emits tertiaries into `sec_buf`; `dispatch.ts` grows the Phase B wavefront).
+  Clean win: cascade ions **0.766→0.931×**, chemistry RMS vs chem6 **19.7→7.6%**
+  (H₂/H₂O₂ gap closed), SSB **2.53** in-band, primary bit-exact, validated across
+  8 energies + browser [E20, E21, E25]. Zenodo v0.6.0 DOI `10.5281/zenodo.20606566`.
+  (The earlier "23% deficit is the σ_exc floor" framing in this doc was wrong — it
+  was the untracked tertiary cascade.)
 - ~~**`RECOMB_BOOST` removal → parameter-free pipeline.**~~ **DONE 2026-06-08 (v0.5.0).**
   The flip RECOMB 2.0→1.0 passed all three gates — cascade ions *recover*
   0.677→0.766× [E7d], chemistry parameter-free [E10r], SSB holds at 2.32 [E13d].

@@ -115,7 +115,7 @@ await Deno.writeFile(`${ROOT}/dumps/rad_E${E_eV}_tertiary.bin`, new Uint8Array(r
 rrb.unmap();
 const h3op = sp_count[3] / np, h2 = sp_count[7] / np;
 const cascade = h3op + h2;
-console.error(`[tertiary] cascade ions/pri = ${cascade.toFixed(1)} (was 389.9; Geant4 509.2 = ${(cascade/509.2).toFixed(3)}x) | H3O+=${h3op.toFixed(1)} H2=${h2.toFixed(1)} OH=${(sp_count[0]/np).toFixed(1)} eaq=${(sp_count[1]/np).toFixed(1)}`);
+console.error(`[cascade] cascade ions/pri = ${cascade.toFixed(1)} (Geant4 509.2 = ${(cascade/509.2).toFixed(3)}x; v0.6.0 production ~474/0.931x @10keV) | H3O+=${h3op.toFixed(1)} H2=${h2.toFixed(1)} OH=${(sp_count[0]/np).toFixed(1)} eaq=${(sp_count[1]/np).toFixed(1)}`);
 
 console.log(JSON.stringify({
   E_eV, np, wall_ms: Number(ms),
