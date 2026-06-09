@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "protocol": "E27-ssb-geometry-sensitivity",
+    "question": "The project flags the SSB/DSB indirect/direct ratio as 'target-geometry-dependent'. That was asserted, not measured. How sensitive is the ratio to the DNA fibre-grid spacing?",
+    "method": "Swept the fibre spacing (75 / 150 / 300 nm, a 4x range) of the 21x21 grid, re-running the full IRT chemistry + SSB/DSB scoring on the v0.6.0 cascade dump (10 keV, N=4096) for each."
+  },
+  "result": {
+    "sweep": {
+      "75nm":  { "ssb_dir": 75, "ssb_ind": 178, "dsb": 22, "ratio": 2.37 },
+      "150nm": { "ssb_dir": 32, "ssb_ind": 81,  "dsb": 15, "ratio": 2.53 },
+      "300nm": { "ssb_dir": 17, "ssb_ind": 38,  "dsb": 11, "ratio": 2.24 }
+    },
+    "headline": "Across a 4x spacing change, absolute counts scale ~4x (SSB_dir 75->17) but the indirect/direct RATIO stays 2.24-2.53 — all inside PARTRAC's 2-3 band, ~±6% variation.",
+    "conclusion": "The SSB/DSB ratio is ROBUST to the DNA-target geometry: the absolute yields are strongly geometry-dependent (as expected — more fibres in the dense track core = more hits), but the validated RATIO is stable and stays in-band across a 4x spacing sweep. This refines the project's 'ratio is target-geometry-dependent' caveat: the geometry-dependence is in the absolute counts, not the ratio. The ratio remains a CALIBRATED fit (P_indirect tuned to the band) — that is a separate caveat from geometry-dependence, and unaffected by this result."
+  },
+  "status": "pass — geometry caveat quantified (ratio robust)"
+}

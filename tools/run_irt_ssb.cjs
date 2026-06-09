@@ -21,7 +21,10 @@ const fs = require('fs');
 const path = require('path');
 
 // --- constants (src/physics/constants.ts) ---
-const DNA_LENGTH_NM = 3000, DNA_GRID_N = 21, DNA_SPACING_NM = 150;
+const DNA_LENGTH_NM = 3000, DNA_GRID_N = 21;
+// Fibre spacing is the 4th optional arg (default 150 nm) — lets E27 sweep the
+// DNA-target geometry to measure how sensitive the SSB/DSB ratio is to it.
+const DNA_SPACING_NM = parseInt(process.argv[5] || '150', 10);
 const SSB_R_DAMAGE_NM = 0.29, SSB_R_DAMAGE_INDIRECT_NM = 1.0;
 const SSB_P_INDIRECT = 0.05, SSB_P_DIRECT = 0.15, DSB_WINDOW_BP = 10;
 

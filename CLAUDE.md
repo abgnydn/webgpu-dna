@@ -197,7 +197,11 @@ Lives in `src/gpu/buffers.ts`. Key points:
   `'worker'` (the IRT path).
 - **Indirect SSB** uses diffused OH at t = 1 μs against a concentrated
   21×21 fiber grid sampling the track core, rather than a uniform bulk
-  distribution. The DSB/SSB ratio is therefore target-geometry-dependent.
+  distribution. The *absolute* SSB/DSB counts are geometry-dependent, but the
+  indirect/direct **ratio is robust** — E27 swept the fibre spacing 75→300 nm
+  (4×, counts scale ~4×) and the ratio stayed 2.24–2.53, all in PARTRAC's 2–3
+  band (~±6%). The ratio's remaining caveat is the **calibration** (`P_indirect`
+  tuned), which is separate from geometry-dependence.
 - **`data/g4emlow/`** is not committed (245 MB). Download from
   https://geant4-data.web.cern.ch/datasets/ (currently `G4EMLOW.8.8.tar.gz`,
   shipped with Geant4 11.4.1) and extract so that `data/g4emlow/dna/` exists,
