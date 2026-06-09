@@ -203,15 +203,24 @@ fn main(@builtin(global_invocation_id) gid:vec3<u32>){
         rad_buf[ri]   =vec4<f32>(px,py,pz,0.0+f32(id));
         rad_buf[ri+1u]=vec4<f32>(px,py,pz,3.0+f32(id));
       }
-      // emit the ejected electron into sec_buf (isotropic for low KE — Rudd
-      // secondaries are mostly soft; the cascade re-samples its own angles)
+      // emit the ejected electron into sec_buf with the G4DNARuddAngle distribution:
+      // cosθ = √(KE/W_max) for energetic deltas (>100 eV, forward-peaked), isotropic
+      // below — relative to the proton direction (W_max ≈ 4·(m_e/m_p)·E).
       if(ke>p.ce){
         let sidx=atomicAdd(&counters[6],1u);
         if(sidx<p.max_sec){
-          let ct=2.0*rf(&s)-1.0; let st=sqrt(max(0.0,1.0-ct*ct)); let ph=2.0*PI*rf(&s);
+          let wmaxA=4.0*M_E_OVER_M_P*E;
+          var ct:f32;
+          if(ke>100.0 && ke<=wmaxA){ct=sqrt(ke/wmaxA);}else{ct=2.0*rf(&s)-1.0;}
+          let st=sqrt(max(0.0,1.0-ct*ct)); let ph=2.0*PI*rf(&s);
+          let cph=cos(ph); let sph=sin(ph);
+          // rotate (st·cph, st·sph, ct) onto the proton direction (dx,dy,dz)
+          var edx:f32; var edy:f32; var edz:f32;
+          if(abs(dz)>0.99999){let sw=select(-1.0,1.0,dz>0.0);edx=st*cph;edy=st*sph*sw;edz=ct*sw;}
+          else{let q=sqrt(1.0-dz*dz);let inv=1.0/q;let nx=dx*ct+st*(dx*dz*cph-dy*sph)*inv;let ny=dy*ct+st*(dy*dz*cph+dx*sph)*inv;let nz=dz*ct-q*st*cph;let len=sqrt(nx*nx+ny*ny+nz*nz);edx=nx/len;edy=ny/len;edz=nz/len;}
           var sp:Particle;
           sp.pos_E=vec4<f32>(px,py,pz,ke);
-          sp.dir_alive=vec4<f32>(st*cos(ph),st*sin(ph),ct,1.0+f32(id));
+          sp.dir_alive=vec4<f32>(edx,edy,edz,1.0+f32(id));
           sp.rng=vec4u(rn(&s),rn(&s),rn(&s),rn(&s));
           sec_buf[sidx]=sp;
         }
