@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "protocol": "E23-over-recombination-root-cause",
+    "question": "Why does the (correct) full cascade over-recombine in the per-primary IRT (E22: G 0.91x->0.39x)? Verified against reality, not guessed.",
+    "branch": "feat/tertiary-cascade"
+  },
+  "status": "diagnosed (root cause verified) - proper fix scoped, not yet implemented",
+  "findings": {
+    "chem6_is_per_track": "VERIFIED from chem6_10keV.mac (/gun/position 0 0 0, one e- per event) - chemistry is per-event, so our per-primary IRT IS the correct comparison. Geometry ruled out.",
+    "reactions_rise_uniformly": "All 9 reactions rise ~1.4x with the cascade (not one channel) - a general over-density, ~density^2 for 1.22x more radicals.",
+    "fewer_radicals_more_recomb": "Our tertiary dump has FEWER radicals than Geant4 (459 vs 509 ions/pri) yet MORE recombination -> our radicals are packed tighter than Geant4 effectively.",
+    "irt_sampling_faithful": "Our sampleIRT (type0/type1) has the correct diffusion-escape probability (Winf=sigma/r0e, erfcinv) - the per-pair sampling is a faithful G4DNAIRT port.",
+    "placement_geometry_is_the_cause": "Geant4 G4DNAWaterDissociationDisplacer spreads dissociation products ANTI-CORRELATED (OH +0.5d, partner -0.5d, 0.8nm RMS) so same-event products separate. Our worker applies a single random-direction 0.8nm displacement to ONE product (50/50 OH vs H3O+) on top of a 2.0nm mother displacement, and places OH+H3O+ at a shared site. The approximate placement leaves radicals closer on average -> tolerable at production density, but the full cascade exposes it as uniform over-recombination."
+  },
+  "proper_fix": {
+    "part1": "Track the full electron cascade (DONE on this branch - cascade ions 0.766x->0.931x, primary unchanged, E conserved).",
+    "part2": "Faithfully port G4DNAWaterDissociationDisplacer: per-decay-type mother displacement (0.0 for several ionisation types, NOT a blanket 2.0nm) + anti-correlated product spreading, so radicals land at the true Geant4 separations.",
+    "then": "Revalidate the full chain (E5/E7/E8/E10/E13). Both parts are required together - E22 proved either alone makes it worse.",
+    "principle": "This is the follow-reality fix: replace the placement APPROXIMATION with Geant4 exact geometry, rather than tuning a compensation."
+  }
+}
