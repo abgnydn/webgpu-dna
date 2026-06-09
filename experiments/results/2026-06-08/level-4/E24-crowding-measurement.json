@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "protocol": "E24-crowding-measurement",
+    "question": "Is the cascade over-recombination (E22) caused by our radicals being too spatially crowded (positions), or by the IRT dynamics? MEASURE, don't guess.",
+    "method": "Reconstructed Geant4 chemistry-stage radical positions FAITHFULLY from dna.root: each ionisation (flag13) -> OH + H3O+ (one displaced 0.8nm random, the verified geometry); each solvation (flag10) -> eaq. Computed mean neighbours within 1 nm (local crowding = the thing that drives recombination) for 6 events, vs our tertiary-cascade dump per primary.",
+    "branch": "feat/tertiary-cascade"
+  },
+  "status": "decisive — placement hypothesis REFUTED by measurement",
+  "result": {
+    "radical_counts": "comparable: Geant4 ~1530/event, ours ~1570/primary",
+    "crowding_neighbours_within_1nm": { "geant4": 3.26, "ours": 1.10, "ours_over_g4": 0.34 },
+    "headline": "Our radicals are 3x LESS crowded than Geant4's (1.10 vs 3.26 within 1nm) at comparable counts — yet OURS over-recombine (G 0.39x vs 1.0x). Positions/crowding are NOT the cause; if anything our field is too sparse, not too dense.",
+    "conclusion": "The cascade over-recombination is in the IRT DYNAMICS (time evolution / multi-body competition / diffusive escape over the 1us window), NOT the radical placement. This REFUTES both placement hypotheses (E23 anti-correlated; 'radicals too close'). The per-pair sampleIRT is a faithful port, so the divergence is in how the per-primary IRT processes the whole field over time vs Geant4's G4DNAIRT. Pinning the specific dynamics divergence (e.g. the R_CUT=551nm multi-partner horizon causing each radical to over-find partners, or the time-resolved diffusion re-evaluation) is the next step — and must be MEASURED against G4DNAIRT before any fix.",
+    "principle": "Follow reality, measure don't guess: this measurement killed two wrong placement hypotheses and a wasted 'faithful displacer port' that would have changed code that is actually correct."
+  }
+}
