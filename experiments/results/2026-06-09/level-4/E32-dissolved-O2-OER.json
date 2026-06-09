@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "protocol": "E32-dissolved-O2-OER",
+    "question": "Add dissolved O2 (the radiobiological oxygen effect / OER) — does the eaq/H scavenging by background O2 reproduce dose-dependent radical depletion?",
+    "method": "First-order O2 scavenger in the IRT worker (heap self-event, gj=-99 sentinel): eaq+O2->O2- (k 1.74e10), H+O2->HO2 (k 2.1e10), rate k*[O2]. Tested on the 100 keV proton over [O2] = 0 / 50 / 250 uM."
+  },
+  "result": {
+    "G_eaq_at_1us": {"anoxic_0uM": 0.309, "normoxic_50uM": 0.114, "aerated_250uM": 0.006},
+    "G_H_at_1us":   {"anoxic_0uM": 0.439, "normoxic_50uM": 0.392, "aerated_250uM": 0.329},
+    "headline": "Dissolved O2 scavenges eaq dose-dependently (0.309 -> 0.006 from anoxic to aerated) — the molecular basis of the OER (why hypoxic tumours are radioresistant). Anoxic (0 uM) preserves prior behaviour (safe).",
+    "limits": "Transient O2-/HO2 still funnel to ~0 by 1us in the isolated per-primary track; the full OER = DNA-damage ratio (aerated/anoxic) is the next step (score SSB/DSB with vs without O2)."
+  },
+  "status": "pass — oxygen-effect mechanism live (dose-dependent eaq scavenging by dissolved O2)"
+}

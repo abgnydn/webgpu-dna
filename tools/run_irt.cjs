@@ -18,6 +18,7 @@ const { performance } = require('perf_hooks');
 const dumpFile = process.argv[2];
 const n_therm  = parseInt(process.argv[3] || '0', 10);
 const E_eV     = parseInt(process.argv[4] || '10000', 10);
+const o2_conc  = (parseFloat(process.argv[5] || '0')) * 1e-6;  // µM -> mol/L (dissolved O2 / OER)
 
 if (!dumpFile || !n_therm) {
   console.error('usage: node tools/run_irt.js <dump_file> <n_therm> <E_eV>');
@@ -75,5 +76,5 @@ if (typeof workerOnMessage !== 'function') {
 
 // Trigger the worker.
 const t0 = performance.now();
-workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV } });
+workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV, o2_conc } });
 console.error(`[run_irt] total wall: ${((performance.now()-t0)/1000).toFixed(1)}s`);

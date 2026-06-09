@@ -415,6 +415,14 @@ self.onmessage = function(e) {
   const { rad_buf, rad_n, n_therm, E_eV, dna, ssbScoring } = e.data;
   const t0 = performance.now();
 
+  // Dissolved O2 (the radiobiological oxygen effect / OER). Background O2 scavenges
+  // the reducing radicals: eaq + O2 → O2- (k 1.74e10), H + O2 → HO2 (k 2.1e10),
+  // first-order at rate k·[O2]. [O2] in mol/L: 0 = anoxic (preserves prior behaviour),
+  // ~50 µM = normoxic tissue, ~250 µM = aerated. Rate in /ns = k·[O2]·1e-9.
+  const O2_CONC = e.data.o2_conc || 0;
+  const rateEaqO2 = 1.74e10 * O2_CONC * 1e-9;  // /ns
+  const rateHO2   = 2.10e10 * O2_CONC * 1e-9;  // /ns (H + O2 → HO2)
+
   // ─── IRT-side indirect-SSB scoring (PHYSICS_DIAGNOSIS.md §3 option b) ───
   // 2026-05-12: previously scoreIndirectSSB ran in app.ts on chem_pos at
   // t=1μs, missing all the OH-backbone encounters that happen DURING the
@@ -692,6 +700,17 @@ self.onmessage = function(e) {
       }
     }
 
+    // Dissolved-O2 scavenging (OER): first-order eaq+O2 / H+O2 as self-events (gj=-99).
+    if (O2_CONC > 0) {
+      for (let i = 0; i < n; i++) {
+        if (!alive[i]) continue;
+        const rate = species[i] === 1 ? rateEaqO2 : (species[i] === 2 ? rateHO2 : 0);
+        if (rate <= 0) continue;
+        const t = -Math.log(Math.random()) / rate;
+        if (t < 1000) heap.push(t, i, i, gen[i], -99);
+      }
+    }
+
     // Process reactions in time order. Pre-load pri_H2 with the count of
     // initial H2 markers (code 7 in rad_buf) for this primary — these come
     // from B1A1 (3.25%) and DEA channels and exist from t=0.
@@ -719,6 +738,17 @@ self.onmessage = function(e) {
         tl_H2O2[cp_idx] += pri_H2O2 + h2o2; tl_H2[cp_idx] += pri_H2;
         tl_O2[cp_idx] += o2; tl_HO2[cp_idx] += ho2; tl_O2m[cp_idx] += o2m; tl_Oox[cp_idx] += oox;
         cp_idx++;
+      }
+
+      // Dissolved-O2 scavenge (gj=-99 sentinel): convert the single reducing radical.
+      if (evt.gj === -99) {
+        const k = evt.i;
+        if (alive[k] && gen[k] === evt.gi && (species[k] === 1 || species[k] === 2)) {
+          species[k] = species[k] === 1 ? 8 : 7;  // eaq → O2-, H → HO2
+          gen[k]++;                                // invalidate stale pairings for k
+          pairWithAlive(k, n_total, evt.t);        // pair the new oxygen species
+        }
+        continue;
       }
 
       // Validate event
