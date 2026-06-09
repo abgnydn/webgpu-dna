@@ -65,9 +65,9 @@ cascade-ionisation count was 23\,\% below Geant4; analysing Geant4's per-step
 ntuple by trackID showed the primary track is bit-exact and that the deficit was
 the \emph{untracked tertiary (gen3+) electron cascade}---the secondary stage had
 absorbed tertiary electrons in place. Tracking the full cascade (v0.6.0) resolves
-it (ions $0.766\to0.937\times$) and, importantly, \emph{also} closes most of the
+it (ions $0.766\to0.942\times$) and, importantly, \emph{also} closes most of the
 residual \SI{1}{\micro s} chemistry gap against \texttt{chem6} (five-species RMS
-$19.7\to6.8\,\%$; the $\mathrm{H_2}$/$\mathrm{H_2O_2}$ deficits close)---revising
+$19.7\to7.0\,\%$; the $\mathrm{H_2}$/$\mathrm{H_2O_2}$ deficits close)---revising
 an earlier attribution of that gap to inter-track partitioning. The fix is
 browser-native. We document the investigation in full, including a self-caught
 normalisation error in our own analysis that briefly mis-read the fix as a
@@ -121,7 +121,7 @@ gMicroMC, MPEXS-DNA and GGEMS.
 The pipeline has three phases (Fig.~\ref{fig:pipeline}):
 \textbf{Phase~A (primaries)} is a single fused \texttt{@compute} dispatch with
 one thread per primary electron; that thread runs the entire history---Born
-ionisation, Emfietzoglou excitation, elastic and vibrational scattering---in a
+ionisation, Born excitation, elastic and vibrational scattering---in a
 \texttt{for} loop, with no per-step dispatch. \textbf{Phase~B (secondaries)}
 is a wavefront stepper (one dispatch per physics step advancing all live
 secondaries), which cannot be fused because the secondary count is unknown
@@ -144,28 +144,31 @@ We port Born ionisation (5 shells), Champion tabulated / screened-Rutherford
 elastic, Sanche vibrational excitation (9 modes), and the Karamitros 9-reaction
 IRT chemistry (6 species, Smoluchowski totally-diffusion-controlled and
 Onsager-screened partially-diffusion-controlled types)
-\cite{karamitros2011,karamitros2014}. Two deliberate departures from the
-\texttt{DNA\_Opt2} defaults are documented (Table~\ref{tab:diverge}): we use
-the Emfietzoglou excitation model \cite{emfietzoglou2005}---the model used by
-the Geant4-DNA constructor \texttt{G4EmDNAPhysics\_option4}, which is unrelated
-to the similarly-named EM~Standard list \texttt{G4EmStandardPhysics\_option4}---%
-rather than Born, because it yields the correct
-initial $G(\mathrm{H})=0.33$; and one tuning scalar,
-\texttt{SIGMA\_EXC\_SCALE}$=0.39$ (${\approx}$Born level; v0.6.1 lowered it from $0.5$ once the full cascade supplied the radicals, improving every axis, E28), scaling the excitation cross section. A
-second scalar formerly in the codebase, \texttt{RECOMB\_BOOST}, had no physical
-basis; we measured it to be nearly inconsequential (E10r) and \textbf{removed
-it} (set to its neutral $1.0$), so production, this paper, and the shipped demo
-all run a pipeline that is \emph{parameter-free} in that knob. The removal was
-validated end-to-end. A subsequent change (v0.6.0) then tracks the full
-\emph{tertiary} electron cascade---previously the secondary shader absorbed
-tertiary electrons in place---which resolves the cascade-ion deficit
-(ions $0.766\to0.937\times$ vs.\ Geant4) and, far from costing accuracy,
-\emph{improves} the chemistry to a five-species RMS of $6.8\,\%$ vs.\ chem6
-(closing the long-standing $\mathrm{H_2}$/$\mathrm{H_2O_2}$ deficits), with the
-SSB indirect/direct ratio holding in PARTRAC's 2--3 band at $2.53$ (E20--E25).
-The only remaining non-unity scalar,
-\texttt{SIGMA\_EXC\_SCALE}$=0.39$, is a small documented physics-data divergence
-(Emfietzoglou vs Born), not a tuning fudge.
+\cite{karamitros2011,karamitros2014}. We validate against a single, consistent
+Geant4 reference: a source audit (E29) confirms that \emph{both} oracles we
+compare to---\texttt{dnaphysics} (track structure) and \texttt{chem6}
+(chemistry)---register the same constructor, \texttt{G4EmDNAPhysics\_option2},
+so there is no physics-list seam between the cascade and chemistry comparisons.
+For \texttt{option2}, \texttt{G4EmDNABuilder} sets the Emfietzoglou energy limit
+to zero, so the constructor uses \texttt{G4DNABornExcitationModel} (and Born
+ionisation) across the whole electron range. Our track-structure physics
+therefore matches \texttt{option2} model-for-model, and is \emph{parameter-free}:
+two scalars that were once in the codebase have both been removed. The first,
+\texttt{RECOMB\_BOOST}, had no physical basis; we measured it inconsequential
+(E10r) and set it to $1.0$ (v0.5.0). The second, \texttt{SIGMA\_EXC\_SCALE},
+flat-scaled an Emfietzoglou excitation table to approximate Born; because the
+Emfietzoglou/Born ratio is energy-dependent ($\sim2.5\times$ at \si{keV} but
+$\sim10\times$ at ${\sim}\SI{10}{eV}$) a single scalar left low-energy secondaries
+over-excited ${\sim}4\times$. In v0.7.0 we replaced it with the genuine Born
+excitation cross section (\texttt{sigma\_excitation\_e\_born}) and removed the
+scalar (E29); this \textbf{closed the chronic sub-keV CSDA deficit}---the range
+where track-structure codes matter most---lifting \SI{100}{eV} from
+$0.78\times$ to $0.96\times$ Geant4, with all eight energies now within
+\numrange{0.956}{1.005}. Separately, tracking the full \emph{tertiary} electron
+cascade (v0.6.0)---previously the secondary shader absorbed tertiary electrons in
+place---resolved the cascade-ion deficit (ions $0.766\to0.942\times$) and closed
+the long-standing $\mathrm{H_2}$/$\mathrm{H_2O_2}$ chemistry deficits
+(five-species RMS $19.7\to7.0\,\%$ vs.\ chem6) (E20--E29).
 
 \begin{table}[t]\centering\footnotesize
 \caption{Deliberate divergences from Geant4-DNA \texttt{DNA\_Opt2}, with the
@@ -175,8 +178,7 @@ measured cost of each (experiment IDs reference \S~Numbers).}
 \toprule
 Item & \texttt{DNA\_Opt2} & This work & Cost \\
 \midrule
-Excitation & Born & Emfietzoglou & $\sigma_{\text{exc}}$ $2.55\times$ (E6b) \\
-$\sigma_{\text{exc}}$ scale & --- & $\times 0.39$ & net ${\approx}1.0\times$ (Born; E28) \\
+Excitation & Born & Born & matched (v0.7.0, E29) \\
 Recomb.\ boost & --- & off ($\times 1.0$) & $\Delta 1.4$\,pp RMS (E10r) \\
 Chemistry pool & single & per-primary & $\Delta G(\mathrm{H_2})$ (E10f) \\
 Dose reduction & fp64 & fp32 atomics & MC-equivalent, not bit-exact \\
@@ -219,7 +221,7 @@ are $\sim\!10^{-3}$.}
 Channel & Model & Peak ratio & Exp. \\
 \midrule
 Ionisation $\sigma_{\text{ion}}$ & Born (5 shells) & 0.9987 & E1 \\
-Excitation $\sigma_{\text{exc}}$ & Emfietzoglou (5 lev.) & 0.9970 & E2 \\
+Excitation $\sigma_{\text{exc}}$ & Born (5 lev.) & 0.9970 & E2 \\
 Elastic $\sigma_{\text{el}}$ & Champion / scr.-Ruth. & 0.9751 & E3 \\
 Vibrational $\sigma_{\text{vib}}$ & Sanche (9 modes) & 1.0000 & E4 \\
 \bottomrule
@@ -231,7 +233,7 @@ The continuous-slowing-down (CSDA) range at \SI{10}{keV} is \SI{2714.4}{nm}
 vs.\ Geant4's \SI{2747.5}{nm}, i.e.\ $0.988\times$ ($3.59\sigma$), with energy
 conservation at 100.0\,\% (E5). Across the eight ESTAR energies the deficit is
 energy-dependent and was closed monotonically by the joint fix: the
-\SI{100}{eV} ratio rose from $0.587\times$ to $0.782\times$ (v0.6.1) and all eight
+\SI{100}{eV} ratio rose from $0.587\times$ to $0.956\times$ (v0.7.0, real Born excitation) and all eight
 energies improved, with the lift inversely proportional to the original
 deficit---the expected signature of the excitation cross-section correction
 (E5b, E5d; Fig.~\ref{fig:csda}).
@@ -246,7 +248,7 @@ artifacts E5b, E5d).}
 
 The mean free path is 5--11\,\% short of Geant4 across six energy bins
 (median $0.941$, E6). In production (v0.6.1) the full-cascade ionisation count
-is \num{477.1} per primary vs.\ Geant4's \num{509.2}---a 6\,\% deficit (E28),
+is \num{479.6} per primary vs.\ Geant4's \num{509.2}---a 5.8\,\% deficit (E29),
 with an implicit $W$-value of ${\sim}\SI{22.1}{eV}$ vs.\ ICRU~31's \SI{21.4}{eV}
 (\cite{icru31}). This resolves a deficit that stood through the project history.
 Analysing Geant4's per-step ntuple \emph{by trackID}, we found the primary track
@@ -254,7 +256,7 @@ is bit-exact (\num{195.4} ionisations/primary vs.\ Geant4's \num{195.6}, E20),
 and that 80\,\% of the former 23\,\% deficit was the \emph{untracked tertiary
 (gen3+) electron cascade}---our secondary shader had absorbed tertiary electrons
 in place rather than tracking them (E21). Tracking the full cascade (v0.6.0)
-recovers cascade ions $0.766\to0.937\times$ and, far from costing accuracy,
+recovers cascade ions $0.766\to0.942\times$ and, far from costing accuracy,
 \emph{improves} the chemistry (\S\ref{sec:chem}). The
 secondary-electron kinetic-energy spectrum at creation matches to 1.0\,\%
 overall, with 7/8 log-bins within 0.1--3.1\,\% (E8). Table~\ref{tab:track}
