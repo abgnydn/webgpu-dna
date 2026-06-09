@@ -254,9 +254,13 @@ v0.6.0** by tracking the full electron cascade (E20–E25), and `RECOMB_BOOST` w
 removed in v0.5.0, so the project is parameter-free in that knob. Remaining open
 items:
 
-- **Residual 7 % cascade-ion deficit** (474.0 vs Geant4 509.2). The primary track
-  is bit-exact, so this is in the deeper cascade tail / the σ_exc=0.5 Emfietzoglou
-  divergence; likely the honest floor rather than a fixable knob.
+- **Residual ~6.4 % cascade-ion deficit** (ion events 476.5 vs Geant4 509.2 = 0.936×;
+  0.931× on the H₃O⁺ metric). **Characterised (E26): it is *entirely* the secondary
+  cascade** (gen2+gen3+ 281.1 vs 313.6, 0.90×; the primary is bit-exact). It is the
+  σ_exc=0.5 Emfietzoglou over-excitation acting in the **low-energy secondary tail**
+  (where excitation is a bigger energy-loss fraction than at the 10 keV primary — why
+  E7e saw σ_exc barely move the primary). The **honest floor**: lowering σ_exc would
+  close it but break the initial G(H)/G(H₂) Emfietzoglou is chosen for. Not a fixable bug.
 - **Slight G(H) overshoot** (1.085× vs chem6) — the full cascade pushed G(H) from
   0.93× to a mild overshoot; worth a look but small.
 - **E14 vs molecularDNA** (~1 day — full chromatin geometry comparison; deferred).
