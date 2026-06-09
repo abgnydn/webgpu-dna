@@ -60,8 +60,11 @@ These are **model-selection mismatches** found by finally reading what
 `G4EmDNAPhysics_option2` and `chem6` (which registers `G4EmDNAPhysics_option2` +
 **`G4EmDNAChemistry_option3`**) actually instantiate — the same class of error as
 the σ_exc/Emfietzoglou seam that v0.7.0 fixed (E29). The project had been picking
-models by name/convention rather than auditing the reference. Verified against the
-Geant4 11.3 source. Ordered by impact.
+models by name/convention rather than auditing the reference. **Verified against the
+Geant4 11.4.1 source** (`~/Downloads/geant4-v11.4.1/`) — the same version as the
+validation oracle. (First read from 11.3.0 by mistake, then re-confirmed in 11.4.1;
+option2's models are stable across the two — only cosmetic + opt6/opt8 branch changes
+that don't touch opt2. **Always read the oracle's exact version.**) Ordered by impact.
 
 1. **Chemistry: option1 → option3 (the oxygen network). ⚠ BIGGEST.** chem6 — the
    chemistry oracle — uses `G4EmDNAChemistry_option3` (~188 reaction-data entries),
