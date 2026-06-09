@@ -9,6 +9,37 @@ from `0.1.0`.
 
 _Nothing pending. Open a PR or issue to start the next entry._
 
+## [0.6.0] — 2026-06-09 — full electron cascade
+
+### Changed
+- **The secondary shader now tracks the full electron cascade (tertiary / gen3+).**
+  Previously `secondary.wgsl` absorbed tertiary electrons in place, truncating the
+  cascade at depth 2. It now emits them into `sec_buf` (G4DNABornAngle direction
+  sampling, OH+H₃O⁺ products, deferred eaq), and `dispatch.ts` grows the Phase B
+  wavefront in chunks (re-reading the secondary counter) so they get tracked.
+  `SP` gains a `max_sec` field (repurposed `_pad2`).
+- **This resolves the long-standing cascade-ion deficit — a clean win on every axis:**
+  - cascade ions @10 keV **0.766× → 0.931×** vs Geant4
+  - chemistry RMS vs chem6 **19.7% → 7.6%** (G(H₂) 0.74→0.99×, G(H₂O₂) 0.69→0.93×
+    — the long-standing chem6 1 µs gap is closed)
+  - SSB indirect/direct ratio **2.53** (PARTRAC band, no recalibration)
+  - primary track **bit-exact** (195.4 ionisations/primary vs Geant4 195.6, by
+    trackID), energy conserved, validated across all 8 ESTAR energies + the browser
+  - only G(H) slightly overshoots (0.93× → 1.09×)
+
+### Investigation (committed honestly, including a self-caught error)
+- **E20** — analysed the 6.8 GB Geant4 ntuple by trackID: primary ionisations are
+  bit-exact; the entire deficit is the secondary cascade.
+- **E21** — decomposed by cascade generation: 80% of the deficit is the untracked
+  tertiary (gen3+) cascade.
+- **E22** — implemented the tertiary cascade.
+- **E23–E24 (retracted)** — a normalization bug in the *analysis* (`run_irt` invoked
+  with `n_therm=10000` instead of 4096, under-normalising G by 0.41×) made the fix
+  look like it broke chemistry; two experiments then chased a phantom
+  "over-recombination". Caught by verify-before-asserting when the production
+  baseline came back wrong.
+- **E25** — corrected: with proper normalization the cascade *improves* every species.
+
 ## [0.5.0] — 2026-06-08 — parameter-free pipeline
 
 ### Changed
