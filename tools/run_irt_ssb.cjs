@@ -136,6 +136,7 @@ function combineHits(a, b) {
 const dumpFile = process.argv[2];
 const n_therm = parseInt(process.argv[3] || '0', 10);
 const E_eV = parseInt(process.argv[4] || '10000', 10);
+const o2_conc = (parseFloat(process.argv[6] || '0')) * 1e-6;  // µM -> mol/L (OER)
 if (!dumpFile || !n_therm) { console.error('usage: node tools/run_irt_ssb.cjs <dump> <n_therm> <E_eV>'); process.exit(1); }
 
 const buf = fs.readFileSync(dumpFile);
@@ -168,7 +169,7 @@ const src = fs.readFileSync(path.resolve(__dirname, '../public/irt-worker.js'), 
 eval(src);
 if (typeof workerOnMessage !== 'function') { console.error('[run_irt_ssb] worker did not register onmessage'); process.exit(2); }
 
-workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV, dna: dnaForWorker, ssbScoring } });
+workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV, dna: dnaForWorker, ssbScoring, o2_conc } });
 if (!workerResult || !workerResult.ssb_indirect) { console.error('[run_irt_ssb] no ssb_indirect from worker'); process.exit(3); }
 
 const ind = workerResult.ssb_indirect;
