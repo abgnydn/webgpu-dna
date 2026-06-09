@@ -78,13 +78,16 @@ that don't touch opt2. **Always read the oracle's exact version.**) Ordered by i
    + reactions + rates + the dissociation channels that feed O2/HO2 into the IRT
    worker. Large, high-impact.
 
-2. **Elastic: Champion everywhere, not screened-Rutherford > 200 eV.** For `opt2`
-   the builder uses `G4DNAChampionElasticModel` across the **whole** electron range;
-   the project uses Champion < 200 eV and **screened-Rutherford > 200 eV** — the wrong
-   model above 200 eV. This is almost certainly why **σ_el (0.975×) is the worst-
-   matching cross section** in the project. *Plan:* verify the Champion data covers
-   the range, drop the 200 eV switch, use Champion everywhere; revalidate σ_el + CSDA.
-   Small/mechanical.
+2. ~~**Elastic: Champion everywhere, not screened-Rutherford > 200 eV.**~~
+   **RETRACTED 2026-06-09 — false alarm, from a stale doc.** I claimed this from the
+   CLAUDE.md description ("Champion < 200 eV, screened-Rutherford > 200 eV") *without
+   reading the code* — the exact verify-from-the-doc error this whole audit is about.
+   The actual shader uses `XL` = `sigma_elastic_e_champion.dat` (Champion, 7.4 eV –
+   10 MeV) for the total **and** the Champion angular CDF for the angle, **across the
+   full range**; there is **no screened-Rutherford formula anywhere** in `src/`. So
+   the elastic **already matches option2** (Champion everywhere). The σ_el 0.975× is a
+   Champion tabulation/interpolation difference, not a model error. *Action:* fix the
+   stale CLAUDE.md elastic line (done). Lesson: verify against the *code*, not the doc.
 
 3. **Proton ejected-electron angular distribution.** v0.7's proton shader uses
    *isotropic* ejection (a shortcut introduced 2026-06-09); Geant4 uses the Rudd

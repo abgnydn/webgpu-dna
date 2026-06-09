@@ -143,7 +143,9 @@ Run any experiment via `npm run experiments -- <id>` (e.g. `E10`).
   excitation, Champion elastic CDF, Sanche vib)
 - 5 ionization shells (Born) + 5 excitation levels (Emfietzoglou, data-driven
   fractions) with level-dependent dissociative branching (0.65 / 0.55 / 0.80)
-- Screened-Rutherford elastic analytical + Champion tabulated angular CDF
+- Champion tabulated elastic — total XS (`XL` from `sigma_elastic_e_champion`,
+  7.4 eV–10 MeV) **and** angular CDF, across the full range (matches option2;
+  no screened-Rutherford in the code despite older notes — verified 2026-06-09)
 - Sanche vibrational excitation (9 modes, 2–100 eV)
 - Secondary electron wavefront stepper (2000 steps)
 - **Karamitros 2011 9-reaction IRT chemistry** in `public/irt-worker.js`

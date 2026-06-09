@@ -35,7 +35,7 @@ Each experiment in §Numbers can be re-run on a contributor's machine via `npm r
 
 ## What's implemented
 
-- **Physics:** Born ionization (5 shells, data-driven CDF sampling), Born excitation (5 water levels, dissociative branching 0.65 / 0.55 / 0.80; matches G4EmDNAPhysics_option2), Champion tabulated elastic angular CDF (< 200 eV), screened-Rutherford elastic (> 200 eV), Sanche 9-mode vibrational (2–100 eV), full primary-momentum conservation.
+- **Physics:** Born ionization (5 shells, data-driven CDF sampling), Born excitation (5 water levels, dissociative branching 0.65 / 0.55 / 0.80; matches G4EmDNAPhysics_option2), Champion tabulated elastic (total XS + angular CDF, 7.4 eV – 10 MeV — matches `G4EmDNAPhysics_option2`, which uses Champion across the whole range), Sanche 9-mode vibrational (2–100 eV), full primary-momentum conservation.
 - **Chemistry:** Karamitros 2011 9-reaction IRT in a Web Worker (Smoluchowski TDC + Onsager-screened PDC for charged pairs, G4EmDNAChemistry_option1). 2.0 nm mother displacement, species-specific product displacement, e⁻aq thermalization at 1.7 eV, H₂O₂ / OH⁻ tracked as reactive products with full re-pairing.
 - **DNA scoring:** Event-level direct SSB from `rad_buf` ionization sites, indirect SSB scored during the IRT timeline (every OH-death event + 1 μs survivors), greedy ±10 bp DSB clustering, kernel-level backbone hit counter as a cross-check.
 - **Grid target:** 21×21 parallel B-DNA fibers × 3 μm × 150 nm spacing = 3.89 Mbp.
