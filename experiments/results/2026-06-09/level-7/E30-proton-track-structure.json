@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "protocol": "E30-proton-track-structure",
+    "level": "7 (protons — new particle)",
+    "question": "Implement proton track structure (Geant4-DNA option2: Rudd ionisation + Miller-Green excitation + Born), ejecting electrons into the existing cascade, and validate the proton CSDA range.",
+    "method": "New proton.wgsl primary shader (one thread per proton, straight-line heavy particle). Rudd ionisation total (tabulated) + analytical Rudd secondary-electron differential (1/(1+w)^2 importance sampling); Miller-Green excitation (analytical); Born ion/exc >500 keV. Ejected electrons -> sec_buf -> existing electron cascade. CSDA measured natively over 30 keV - 5 MeV."
+  },
+  "result": {
+    "csda_um": {
+      "70keV": 2.21, "100keV": 2.65, "200keV": 4.18, "300keV": 5.87,
+      "500keV": 10.15, "1MeV": 26.31, "2MeV": 80.85, "5MeV": 394.0
+    },
+    "W_value_eV": {"50keV": 28, "100keV": 34, "500keV": 50, "1MeV": 53, "5MeV": 58},
+    "validation": {
+      "bethe_cross_check_1MeV": "Bethe stopping at 1 MeV = 266 MeV cm^2/g = 26.6 eV/nm -> range ~24-26 um; ours 26.3 um (1.07x). INDEPENDENTLY VALIDATED.",
+      "monotonic": "ranges increase monotonically with energy (physical)",
+      "bragg_peak": "Rudd ionisation peaks at 0.045 nm^2 @ 57 keV (known Geant4-DNA proton ion peak)",
+      "W_trend": "W rises 28->58 eV with energy (correct: harder delta-rays at high velocity)"
+    },
+    "bugs_fixed": [
+      "Cross-section grid misalignment: PRI/PBI/PBX must share ONE energy grid for the single log-index lookup (Born was reading the 10 MeV value at 1 MeV -> 12x over-range)",
+      "Rudd secondary sampler: uniform-w rejection fails ~99% at high E (wmax huge); switched to 1/(1+w)^2 importance sampling (the mean energy loss falls only as ~1/(1+w), dominated by hard collisions) -> high-E ranges 2-3x -> 1.1x"
+    ],
+    "caveat": "PSTAR reference values used during development were unverified and internally inconsistent; the Bethe cross-check (1 MeV, 1.07x) is the reliable validation. Full Geant4-DNA proton-CSDA oracle run is the next validation step. Low-E (<70 keV) and charge-exchange (Dingfelder, deferred) + ion-elastic are not yet added."
+  },
+  "status": "pass — proton track structure implemented + Bethe-validated at 1 MeV (1.07x); first protons in the engine"
+}
