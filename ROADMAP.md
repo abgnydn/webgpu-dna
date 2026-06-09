@@ -54,6 +54,60 @@ Each item below lists: **(scope) (parallelism) (sequential bottleneck) (validati
   other 11 already had organic `shaderHashes` from `captureEnv()`).
   Every L0-L6 artifact now identifies its shader version.
 
+## Tier 0.5 — Geant4 model-audit gaps (discovered 2026-06-09) ⚠ DO THESE
+
+These are **model-selection mismatches** found by finally reading what
+`G4EmDNAPhysics_option2` and `chem6` (which registers `G4EmDNAPhysics_option2` +
+**`G4EmDNAChemistry_option3`**) actually instantiate — the same class of error as
+the σ_exc/Emfietzoglou seam that v0.7.0 fixed (E29). The project had been picking
+models by name/convention rather than auditing the reference. Verified against the
+Geant4 11.3 source. Ordered by impact.
+
+1. **Chemistry: option1 → option3 (the oxygen network). ⚠ BIGGEST.** chem6 — the
+   chemistry oracle — uses `G4EmDNAChemistry_option3` (~188 reaction-data entries),
+   but the project implements `option1` (~9 reactions). option3 has the entire
+   **oxygen/peroxyl chemistry — HO2•, O2, O2⁻ (superoxide), HO2⁻** — that the project
+   has **zero of** (verified). This is *the* radiobiology gap: no oxygen chemistry
+   means **no oxygen effect / OER** (why hypoxic tumours are radioresistant), and no
+   realistic high-LET proton chemistry. The "RMS 7% vs chem6" is agreement on only
+   the 5 primary species both options share; ~95% of option3's network is missing.
+   *Plan:* read option3's full reaction table from source (no memory), port species
+   + reactions + rates + the dissociation channels that feed O2/HO2 into the IRT
+   worker. Large, high-impact.
+
+2. **Elastic: Champion everywhere, not screened-Rutherford > 200 eV.** For `opt2`
+   the builder uses `G4DNAChampionElasticModel` across the **whole** electron range;
+   the project uses Champion < 200 eV and **screened-Rutherford > 200 eV** — the wrong
+   model above 200 eV. This is almost certainly why **σ_el (0.975×) is the worst-
+   matching cross section** in the project. *Plan:* verify the Champion data covers
+   the range, drop the 200 eV switch, use Champion everywhere; revalidate σ_el + CSDA.
+   Small/mechanical.
+
+3. **Proton ejected-electron angular distribution.** v0.7's proton shader uses
+   *isotropic* ejection (a shortcut introduced 2026-06-09); Geant4 uses the Rudd
+   kinematic angle. Affects the proton track's lateral structure → clustering → DNA
+   damage. *Plan:* port the Rudd/Born secondary angle into `proton.wgsl`.
+
+4. **Proton chemistry normalisation.** Full proton chain runs (E30) but the IRT
+   G-values come out near-zero at `n_therm` = E/10000 — the per-primary partitioning
+   / normalisation is wrong for a single spread-out proton track. The G(H2)/G(OH)
+   *ratio* (2.19 vs electron 0.38) already shows the high-LET signature; fix the
+   absolute normalisation. *Plan:* normalise by deposited dose, not primary count.
+
+### Unaudited — verify before trusting (same skepticism)
+
+5. **Auger / K-shell relaxation.** When the 539 eV K-shell ionises, Geant4 may emit
+   an Auger electron the project likely doesn't model (missing secondaries). Verify.
+6. **Solvation model.** The project hand-sets eaq displacement (σ=3.46 nm) + 1.7 eV
+   thermalisation; never checked against option2's actual `G4DNASolvation` model.
+7. **Born ionisation *differential*.** Total σ_ion is validated; the secondary-
+   electron *spectrum* sampling was never checked against `G4DNABornIonisationModel1`.
+
+### Proton completion (E30 follow-through)
+8. Geant4-DNA proton-CSDA **oracle run** (replace the unverified PSTAR refs); low-E
+   (<70 keV) + **charge exchange** (Dingfelder, deferred) + ion elastic; wire protons
+   into the dispatch pipeline + DNA-damage scoring → proton SSB/DSB + RBE.
+
 ## Tier 1 — Open physics (the structural questions)
 
 ### ~~H₂O⁺ tracking with proper time-integration~~ REFUTED 2026-05-13
