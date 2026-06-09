@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "protocol": "E22-tertiary-cascade-implementation",
+    "goal": "Implement the E21 fix — track the tertiary electron cascade (secondary.wgsl emits tertiaries into sec_buf; dispatch.ts grows the Phase B wavefront) — to recover the secondary-cascade ionisation deficit.",
+    "branch": "feat/tertiary-cascade (NOT merged)"
+  },
+  "env": {
+    "gitSha": "13e0cf842e43fe85280ee35082dfcc486d24ab8b",
+    "runner": "local M2 Pro WebGPU via Deno"
+  },
+  "status": "fail — fixes cascade physics but breaks chemistry (honest negative)",
+  "summary": {
+    "cascade_ions": {
+      "before": 389.9,
+      "after": 474,
+      "ratio_before": 0.766,
+      "ratio_after": 0.931,
+      "verdict": "FIXED — recovers most of the deficit, matching E21 prediction"
+    },
+    "primary_ions": {
+      "value": 195.4,
+      "verdict": "unchanged (1.00x Geant4)"
+    },
+    "E_cons": {
+      "value": 0.9992,
+      "verdict": "energy still conserved"
+    },
+    "chemistry_Gvalues_1us": {
+      "OH": {
+        "before": "0.914x",
+        "after": "0.386x"
+      },
+      "eaq": {
+        "before": "0.858x",
+        "after": "0.364x"
+      },
+      "H": {
+        "before": "0.928x",
+        "after": "0.444x"
+      },
+      "H2": {
+        "before": "0.741x",
+        "after": "0.407x"
+      },
+      "H2O2": {
+        "before": "0.693x",
+        "after": "0.380x"
+      },
+      "verdict": "CRASHED — all G-values ~0.4x. Even the initial 0.1ps G(OH) HALVED (4.38->2.16): the dense tertiary radicals over-recombine catastrophically and immediately."
+    },
+    "headline": "The tertiary cascade fix CORRECTS the cascade-ion physics (0.766->0.931x, primary unchanged, energy conserved) but DESTROYS the chemistry (G-values 0.91x->0.40x). The dense gen3+ radicals over-recombine in the per-primary IRT.",
+    "conclusion": "The pre-fix chemistry agreement (0.91x) was a COMPENSATION OF ERRORS: too few radicals (no tertiary cascade) balancing the per-primary IRT. The cascade-ion count and the chemistry are coupled through radical density (same theme as E17 cross-primary). A correct model needs BOTH the tertiary cascade AND a chemistry that handles the true radical density (cross-primary IRT with correct geometry/diffusion) — not one without the other. NOT MERGED; production stays at v0.5.0 (the validated compensation). The branch preserves the working implementation for when the chemistry side is fixed."
+  }
+}

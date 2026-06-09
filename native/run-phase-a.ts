@@ -100,6 +100,23 @@ const t0 = performance.now();
 const r = await runAtEnergy(device, buffers, pipelines, E_eV, np, boxNm, ceEV, dna, undefined);
 const ms = (performance.now() - t0).toFixed(1);
 
+// Count cascade species (H3O+ = ion count) from rad_buf.
+const radBytes = r.rad_n_stored * 16;
+const rrb = device.createBuffer({ size: radBytes, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
+const re = device.createCommandEncoder();
+re.copyBufferToBuffer(buffers.radBuf, 0, rrb, 0, radBytes);
+device.queue.submit([re.finish()]);
+await rrb.mapAsync(GPUMapMode.READ);
+const fr = new Float32Array(rrb.getMappedRange());
+const sp_count = new Array(8).fill(0);
+for (let i = 0; i < r.rad_n_stored; i++) sp_count[Math.round(fr[i * 4 + 3]) & 7]++;
+// Write the dump for chemistry revalidation.
+await Deno.writeFile(`${ROOT}/dumps/rad_E${E_eV}_tertiary.bin`, new Uint8Array(rrb.getMappedRange()));
+rrb.unmap();
+const h3op = sp_count[3] / np, h2 = sp_count[7] / np;
+const cascade = h3op + h2;
+console.error(`[tertiary] cascade ions/pri = ${cascade.toFixed(1)} (was 389.9; Geant4 509.2 = ${(cascade/509.2).toFixed(3)}x) | H3O+=${h3op.toFixed(1)} H2=${h2.toFixed(1)} OH=${(sp_count[0]/np).toFixed(1)} eaq=${(sp_count[1]/np).toFixed(1)}`);
+
 console.log(JSON.stringify({
   E_eV, np, wall_ms: Number(ms),
   rad_n: r.rad_n_stored, mean_total_csda_nm: r.mean_total, ions_per_pri: r.mean_ions,

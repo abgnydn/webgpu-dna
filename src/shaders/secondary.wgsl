@@ -1,6 +1,6 @@
 struct SP{
   n:u32,box:f32,ce:f32,vc:u32,
-  max_rad:u32,dna_enable:u32,dna_grid_n:u32,_pad2:u32,
+  max_rad:u32,dna_enable:u32,dna_grid_n:u32,max_sec:u32,
   dna_rise:f32,dna_spacing:f32,dna_x0:f32,dna_r_bb:f32,
 };
 struct Particle{pos_E:vec4<f32>,dir_alive:vec4<f32>,rng:vec4<u32>};
@@ -185,10 +185,9 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
       var W_transfer=sample_W_sec(E,shell_idx,r_w);
       W_transfer=clamp(W_transfer,bind,W_transfer_max);
       let W_sec=max(W_transfer-bind,0.0);
+      let E_before_t=E;
       E-=W_transfer;  // secondary loses total transfer
-      atomicAdd(&sec_stats[4],1u);  // tertiary ionizations (absorbed)
-      // Tertiary is absorbed in place, so total transfer deposits here.
-      deposit(px,py,pz,W_transfer,sp.box,sp.vc);
+      atomicAdd(&sec_stats[4],1u);  // tertiary ionizations
       // Mother displacement for H2O+ products (RMS=2nm)
       let ms_s=1.1547005;
       let ms1=max(rf(&s),1e-30);let ms2=rf(&s);
@@ -197,60 +196,95 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
       let ms3=max(rf(&s),1e-30);let ms4=rf(&s);
       let msdz=sqrt(-2.0*log(ms3))*ms_s*cos(6.2831853*ms4);
       let spx=px+msdx;let spy=py+msdy;let spz=pz+msdz;
-      // Meesungnoen thermalization for the tertiary eaq
-      let eaq_s_t=meesungnoen_sigma(W_sec);
-      var epx_t=px;var epy_t=py;var epz_t=pz;
-      if(eaq_s_t>0.0){
-        let eu1=max(rf(&s),1e-30);let eu2=rf(&s);
-        let er=sqrt(-2.0*log(eu1))*eaq_s_t;
-        epx_t+=er*cos(6.2831853*eu2);epy_t+=er*sin(6.2831853*eu2);
-        let eu3=max(rf(&s),1e-30);let eu4=rf(&s);
-        epz_t+=sqrt(-2.0*log(eu3))*eaq_s_t*cos(6.2831853*eu4);
-      }
-      // Onsager electron-hole recombination: H2O+ + eaq → H2Ovib → dissoc
-      let rdx_t=epx_t-spx;let rdy_t=epy_t-spy;let rdz_t=epz_t-spz;
-      let r_sep_t=max(sqrt(rdx_t*rdx_t+rdy_t*rdy_t+rdz_t*rdz_t),1e-6);
-      let r_onsager_t:f32=0.711;
-      let p_recomb_t=min(1.0,RECOMB_BOOST*(1.0-exp(-r_onsager_t/r_sep_t)));
-      let r_recomb_t=rf(&s);
-      if(r_recomb_t<p_recomb_t){
-        let r_vd=rf(&s);
-        if(r_vd<0.1365){
-          atomicAdd(&counters[0],2u);
-          atomicAdd(&counters[5],1u);
+      if(W_sec>sp.ce){
+        // E21 fix — TRACK the tertiary cascade (gen3+). Deposit only the
+        // binding; emit the tertiary electron into sec_buf so it ionises
+        // further; create OH + H3O+ cation products now and DEFER the eaq to
+        // the tertiary's own thermalisation point (mirrors the primary's
+        // tracked-secondary path — the tracked electron escapes geminate
+        // recombination).
+        deposit(px,py,pz,bind,sp.box,sp.vc);
+        atomicAdd(&counters[0],1u);  // OH
+        atomicAdd(&counters[3],1u);  // H3O+
+        let ri=atomicAdd(&counters[7],2u);
+        if(ri+1u<sp.max_rad){
+          rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
+          rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,3.0+parent_pid);
+        }
+        // Emit the tertiary into sec_buf (G4DNABornAngle direction sampling)
+        let tert_idx=atomicAdd(&counters[6],1u);
+        if(tert_idx<sp.max_sec){
+          var cos_t:f32;
+          if(W_sec<50.0){cos_t=2.0*rf(&s)-1.0;}
+          else if(W_sec<=200.0){if(rf(&s)<=0.1){cos_t=2.0*rf(&s)-1.0;}else{cos_t=rf(&s)*0.70710678;}}
+          else{let sin2=clamp((1.0-W_sec/E_before_t)/(1.0+W_sec/1022000.0),0.0,1.0);cos_t=sqrt(max(0.0,1.0-sin2));}
+          let sin_t=sqrt(max(0.0,1.0-cos_t*cos_t));
+          let phi_t=2.0*PI*rf(&s);let cpt=cos(phi_t);let spt=sin(phi_t);
+          var tdx:f32;var tdy:f32;var tdz:f32;
+          if(abs(dz)>0.99999){let sw=select(-1.0,1.0,dz>0.0);tdx=sin_t*cpt;tdy=sin_t*spt*sw;tdz=cos_t*sw;}
+          else{let q=sqrt(1.0-dz*dz);let inv=1.0/q;let nx=dx*cos_t+sin_t*(dx*dz*cpt-dy*spt)*inv;let ny=dy*cos_t+sin_t*(dy*dz*cpt+dx*spt)*inv;let nz=dz*cos_t-q*sin_t*cpt;let len=sqrt(nx*nx+ny*ny+nz*nz);tdx=nx/len;tdy=ny/len;tdz=nz/len;}
+          let r0=rn(&s);let r1=rn(&s);let r2=rn(&s);let r3=rn(&s);
+          var tert:Particle;
+          tert.pos_E=vec4<f32>(px,py,pz,W_sec);
+          tert.dir_alive=vec4<f32>(tdx,tdy,tdz,particle.dir_alive.w); // inherit primary lineage
+          tert.rng=vec4u(r0,r1,r2,r3);
+          sec_buf[tert_idx]=tert;
+        }
+      }else{
+        // Sub-cutoff tertiary: absorbed in place — immediate eaq + Onsager recomb.
+        deposit(px,py,pz,W_transfer,sp.box,sp.vc);
+        let eaq_s_t=meesungnoen_sigma(W_sec);
+        var epx_t=px;var epy_t=py;var epz_t=pz;
+        if(eaq_s_t>0.0){
+          let eu1=max(rf(&s),1e-30);let eu2=rf(&s);
+          let er=sqrt(-2.0*log(eu1))*eaq_s_t;
+          epx_t+=er*cos(6.2831853*eu2);epy_t+=er*sin(6.2831853*eu2);
+          let eu3=max(rf(&s),1e-30);let eu4=rf(&s);
+          epz_t+=sqrt(-2.0*log(eu3))*eaq_s_t*cos(6.2831853*eu4);
+        }
+        let rdx_t=epx_t-spx;let rdy_t=epy_t-spy;let rdz_t=epz_t-spz;
+        let r_sep_t=max(sqrt(rdx_t*rdx_t+rdy_t*rdy_t+rdz_t*rdz_t),1e-6);
+        let r_onsager_t:f32=0.711;
+        let p_recomb_t=min(1.0,RECOMB_BOOST*(1.0-exp(-r_onsager_t/r_sep_t)));
+        let r_recomb_t=rf(&s);
+        if(r_recomb_t<p_recomb_t){
+          let r_vd=rf(&s);
+          if(r_vd<0.1365){
+            atomicAdd(&counters[0],2u);
+            atomicAdd(&counters[5],1u);
+            let ri=atomicAdd(&counters[7],3u);
+            if(ri+2u<sp.max_rad){
+              rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
+              rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,0.0+parent_pid);
+              rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,7.0+parent_pid);
+            }
+          }else if(r_vd<0.494){
+            atomicAdd(&counters[0],1u);
+            atomicAdd(&counters[2],1u);
+            let ri=atomicAdd(&counters[7],2u);
+            if(ri+1u<sp.max_rad){
+              rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
+              rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
+            }
+          }else if(r_vd<0.650){
+            atomicAdd(&counters[2],2u);
+            let ri=atomicAdd(&counters[7],2u);
+            if(ri+1u<sp.max_rad){
+              rad_buf[ri]   =vec4<f32>(spx,spy,spz,2.0+parent_pid);
+              rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
+            }
+          }
+          // else: 35% relaxation, no products
+        }else{
+          atomicAdd(&counters[0],1u);
+          atomicAdd(&counters[1],1u);
+          atomicAdd(&counters[3],1u);
           let ri=atomicAdd(&counters[7],3u);
           if(ri+2u<sp.max_rad){
             rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
-            rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,0.0+parent_pid);
-            rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,7.0+parent_pid);
+            rad_buf[ri+1u]=vec4<f32>(epx_t,epy_t,epz_t,5.0+parent_pid); // species=5: pre-therm eaq
+            rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,3.0+parent_pid);
           }
-        }else if(r_vd<0.494){
-          atomicAdd(&counters[0],1u);
-          atomicAdd(&counters[2],1u);
-          let ri=atomicAdd(&counters[7],2u);
-          if(ri+1u<sp.max_rad){
-            rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
-            rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
-          }
-        }else if(r_vd<0.650){
-          atomicAdd(&counters[2],2u);
-          let ri=atomicAdd(&counters[7],2u);
-          if(ri+1u<sp.max_rad){
-            rad_buf[ri]   =vec4<f32>(spx,spy,spz,2.0+parent_pid);
-            rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
-          }
-        }
-        // else: 35% relaxation, no products
-      }else{
-        // Normal pre-chem: OH + H3O+ + eaq
-        atomicAdd(&counters[0],1u);
-        atomicAdd(&counters[1],1u);
-        atomicAdd(&counters[3],1u);
-        let ri=atomicAdd(&counters[7],3u);
-        if(ri+2u<sp.max_rad){
-          rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
-          rad_buf[ri+1u]=vec4<f32>(epx_t,epy_t,epz_t,5.0+parent_pid); // species=5: pre-therm eaq
-          rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,3.0+parent_pid);
         }
       }
       // Secondary kernel-level DNA hit check
