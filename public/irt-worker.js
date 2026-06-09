@@ -505,7 +505,8 @@ self.onmessage = function(e) {
   for (let i = 0; i < rad_n; i++) {
     const w = Math.round(rad_buf[i*4+3]);
     const sp = w % 8;
-    if (sp < 0 || sp === 4) continue; // sp=4 reserved for H2O2 (chemistry product only)
+    if (sp < 0) continue;
+    // sp=4 now carries O(3p) from the '2H+O' dissociation channel (the oxygen-network seed)
     const pid = Math.floor(w / 8);
     if (sp === 7) {
       initH2.set(pid, (initH2.get(pid) || 0) + 1);
@@ -546,6 +547,11 @@ self.onmessage = function(e) {
   const tl_h = new Float64Array(nCP);
   const tl_H2O2 = new Float64Array(nCP);
   const tl_H2 = new Float64Array(nCP);
+  // oxygen network (option3)
+  const tl_O2 = new Float64Array(nCP);
+  const tl_HO2 = new Float64Array(nCP);
+  const tl_O2m = new Float64Array(nCP);
+  const tl_Oox = new Float64Array(nCP);  // HO2-, O, O-, O3, O3- (minor)
   let total_reacted = 0;
   const rxn_counts = new Int32Array(N_RXN);  // per-reaction-type counter
 
@@ -651,6 +657,10 @@ self.onmessage = function(e) {
         // OH- from DEA (DissociAttachment_ch1)
         // Worker species index 5 = OH-. No additional displacement (deposit at site).
         species[k] = 5;
+      } else if (s === 4) {
+        // O(3p) from the '2H+O' dissociation channel — the oxygen-network seed.
+        // Atomic oxygen, deposited at the dissociation site (no product displacement).
+        species[k] = 10;
       } else {
         alive[k] = 0;
         species[k] = s;
@@ -693,16 +703,21 @@ self.onmessage = function(e) {
 
       // Record checkpoints
       while (cp_idx < nCP && evt.t >= checkpoints[cp_idx]) {
-        let oh=0, eq=0, hh=0, h2o2=0;
+        let oh=0, eq=0, hh=0, h2o2=0, o2=0, ho2=0, o2m=0, oox=0;
         for (let k = 0; k < n_total; k++) {
           if (!alive[k]) continue;
           if (species[k]===0) oh++;
           else if (species[k]===1) eq++;
           else if (species[k]===2) hh++;
           else if (species[k]===4) h2o2++;
+          else if (species[k]===6) o2++;
+          else if (species[k]===7) ho2++;
+          else if (species[k]===8) o2m++;
+          else if (species[k]>=9 && species[k]<=13) oox++;  // HO2-, O, O-, O3, O3-
         }
         tl_oh[cp_idx] += oh; tl_eaq[cp_idx] += eq; tl_h[cp_idx] += hh;
         tl_H2O2[cp_idx] += pri_H2O2 + h2o2; tl_H2[cp_idx] += pri_H2;
+        tl_O2[cp_idx] += o2; tl_HO2[cp_idx] += ho2; tl_O2m[cp_idx] += o2m; tl_Oox[cp_idx] += oox;
         cp_idx++;
       }
 
@@ -824,6 +839,10 @@ self.onmessage = function(e) {
       G_H:    per100 > 0 ? tl_h[c]    / per100 : 0,
       G_H2O2: per100 > 0 ? tl_H2O2[c] / per100 : 0,
       G_H2:   per100 > 0 ? tl_H2[c]   / per100 : 0,
+      G_O2:   per100 > 0 ? tl_O2[c]   / per100 : 0,
+      G_HO2:  per100 > 0 ? tl_HO2[c]  / per100 : 0,
+      G_O2m:  per100 > 0 ? tl_O2m[c]  / per100 : 0,
+      G_Oox:  per100 > 0 ? tl_Oox[c]  / per100 : 0,
     });
   }
 

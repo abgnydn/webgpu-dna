@@ -268,10 +268,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             }
           }else if(r_vd<0.650){
             atomicAdd(&counters[2],2u);
-            let ri=atomicAdd(&counters[7],2u);
-            if(ri+1u<sp.max_rad){
+            let ri=atomicAdd(&counters[7],3u);
+            if(ri+2u<sp.max_rad){
               rad_buf[ri]   =vec4<f32>(spx,spy,spz,2.0+parent_pid);
               rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
+              rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,4.0+parent_pid);
             }
           }
           // else: 35% relaxation, no products
@@ -370,10 +371,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             }
           }else if(sabvd<0.650){
             atomicAdd(&counters[2],2u);
-            let sabri=atomicAdd(&counters[7],2u);
-            if(sabri+1u<sp.max_rad){
+            let sabri=atomicAdd(&counters[7],3u);
+            if(sabri+2u<sp.max_rad){
               rad_buf[sabri]   =vec4<f32>(sbpx,sbpy,sbpz,2.0+parent_pid);
               rad_buf[sabri+1u]=vec4<f32>(sbpx,sbpy,sbpz,2.0+parent_pid);
+              rad_buf[sabri+2u]=vec4<f32>(sbpx,sbpy,sbpz,4.0+parent_pid);
             }
           }
           // else 35% relax
@@ -437,10 +439,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             }
           }else if(sahvd<0.650){
             atomicAdd(&counters[2],2u);
-            let sahri=atomicAdd(&counters[7],2u);
-            if(sahri+1u<sp.max_rad){
+            let sahri=atomicAdd(&counters[7],3u);
+            if(sahri+2u<sp.max_rad){
               rad_buf[sahri]   =vec4<f32>(shpx,shpy,shpz,2.0+parent_pid);
               rad_buf[sahri+1u]=vec4<f32>(shpx,shpy,shpz,2.0+parent_pid);
+              rad_buf[sahri+2u]=vec4<f32>(shpx,shpy,shpz,4.0+parent_pid);
             }
           }
           // else 35% relax

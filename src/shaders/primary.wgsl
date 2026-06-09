@@ -265,12 +265,13 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
                 rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,2.0+pid);
               }
             }else if(r_vd<0.650){
-              // 15.6% → 2H + O (O not tracked)
+              // 15.6% → 2H + O (O = code 4 — the oxygen-network seed, option3 chemistry)
               atomicAdd(&counters[2],2u);
-              let ri=atomicAdd(&counters[7],2u);
-              if(ri+1u<p.max_rad){
+              let ri=atomicAdd(&counters[7],3u);
+              if(ri+2u<p.max_rad){
                 rad_buf[ri]   =vec4<f32>(mpx,mpy,mpz,2.0+pid);
                 rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,2.0+pid);
+                rad_buf[ri+2u]=vec4<f32>(mpx,mpy,mpz,4.0+pid);
               }
             }
             // else: 35% relaxation — no products
@@ -331,12 +332,13 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
                 rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,2.0+pid);
               }
             }else if(r_vd<0.650){
-              // 15.6% → 2H + O (O not tracked)
+              // 15.6% → 2H + O (O = code 4 — the oxygen-network seed, option3 chemistry)
               atomicAdd(&counters[2],2u);
-              let ri=atomicAdd(&counters[7],2u);
-              if(ri+1u<p.max_rad){
+              let ri=atomicAdd(&counters[7],3u);
+              if(ri+2u<p.max_rad){
                 rad_buf[ri]   =vec4<f32>(mpx,mpy,mpz,2.0+pid);
                 rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,2.0+pid);
+                rad_buf[ri+2u]=vec4<f32>(mpx,mpy,mpz,4.0+pid);
               }
             }
             // else: 35% relax — no products
