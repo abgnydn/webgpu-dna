@@ -403,13 +403,23 @@ $1.48\times$ because the IRT chemistry runs on CPU.}
 \label{fig:perf}
 \end{figure}
 
-\section{The inter-track chemistry limitation}
+\section{Cross-primary and step-by-step chemistry costs}
 \label{sec:intertrack}
-The largest remaining gap vs.\ \texttt{chem6} is an \emph{inter-track} effect:
-per-primary IRT partitioning misses cross-primary reactions that, when
-included, add $\Delta G(\mathrm{H_2})=+0.149$ at \SI{1}{\micro s}---96\,\% of
-the residual implementation gap (E10f). We asked whether this is recoverable
-browser-native, and found it is not, by two independent routes.
+Through v0.5.0 we attributed the residual \texttt{chem6} gap to an
+\emph{inter-track} effect: per-primary IRT partitioning misses cross-primary
+reactions that, when included, add $\Delta G(\mathrm{H_2})=+0.149$ at
+\SI{1}{\micro s} (E10f). That attribution proved incomplete on two counts.
+First, the bulk of the residual \SI{1}{\micro s} gap was \emph{not} inter-track
+at all but the \emph{untracked tertiary electron cascade}; tracking it
+(\S\ref{sec:chem}, v0.6.0) closes most of it browser-native (five-species RMS
+$19.7\to7.6\,\%$). Second, cross-primary pooling is not a clean fix but a
+\emph{coupled tradeoff} (E17): running all primaries in one pool does raise
+$G(\mathrm{H_2})$, but it simultaneously over-recombines $G(\mathrm{OH})$ and
+$G(\mathrm{e^-_{aq}})$, and no density reproduces \texttt{chem6}'s
+high-$\mathrm{H_2}$-and-high-OH profile. We nonetheless characterise the
+\emph{cost} of a global single-pool chemistry, since it bounds what a
+browser-native cross-primary or step-by-step scheme could do; we found both
+prohibitive on laptop WebGPU, by two independent routes.
 
 \textbf{Cross-primary IRT is $O(N^2)$ for a point source.} The IRT reaction
 horizon is the diffusion length over the full \SI{1}{\micro s} window,
@@ -446,10 +456,15 @@ separation — far, dilute pairs need the same tiny steps as close ones.}
 \label{fig:killcrit}
 \end{figure}
 
-Both routes converge on the same conclusion: the inter-track physics requires
-a \emph{native} runtime (e.g.\ Node/Deno + \texttt{wgpu-native}), where RAM is
-cheap (unblocking single-pool cross-primary IRT) or many cores parallelise the
-step count. The browser remains the validation and demonstration surface.
+Both routes show a global single-pool chemistry is costly on laptop WebGPU.
+But the practical implication has changed since v0.5.0: the headline
+\texttt{chem6} gap is closed \emph{browser-native} by tracking the full electron
+cascade (\S\ref{sec:chem}), not by global chemistry. A native runtime
+(Node/Deno + \texttt{wgpu-native}, which we built and validated bit-identical to
+the browser) therefore remains valuable for \emph{scale} and for studying the
+residual coupled-tradeoff inter-track effect---but it is no longer a prerequisite
+for matching \texttt{chem6}. The browser remains the validation and
+demonstration surface.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -473,11 +488,16 @@ dose is a natural, if substantially larger, direction.
 
 \section{Conclusion}
 A browser-native, kernel-fused WebGPU re-implementation reproduces Geant4-DNA
-track structure to within a fraction of a percent on cross sections and
-$0.988\times$ on CSDA range, at 455$\times$/280$\times$ the speed of
-single-/multi-threaded Geant4, with an honest, artifact-backed account of its
-limits---most notably the quantified result that the inter-track chemistry
-contribution is not browser-native and requires a native runtime.
+track structure to within a fraction of a percent on cross sections,
+$0.988\times$ on CSDA range, $0.931\times$ on cascade ions, and a five-species
+chemistry RMS of $7.6\,\%$ vs.\ \texttt{chem6}, at 455$\times$/280$\times$ the
+speed of single-/multi-threaded Geant4, with an honest, artifact-backed account
+of its limits. A central result is that tracking the full electron cascade
+closes both the cascade-ion deficit and the residual \SI{1}{\micro s} chemistry
+gap \emph{browser-native}---revising an earlier conclusion that the gap was an
+inter-track effect requiring a native runtime---and we document the self-caught
+analysis error that briefly obscured this, as a demonstration of the
+falsifiable-ledger discipline.
 
 \section*{Data and code availability}
 Source, the full validation ladder, and every JSON artifact are at
