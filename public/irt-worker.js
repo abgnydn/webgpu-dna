@@ -189,17 +189,22 @@ function sampleIRT(r0, ri, D) {
 // ============================================================================
 
 // Species: 0=OH, 1=eaq, 2=H, 3=H3O+, 4=H2O2, 5=OH-
-const N_SPECIES = 6;
+// Species: 0=OH 1=eaq 2=H 3=H3O+ 4=H2O2 5=OH- | OXYGEN NETWORK (option3, from
+// G4EmDNAChemistry_option3.cc, 11.4.1): 6=O2 7=HO2 8=O2- 9=HO2- 10=O(3p) 11=O- 12=O3 13=O3-
+const N_SPECIES = 14;
 
-// Diffusion coefficients (nm²/ns) — G4ChemDissociationChannels_option1
-// Source: chem6.out species table (confirmed against option1 source)
-const IRT_D = [2.2, 4.9, 7.0, 9.46, 2.3, 5.3];
+// Diffusion coefficients (nm²/ns = 1e-9 m²/s). Existing 6 keep the Karamitros-2011
+// values; the 8 oxygen species use the verified 11.4.1 G4MoleculeDefinition D
+// (O2 2.4, HO2 2.3, O 2.0, O3 2.0; anions ≈ neutral). [Note: the existing OH=2.2 /
+// H2O2=2.3 diverge from 11.4.1's G4OH=2.8 / G4H2O2=1.4 — separate D-reconcile follow-up.]
+const IRT_D = [2.2, 4.9, 7.0, 9.46, 2.3, 5.3,  2.4, 2.3, 2.4, 2.3, 2.0, 2.0, 2.0, 2.0];
 
-// Van der Waals radii (nm) — G4ChemDissociationChannels_option1
-const VDW_R = [0.22, 0.50, 0.19, 0.25, 0.21, 0.33];
+// Van der Waals radii (nm). New oxygen species: placeholders (their reactions are
+// TDC, so the radius comes from the rate, not VDW).
+const VDW_R = [0.22, 0.50, 0.19, 0.25, 0.21, 0.33,  0.22, 0.21, 0.22, 0.21, 0.20, 0.20, 0.20, 0.20];
 
 // Charges for Onsager radius
-const CHARGE = [0, -1, 0, 1, 0, -1];
+const CHARGE = [0, -1, 0, 1, 0, -1,  0, 0, -1, -1, 0, -1, 0, -1];
 
 // Onsager radius: rc = q1*q2*e²/(4πε₀*kB*T*εr)
 // At 293.15K, εr=80.1: rc = 1.44*q1*q2/(0.02527*80.1) nm
@@ -223,6 +228,45 @@ const RXN_TABLE = [
   { a: 2, b: 2, k: 0.503e10, prods: [],     type: 0 },  // 6: H+H → H2        [TDC]
   { a: 1, b: 4, k: 1.10e10,  prods: [5, 0], type: 1 },  // 7: eaq+H2O2 → OH-+OH [PDC]
   { a: 3, b: 5, k: 1.13e11,  prods: [],     type: 0 },  // 8: H3O++OH- → H2O  [TDC]
+  // --- OXYGEN NETWORK (option3, 11.4.1) — 38 reactions, all TDC (radius from rate) ---
+  { a: 2, b: 10, k: 2.02e10, prods: [0],       type: 0 },  // H+O → OH
+  { a: 2, b: 11, k: 2.00e10, prods: [5],       type: 0 },  // H+O- → OH-
+  { a: 0, b: 10, k: 2.02e10, prods: [7],       type: 0 },  // OH+O → HO2
+  { a: 7, b: 10, k: 2.02e10, prods: [6, 0],    type: 0 },  // HO2+O → O2+OH
+  { a: 10, b: 10, k: 2.20e10, prods: [6],      type: 0 },  // O+O → O2
+  { a: 3, b: 13, k: 9.0e10,  prods: [0, 6],    type: 0 },  // H3O++O3- → OH+O2
+  { a: 2, b: 6, k: 2.10e10,  prods: [7],       type: 0 },  // H+O2 → HO2
+  { a: 2, b: 7, k: 1.00e10,  prods: [4],       type: 0 },  // H+HO2 → H2O2
+  { a: 2, b: 8, k: 1.00e10,  prods: [9],       type: 0 },  // H+O2- → HO2-
+  { a: 0, b: 4, k: 2.88e7,   prods: [7],       type: 0 },  // OH+H2O2 → HO2
+  { a: 0, b: 5, k: 6.30e9,   prods: [11],      type: 0 },  // OH+OH- → O-
+  { a: 0, b: 7, k: 7.90e9,   prods: [6],       type: 0 },  // OH+HO2 → O2
+  { a: 0, b: 8, k: 1.07e10,  prods: [6, 5],    type: 0 },  // OH+O2- → O2+OH-
+  { a: 0, b: 9, k: 8.32e9,   prods: [7, 5],    type: 0 },  // OH+HO2- → HO2+OH-
+  { a: 0, b: 11, k: 1.00e9,  prods: [9],       type: 0 },  // OH+O- → HO2-
+  { a: 0, b: 13, k: 8.50e9,  prods: [8, 7],    type: 0 },  // OH+O3- → O2-+HO2
+  { a: 4, b: 5, k: 4.71e8,   prods: [9],       type: 0 },  // H2O2+OH- → HO2-
+  { a: 4, b: 10, k: 1.60e9,  prods: [7, 0],    type: 0 },  // H2O2+O → HO2+OH
+  { a: 4, b: 11, k: 5.55e8,  prods: [7, 5],    type: 0 },  // H2O2+O- → HO2+OH-
+  { a: 1, b: 6, k: 1.74e10,  prods: [8],       type: 0 },  // eaq+O2 → O2-
+  { a: 1, b: 7, k: 1.29e10,  prods: [9],       type: 0 },  // eaq+HO2 → HO2-
+  { a: 5, b: 7, k: 6.30e9,   prods: [8],       type: 0 },  // OH-+HO2 → O2-
+  { a: 5, b: 10, k: 4.20e8,  prods: [9],       type: 0 },  // OH-+O → HO2-
+  { a: 6, b: 10, k: 4.00e9,  prods: [12],      type: 0 },  // O2+O → O3
+  { a: 6, b: 11, k: 3.70e9,  prods: [13],      type: 0 },  // O2+O- → O3-
+  { a: 7, b: 7, k: 9.80e5,   prods: [4, 6],    type: 0 },  // HO2+HO2 → H2O2+O2
+  { a: 7, b: 8, k: 9.70e7,   prods: [9, 6],    type: 0 },  // HO2+O2- → HO2-+O2
+  { a: 9, b: 10, k: 5.30e9,  prods: [8, 0],    type: 0 },  // HO2-+O → O2-+OH
+  { a: 1, b: 8, k: 1.29e10,  prods: [4, 5, 5], type: 0 },  // eaq+O2- → H2O2+2OH-
+  { a: 1, b: 9, k: 3.51e9,   prods: [11, 5],   type: 0 },  // eaq+HO2- → O-+OH-
+  { a: 1, b: 11, k: 2.31e10, prods: [5, 5],    type: 0 },  // eaq+O- → 2OH-
+  { a: 3, b: 8, k: 4.78e10,  prods: [7],       type: 0 },  // H3O++O2- → HO2
+  { a: 3, b: 9, k: 5.00e10,  prods: [4],       type: 0 },  // H3O++HO2- → H2O2
+  { a: 3, b: 11, k: 4.78e10, prods: [0],       type: 0 },  // H3O++O- → OH
+  { a: 8, b: 11, k: 6.00e8,  prods: [6, 5, 5], type: 0 },  // O2-+O- → O2+2OH-
+  { a: 9, b: 11, k: 3.50e8,  prods: [8, 5],    type: 0 },  // HO2-+O- → O2-+OH-
+  { a: 11, b: 11, k: 1.00e8, prods: [4, 5, 5], type: 0 },  // O-+O- → H2O2+2OH-
+  { a: 11, b: 13, k: 7.00e8, prods: [8, 8],    type: 0 },  // O-+O3- → 2O2-
 ];
 // H2 counting: reactions 3, 4, 6 produce H2
 const H2_PRODUCERS = new Set([3, 4, 6]);
