@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "protocol": "E37-proton-range-too-long",
+    "question": "What specific track-structure error (E36) causes the high-LET recombination deficit?",
+    "method": "Compared our 100 keV proton track length to Geant4's dumped track + PSTAR. Measured our CSDA via run-proton."
+  },
+  "result": {
+    "proton_range_100keV": {"ours": "2.65 um", "geant4_measured": "1.20 um", "pstar_approx": "1.4 um"},
+    "finding": "Our 100 keV proton ranges ~2x too far (2.65 vs 1.2-1.4 um). Independent confirmation: Geant4's dumped track z-extent is 1195 nm and PSTAR ~1.4 um, both ~half ours.",
+    "energy_specificity": "Our 1 MeV proton range is fine (26.3 vs ~24 um PSTAR, 1.1x). The error is LOW-energy: the Rudd-ionisation/Miller-Green regime (<500 keV, near the Bragg peak ~80 keV) under-counts the stopping power, so the proton coasts too far.",
+    "mechanism": "A 2x-too-long track spreads the same radicals over 2x the path -> ~half the effective LET -> weaker recombination, matching the E35/E36 deficit (more surviving OH/eaq, fewer H2/H2O2). Track shape confirms: ours 2766x79x87 nm (long/thin) vs G4 1195x597x382 nm (short/wide).",
+    "caveat": "The range error is verified; that it FULLY explains the recombination deficit is the hypothesis to confirm by fixing the low-E stopping power and re-running the isolation. Local NN-density was similar (0.73 vs 0.72 nm), so track length/topology, not local clustering, is the lever.",
+    "fix_target": "Correct the proton stopping power below ~500 keV (Rudd ionisation energy-loss + Miller-Green), validate range vs PSTAR at 100/300/500 keV, then re-run E36 isolation to confirm recombination closes."
+  },
+  "status": "verified track-structure bug — 100 keV proton range 2x too long (low-E stopping power); strong candidate for the recombination deficit"
+}
