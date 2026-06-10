@@ -1,0 +1,15 @@
+{
+  "meta": {"protocol": "E35-oxygen-diagnosis", "question": "Diagnose the E34 oxygen discrepancy — what causes our oxygen to be over-consumed / under-formed vs the option3 oracle?"},
+  "result": {
+    "root_cause": "HIGH-LET RECOMBINATION DEFICIT. At 100 keV proton (LET ~49 keV/um) our track recombines to only ~75% of the oracle: OH 0.364 vs 0.230, eaq 0.304 vs 0.169 (we keep MORE radicals); H2 0.904 vs 1.153, H2O2 0.984 vs 1.121 (we make FEWER molecular products). The weaker recombination starves the oxygen-forming radical-radical reactions (HO2+HO2, OH+HO2, etc.), so persistent oxygen ~0 vs oracle ~0.13.",
+    "ruled_out": [
+      "Rudd ejection angle (regenerated dump post-fix: identical result)",
+      "LET mismatch (both ~49 keV/um, same track)",
+      "Oxygen reaction TYPES as the primary cause (the oxygen reactions fire at LOW counts; the issue is upstream — too few radical-radical events feeding the network)",
+      "Diffusion coefficients (verified OH=2.2 matches the oracle, not the 2.8 molecule-default)"
+    ],
+    "note": "For the ELECTRON (low LET) ours matches chem6 to RMS 7% — the deficit is LET-specific (dense tracks). Both recombine more at high LET; ours just under-shoots the oracle by ~25%.",
+    "next": "Careful tuning of the high-LET recombination against this oracle row: candidates are the per-primary IRT reaction-radius/rate handling for dense tracks, the mother/thermalisation displacements, or the radical spatial density from the proton track structure. A multi-factor fit against the option3 oracle, not a single knob."
+  },
+  "status": "diagnosed — high-LET recombination deficit (~75% of oracle); obvious causes ruled out; precise fix is a multi-factor tune against the oracle"
+}
