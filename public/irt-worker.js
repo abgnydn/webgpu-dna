@@ -419,6 +419,9 @@ self.onmessage = function(e) {
   // the reducing radicals: eaq + O2 → O2- (k 1.74e10), H + O2 → HO2 (k 2.1e10),
   // first-order at rate k·[O2]. [O2] in mol/L: 0 = anoxic (preserves prior behaviour),
   // ~50 µM = normoxic tissue, ~250 µM = aerated. Rate in /ns = k·[O2]·1e-9.
+  // Causal-isolation mode: when feeding Geant4's already-placed radicals,
+  // skip all worker-side displacement (positions are final). dispScale=0 disables it.
+  const dispScale = e.data.noDisplace ? 0.0 : 1.0;
   const O2_CONC = e.data.o2_conc || 0;
   const rateEaqO2 = 1.74e10 * O2_CONC * 1e-9;  // /ns
   const rateHO2   = 2.10e10 * O2_CONC * 1e-9;  // /ns (H + O2 → HO2)
@@ -632,9 +635,9 @@ self.onmessage = function(e) {
         // Product displacement: 0.8 nm RMS (50% chance, shared with H3O+)
         species[k] = 0;
         if (Math.random() < 0.5) {
-          x += SIGMA_OH_PROD * clf6();
-          y += SIGMA_OH_PROD * clf6();
-          z += SIGMA_OH_PROD * clf6();
+          x += dispScale * SIGMA_OH_PROD * clf6();
+          y += dispScale * SIGMA_OH_PROD * clf6();
+          z += dispScale * SIGMA_OH_PROD * clf6();
         }
       } else if (s === 3) {
         // H3O+ from ionisation or autoionisation.
@@ -642,25 +645,25 @@ self.onmessage = function(e) {
         // Product displacement: 0.8 nm RMS (50% chance, other half of OH/H3O+ split)
         species[k] = 3;
         if (Math.random() < 0.5) {
-          x += SIGMA_OH_PROD * clf6();
-          y += SIGMA_OH_PROD * clf6();
-          z += SIGMA_OH_PROD * clf6();
+          x += dispScale * SIGMA_OH_PROD * clf6();
+          y += dispScale * SIGMA_OH_PROD * clf6();
+          z += dispScale * SIGMA_OH_PROD * clf6();
         }
       } else if (s === 1) {
         // eaq from autoionisation (B1A1 excitation)
         // Shader already applied 2.0 nm mother displacement.
         // Only thermalization displacement needed here.
         species[k] = 1;
-        x += SIGMA_EAQ_AUTO * clf6();
-        y += SIGMA_EAQ_AUTO * clf6();
-        z += SIGMA_EAQ_AUTO * clf6();
+        x += dispScale * SIGMA_EAQ_AUTO * clf6();
+        y += dispScale * SIGMA_EAQ_AUTO * clf6();
+        z += dispScale * SIGMA_EAQ_AUTO * clf6();
       } else if (s === 2) {
         // H from A1B1 excitation (OH+H channel)
         // Geant4: mother displacement 0 nm + product displacement 17/18 × 2.4 nm
         species[k] = 2;
-        x += SIGMA_H_EXCITATION * clf6();
-        y += SIGMA_H_EXCITATION * clf6();
-        z += SIGMA_H_EXCITATION * clf6();
+        x += dispScale * SIGMA_H_EXCITATION * clf6();
+        y += dispScale * SIGMA_H_EXCITATION * clf6();
+        z += dispScale * SIGMA_H_EXCITATION * clf6();
       } else if (s === 6) {
         // OH- from DEA (DissociAttachment_ch1)
         // Worker species index 5 = OH-. No additional displacement (deposit at site).

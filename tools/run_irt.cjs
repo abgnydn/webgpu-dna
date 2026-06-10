@@ -76,5 +76,5 @@ if (typeof workerOnMessage !== 'function') {
 
 // Trigger the worker.
 const t0 = performance.now();
-workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV, o2_conc } });
+workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV, o2_conc, noDisplace: process.env.NODISPLACE==="1" } });
 console.error(`[run_irt] total wall: ${((performance.now()-t0)/1000).toFixed(1)}s`);
