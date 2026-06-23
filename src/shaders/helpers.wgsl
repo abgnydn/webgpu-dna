@@ -65,15 +65,21 @@ fn xs_shell_fracs(E:f32)->array<f32,5>{
 }
 
 fn xs_exc_fracs(E:f32)->array<f32,5>{
-  // XEF arrays have a data bug above ~8.6 keV (indices 86-99): all five levels
-  // read 1.0 from the conversion script (division tiny/tiny = 1.0 when the
-  // Emfietzoglou source data runs out of range). Detect that via sum > 1.0001
-  // and fall back to the last valid index (i=85) so we keep physical branching.
+  // XEF holds the 5 excitation-level fractions (from sigma_excitation_e_born.dat).
+  // Historical guard: the OLD Emfietzoglou table degenerated above ~8.6 keV
+  // (each level read 1.0 from the converter → row-sum ≈ 5), so we clamp the
+  // index to the last good bin (85). The current Born table is clean — every
+  // high-index row sums to exactly 1.0 (verified 2026-06-23) — so this clamp is
+  // now a DORMANT safety net. Side effect: it freezes branching at bin 85 for
+  // E > ~10.2 keV (XE[85]); that range is outside the validated 100 eV–10 keV
+  // envelope, so it is a no-op for every headline result. Removing the clamp to
+  // use the valid Born high-E fractions is a physics change pending revalidation.
   if(E<=XE[0]){return array<f32,5>(XEF0[0],XEF1[0],XEF2[0],XEF3[0],XEF4[0]);}
   if(E>=XE[XN-1u]){return array<f32,5>(XEF0[85],XEF1[85],XEF2[85],XEF3[85],XEF4[85]);}
   let t=(log(E)-LOG_XE0)*INV_LOG_XE_STEP;
   var i=u32(clamp(floor(t),0.0,f32(XN-2u)));
-  // Clamp index to the last valid Emfietzoglou bin (85) to dodge the XEF bug.
+  // Clamp index to bin 85 — the dormant Emfietzoglou-era guard; a no-op for the
+  // clean Born table (every high-index row sums to 1.0). See the note above.
   if(i>85u){i=85u;}
   let f=select(t-f32(i),0.0,i==85u);
   let j=min(i+1u,85u);

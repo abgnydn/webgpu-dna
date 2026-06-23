@@ -4,6 +4,8 @@
     "question": "Why does the (correct) full cascade over-recombine in the per-primary IRT (E22: G 0.91x->0.39x)? Verified against reality, not guessed.",
     "branch": "feat/tertiary-cascade"
   },
+  "superseded_by": "E25",
+  "correction": "The premise is a PHANTOM. E22's 'over-recombination' (G 0.91x->0.39x) was a normalization bug in my own analysis: run_irt was invoked with n_therm=10000 instead of 4096, scaling every G-value by 0.41x (see E25). There was no over-recombination — the tertiary cascade is a clean win. The 'root cause verified' below diagnoses an analysis artifact, not physics. Kept for provenance per the failed-experiment discipline; the bug class is now guarded by tests/unit/irt-normalization.test.ts.",
   "status": "diagnosed (root cause verified) - proper fix scoped, not yet implemented",
   "findings": {
     "chem6_is_per_track": "VERIFIED from chem6_10keV.mac (/gun/position 0 0 0, one e- per event) - chemistry is per-event, so our per-primary IRT IS the correct comparison. Geometry ruled out.",
