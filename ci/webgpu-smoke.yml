@@ -1,0 +1,61 @@
+name: WebGPU smoke (headless)
+
+# Runs the REAL WGSL physics shaders on a SOFTWARE WebGPU adapter (Mesa lavapipe
+# / SwiftShader) inside headless Chromium — the GPU coverage `ci.yml` cannot
+# provide (default runners have no GPU). It compiles the shipped primary /
+# secondary / chemistry bundles (assembled exactly like src/shaders/loader.ts)
+# and runs a trivial compute dispatch, so a WGSL regression that vitest cannot
+# see (syntax / validation / undefined symbol) fails here. See
+# experiments/tools/webgpu-smoke.mjs.
+#
+# It is a SMOKE TEST, not a physics re-validation (a software adapter at small N
+# is too noisy/vendor-dependent — see README §Numbers reproducibility tiers).
+#
+# NON-BLOCKING for now: `continue-on-error: true` means a harness/flag hiccup
+# won't fail PRs while the software-WebGPU bring-up is being proven on a real
+# runner. >>> Once this has its first green run, remove `continue-on-error`
+# (and optionally add it to branch-protection required checks) to make it gate. <<<
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  webgpu-smoke:
+    runs-on: ubuntu-latest
+    continue-on-error: true          # remove once proven green on a real runner
+    timeout-minutes: 20
+    env:
+      # Force the Mesa lavapipe software-Vulkan ICD so Chrome doesn't chase a
+      # missing hardware GPU. SwiftShader (--enable-unsafe-swiftshader) is the
+      # in-browser fallback if this ICD path differs on a future image.
+      VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install software Vulkan (Mesa lavapipe) + xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mesa-vulkan-drivers vulkan-tools xvfb
+
+      - name: Install Playwright Chromium (+ system deps)
+        run: npx playwright install --with-deps chromium
+
+      - name: Vulkan adapter diagnostic (non-fatal)
+        run: vulkaninfo --summary || echo "vulkaninfo failed — relying on SwiftShader fallback"
+
+      - name: WebGPU smoke (real shaders on software adapter)
+        run: xvfb-run -a node experiments/tools/webgpu-smoke.mjs
