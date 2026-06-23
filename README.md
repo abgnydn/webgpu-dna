@@ -76,11 +76,6 @@ The production Pages project is **`webgpudna`** (no hyphen) — it owns
 webgpudna.com. Do **not** use the `webgpu-dna` (hyphenated) project; that one
 is stale and only serves `webgpu-dna.pages.dev`.
 
-A Vercel GitHub integration also auto-builds a parallel mirror
-(`webgpu-dna.vercel.app`) on every push to `main`, but that mirror does **not**
-serve the custom domain — pushing alone does not update webgpudna.com; the
-`wrangler` deploy above does.
-
 ## Regenerating cross sections
 
 The committed `public/cross_sections.wgsl` (1.3 MB) is generated from the G4EMLOW reference data (245 MB, not committed). To rebuild:

@@ -19,8 +19,7 @@ public/rad_E*_N*.bin
 # to regenerate public/cross_sections.wgsl via `npm run convert`.
 data/
 
-# Vercel / local tool caches
-.vercel
+# Local tool caches (.wrangler = Cloudflare Pages/Wrangler)
 .turbo
 .wrangler/
 
