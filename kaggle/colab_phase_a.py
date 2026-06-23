@@ -48,6 +48,10 @@ CE_EV = 7.4
 def ensure_gpu_vulkan():
     """Idempotent: install the NVIDIA Vulkan producer + register an ICD so the
     real GPU is reachable (see kaggle/colab_webgpu_smoke.py / FREE_COMPUTE.md §3)."""
+    # Force Vulkan: when both Vulkan and GL adapters exist for the T4, wgpu may
+    # pick GL, which cannot do compute storage buffers ("device is lost"). Must
+    # be set before `import wgpu`.
+    os.environ["WGPU_BACKEND_TYPE"] = "Vulkan"
     os.environ.setdefault("XDG_RUNTIME_DIR", "/tmp/xdg-runtime")
     os.makedirs(os.environ["XDG_RUNTIME_DIR"], exist_ok=True)
     smi = subprocess.run("nvidia-smi --query-gpu=driver_version --format=csv,noheader",
@@ -105,11 +109,17 @@ def main():
     import wgpu
 
     adapter = wgpu.gpu.request_adapter_sync(power_preference="high-performance")
+    if adapter is None:
+        sys.exit("ERROR: no Vulkan adapter found. Run kaggle/colab_webgpu_smoke.py first (it installs "
+                 "libnvidia-gl-<driver>), or check that nvidia-smi's driver major matches the installed libnvidia-gl.")
     info = dict(adapter.info)
-    is_gpu = "cpu" not in str(info.get("adapter_type", "")).lower() \
-        and "llvmpipe" not in (str(info.get("device", "")) + str(info.get("description", ""))).lower()
-    print(f"adapter: {info.get('device','')} | {info.get('adapter_type','')} / {info.get('backend_type','')} "
-          f"-> {'REAL GPU' if is_gpu else 'SOFTWARE (results still valid, just slow/CPU)'}")
+    backend = str(info.get("backend_type", "")).lower()
+    print(f"adapter: {info.get('device','')} | {info.get('adapter_type','')} / {info.get('backend_type','')}")
+    if "vulkan" not in backend:
+        sys.exit(f"ERROR: selected the {info.get('backend_type','?')!r} backend, which cannot do compute storage "
+                 "buffers (that is the 'device is lost' error). WGPU_BACKEND_TYPE=Vulkan is set; if Vulkan still "
+                 "isn't picked, the libnvidia-gl install didn't take — re-run the cell.")
+    is_gpu = True
     device = adapter.request_device_sync()
 
     # --- shader: cross_sections + helpers + primary (assemble like loader.ts) ---

@@ -43,6 +43,9 @@ def step1_try_real_gpu_vulkan():
     print("=" * 70)
     print("STEP 1 — best-effort: make the real GPU reachable for Vulkan/WebGPU")
     print("=" * 70)
+    # Force Vulkan before any wgpu import: GL would be picked sometimes and can't
+    # do compute storage buffers.
+    os.environ["WGPU_BACKEND_TYPE"] = "Vulkan"
     smi = sh("nvidia-smi --query-gpu=name,driver_version --format=csv,noheader")
     line = (smi.stdout or "").strip()
     print("nvidia-smi:", line or "(no GPU / nvidia-smi missing)")
