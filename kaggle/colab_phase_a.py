@@ -57,6 +57,11 @@ def ensure_gpu_vulkan():
     smi = subprocess.run("nvidia-smi --query-gpu=driver_version --format=csv,noheader",
                          shell=True, capture_output=True, text=True)
     drv = (smi.stdout or "").strip().split(".")[0]
+    # Full Vulkan stack (same as the proven kaggle/colab_webgpu_smoke.py step 1):
+    # loader + tools + the NVIDIA producer for THIS driver. Self-contained so it
+    # works in a fresh Colab VM even if the smoke wasn't run first. Idempotent.
+    subprocess.run("apt-get -qq update >/dev/null 2>&1 || true", shell=True)
+    subprocess.run("apt-get -qq install -y libvulkan1 vulkan-tools >/dev/null 2>&1 || true", shell=True)
     if drv:
         subprocess.run(f"apt-get -qq install -y libnvidia-gl-{drv} >/dev/null 2>&1 || true", shell=True)
     os.makedirs("/usr/share/vulkan/icd.d", exist_ok=True)
@@ -64,6 +69,9 @@ def ensure_gpu_vulkan():
            "ICD": {"library_path": "libGLX_nvidia.so.0", "api_version": "1.3.0"}}
     with open("/usr/share/vulkan/icd.d/nvidia_icd.json", "w") as f:
         json.dump(icd, f)
+    vk = subprocess.run("vulkaninfo --summary 2>/dev/null | grep -E 'deviceName|deviceType' | head",
+                        shell=True, capture_output=True, text=True)
+    print("vulkaninfo:", (vk.stdout.strip() or "(no Vulkan device visible)").replace("\n", " | "))
 
 
 def seed_primary_rng(np_count, seed):
