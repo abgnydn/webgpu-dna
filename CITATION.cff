@@ -66,8 +66,9 @@ preferred-citation:
   version: "0.7.0"
   year: 2026
   url: https://github.com/abgnydn/webgpu-dna
-  doi: "10.5281/zenodo.20606566"
+  doi: "10.5281/zenodo.20506339"
   notes: >-
-    Version DOI for the v0.6.0 release (full electron cascade). The concept
-    DOI 10.5281/zenodo.20506339 (top-level doi) always resolves to the latest
-    version.
+    Concept DOI — always resolves to the latest version (currently v0.7.0,
+    real Born excitation, parameter-free track structure). Per-version DOIs
+    are listed on the Zenodo record (e.g. the v0.6.0 version DOI is
+    10.5281/zenodo.20606566).

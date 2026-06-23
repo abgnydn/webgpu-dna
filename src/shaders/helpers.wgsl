@@ -1,25 +1,25 @@
 const PI=3.14159265;
 const NW=33.4;  // molecules/nm³ in liquid water
 
-// JOINT-FIX SCALES (2026-05-12, see PHYSICS_DIAGNOSIS §1 + E10h + E7c):
-// - SIGMA_EXC_SCALE: scales the Emfietzoglou σ_exc total. Original
-//   Emfietzoglou is 2.39-2.76× larger than Geant4's Born σ_exc
-//   (intentional inflation to recover correct initial G(H) ≈ 0.5 per
-//   Karamitros). E5b showed this inflation shortens CSDA at sub-keV
-//   by up to 41%; E7 showed it shortens cascade ions by 27%. 0.5×
-//   partial reduction (≈ Geant4 Born level) closes most of the CSDA
-//   deficit — E5d measured 8/8 energies monotonic improvement.
-// - RECOMB_BOOST: scaled the Onsager P_recomb in every e-h recombination
-//   check. It had NO Geant4 physical basis (the H₂O⁺ refutation: Geant4's
-//   recomb is one-shot single-sample, not time-integrated) and E10r showed
-//   it was not load-bearing. SET TO 1.0 (neutral) 2026-06-08 after the
-//   RECOMB→1.0 validation passed all three gates: cascade ions recover
-//   0.677→0.766× [E7d], chemistry is parameter-free at +1.4 pp RMS and
-//   improves OH/eaq/H [E10r], and the SSB indirect/direct ratio holds in
-//   PARTRAC's 2–3 band at 2.32 with no recalibration [E13d]. The pipeline
-//   is now parameter-free in this knob; only SIGMA_EXC_SCALE remains, and
-//   it is a documented physics-data divergence (Emfietzoglou vs Born), not
-//   a tuning fudge.
+// TRACK-STRUCTURE SCALES — both NEUTRAL (1.0). The track-structure physics
+// has no tuning scalars; these are kept as neutral hooks for provenance and
+// sensitivity experiments. Do not set either off 1.0 without a Geant4 source
+// citation (the RESEARCH_STANDARDS no-fudge rule).
+// - SIGMA_EXC_SCALE multiplies the excitation σ total (XC). History: 0.5
+//   (v0.3.0) → 0.39 (v0.6.1) — a flat factor approximating Born by scaling the
+//   Emfietzoglou table. v0.7.0 (E29) regenerated cross_sections.wgsl from the
+//   REAL Born excitation data (sigma_excitation_e_born.dat; XC and XEF are now
+//   Born), matching G4EmDNAPhysics_option2 — the list BOTH Geant4 oracles
+//   register. The Emf/Born ratio is energy-dependent (~2.5× at keV, ~10× at
+//   ~10 eV), so no flat scale could match it; loading Born directly closed the
+//   sub-keV CSDA deficit (100 eV 0.78→0.96×). The scale is now a no-op: 1.0.
+// - RECOMB_BOOST scaled the Onsager P_recomb in every e-h recombination check.
+//   It had NO Geant4 physical basis (the H₂O⁺ refutation: Geant4's recomb is
+//   one-shot single-sample, not time-integrated) and E10r showed it was not
+//   load-bearing. Set to 1.0 (neutral) at v0.5.0; the flip passed all three
+//   gates — cascade ions 0.677→0.766× [E7d], chemistry parameter-free at
+//   +1.4 pp RMS [E10r], SSB ratio in band [E13d]. The full cascade (v0.6.0)
+//   and Born excitation (v0.7.0) then improved every axis further.
 const SIGMA_EXC_SCALE:f32=1.0;
 const RECOMB_BOOST:f32=1.0;
 
