@@ -5,6 +5,8 @@
     "method": "Reconstructed Geant4 chemistry-stage radical positions FAITHFULLY from dna.root: each ionisation (flag13) -> OH + H3O+ (one displaced 0.8nm random, the verified geometry); each solvation (flag10) -> eaq. Computed mean neighbours within 1 nm (local crowding = the thing that drives recombination) for 6 events, vs our tertiary-cascade dump per primary.",
     "branch": "feat/tertiary-cascade"
   },
+  "superseded_by": "E25",
+  "correction": "Part of the E22-E24 phantom chase. The 'cascade over-recombination' whose cause this measures did not exist — it was a n_therm=10000-vs-4096 normalization bug in the analysis harness (see E25). The crowding measurement itself is sound, but it was investigating an artifact. Kept for provenance; the bug class is now guarded by tests/unit/irt-normalization.test.ts.",
   "status": "decisive — placement hypothesis REFUTED by measurement",
   "result": {
     "radical_counts": "comparable: Geant4 ~1530/event, ours ~1570/primary",

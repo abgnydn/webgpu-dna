@@ -19,8 +19,7 @@ public/rad_E*_N*.bin
 # to regenerate public/cross_sections.wgsl via `npm run convert`.
 data/
 
-# Vercel / local tool caches
-.vercel
+# Local tool caches (.wrangler = Cloudflare Pages/Wrangler)
 .turbo
 .wrangler/
 
@@ -35,3 +34,7 @@ final_demo.webp
 # Experiment IRT cache — recreatable from dumps/rad_E*_N4096.bin via run_irt.cjs.
 experiments/.cache/
 
+
+# Python bytecode cache
+__pycache__/
+*.pyc

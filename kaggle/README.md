@@ -8,6 +8,16 @@ Python bindings to `wgpu-native`, running WGSL compute over Vulkan.
 Kaggle's GPU and runs a WGSL compute shader. It is the foundation for a Python
 port of the Phase A+B physics host (see [`../FREE_COMPUTE.md`](../FREE_COMPUTE.md)).
 
+`webgpu_dna_colab.ipynb` (+ `colab_webgpu_smoke.py`) goes further and is the one
+to run if you want to **actually use the GPU**. It (1) makes a genuine best-effort
+to reach the real GPU — it *installs* `libnvidia-gl-<driver>` (the NVIDIA Vulkan
+producer), which the earlier probe only *detected*; (2) **measures** whether the
+adapter is the real GPU or software (`llvmpipe`); and (3) compiles the real
+shipped shaders (assembled exactly like `src/shaders/loader.ts`) on `wgpu-native`
+either way — so even if the datacenter driver stays CUDA-only, you get a free
+cross-implementation validation of the production WGSL. One cell:
+`!git clone … && !python webgpu-dna/kaggle/colab_webgpu_smoke.py`.
+
 ## Import it from GitHub (no download needed)
 
 1. On Kaggle: **Create → Notebook**, then **File → Import Notebook → GitHub**.
@@ -31,10 +41,13 @@ unlocks **free GPU hours** for the Phase A+B physics that GitHub Actions can't
 run (no GPU on default runners). The CPU-side IRT chemistry already runs free
 on GitHub Actions — see `FREE_COMPUTE.md`.
 
-## Honest caveat
+## Update (2026-06-23): it works on the real GPU
 
-`wgpu-py` on a headless Kaggle GPU depends on the NVIDIA Vulkan ICD being
-present. If Probe 1 reports a CPU/software adapter even with the accelerator on,
-the ICD isn't exposed in that image — that's a real finding, and the fallback is
-the WebRTC swarm (volunteer browsers) for free WebGPU. The probe is cheap; run
-it first before investing in the host port.
+`colab_webgpu_smoke.py` reaches the **real Tesla T4** over Vulkan after installing
+`libnvidia-gl-<driver>` (the Vulkan producer the original probe never installed),
+and the real shipped shaders compile on it — overturning the earlier "CUDA-only,
+no Vulkan" finding (see [`../FREE_COMPUTE.md`](../FREE_COMPUTE.md) §3). If you
+still get a CPU/`llvmpipe` adapter, the `libnvidia-gl-<driver>` package didn't
+match the running driver — check `nvidia-smi` and install the matching major
+version. Honest scope: this is shader *compile* + a trivial dispatch on the GPU,
+not yet a full physics numeric validation (that needs the Python host port).

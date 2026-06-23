@@ -12,10 +12,12 @@
     "lint": "eslint src/ tests/",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run lint && npm run test",
+    "check:versions": "node tools/check-version-consistency.mjs",
+    "check": "npm run check:versions && npm run typecheck && npm run lint && npm run test",
     "convert": "python3 tools/convert_g4data.py",
     "experiments": "node experiments/runner.mjs",
-    "check-browser": "node experiments/tools/check-browser.mjs"
+    "check-browser": "node experiments/tools/check-browser.mjs",
+    "webgpu-smoke": "node experiments/tools/webgpu-smoke.mjs"
   },
   "license": "MIT",
   "devDependencies": {

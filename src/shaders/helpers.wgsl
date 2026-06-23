@@ -1,25 +1,25 @@
 const PI=3.14159265;
 const NW=33.4;  // molecules/nm³ in liquid water
 
-// JOINT-FIX SCALES (2026-05-12, see PHYSICS_DIAGNOSIS §1 + E10h + E7c):
-// - SIGMA_EXC_SCALE: scales the Emfietzoglou σ_exc total. Original
-//   Emfietzoglou is 2.39-2.76× larger than Geant4's Born σ_exc
-//   (intentional inflation to recover correct initial G(H) ≈ 0.5 per
-//   Karamitros). E5b showed this inflation shortens CSDA at sub-keV
-//   by up to 41%; E7 showed it shortens cascade ions by 27%. 0.5×
-//   partial reduction (≈ Geant4 Born level) closes most of the CSDA
-//   deficit — E5d measured 8/8 energies monotonic improvement.
-// - RECOMB_BOOST: scaled the Onsager P_recomb in every e-h recombination
-//   check. It had NO Geant4 physical basis (the H₂O⁺ refutation: Geant4's
-//   recomb is one-shot single-sample, not time-integrated) and E10r showed
-//   it was not load-bearing. SET TO 1.0 (neutral) 2026-06-08 after the
-//   RECOMB→1.0 validation passed all three gates: cascade ions recover
-//   0.677→0.766× [E7d], chemistry is parameter-free at +1.4 pp RMS and
-//   improves OH/eaq/H [E10r], and the SSB indirect/direct ratio holds in
-//   PARTRAC's 2–3 band at 2.32 with no recalibration [E13d]. The pipeline
-//   is now parameter-free in this knob; only SIGMA_EXC_SCALE remains, and
-//   it is a documented physics-data divergence (Emfietzoglou vs Born), not
-//   a tuning fudge.
+// TRACK-STRUCTURE SCALES — both NEUTRAL (1.0). The track-structure physics
+// has no tuning scalars; these are kept as neutral hooks for provenance and
+// sensitivity experiments. Do not set either off 1.0 without a Geant4 source
+// citation (the RESEARCH_STANDARDS no-fudge rule).
+// - SIGMA_EXC_SCALE multiplies the excitation σ total (XC). History: 0.5
+//   (v0.3.0) → 0.39 (v0.6.1) — a flat factor approximating Born by scaling the
+//   Emfietzoglou table. v0.7.0 (E29) regenerated cross_sections.wgsl from the
+//   REAL Born excitation data (sigma_excitation_e_born.dat; XC and XEF are now
+//   Born), matching G4EmDNAPhysics_option2 — the list BOTH Geant4 oracles
+//   register. The Emf/Born ratio is energy-dependent (~2.5× at keV, ~10× at
+//   ~10 eV), so no flat scale could match it; loading Born directly closed the
+//   sub-keV CSDA deficit (100 eV 0.78→0.96×). The scale is now a no-op: 1.0.
+// - RECOMB_BOOST scaled the Onsager P_recomb in every e-h recombination check.
+//   It had NO Geant4 physical basis (the H₂O⁺ refutation: Geant4's recomb is
+//   one-shot single-sample, not time-integrated) and E10r showed it was not
+//   load-bearing. Set to 1.0 (neutral) at v0.5.0; the flip passed all three
+//   gates — cascade ions 0.677→0.766× [E7d], chemistry parameter-free at
+//   +1.4 pp RMS [E10r], SSB ratio in band [E13d]. The full cascade (v0.6.0)
+//   and Born excitation (v0.7.0) then improved every axis further.
 const SIGMA_EXC_SCALE:f32=1.0;
 const RECOMB_BOOST:f32=1.0;
 
@@ -65,15 +65,21 @@ fn xs_shell_fracs(E:f32)->array<f32,5>{
 }
 
 fn xs_exc_fracs(E:f32)->array<f32,5>{
-  // XEF arrays have a data bug above ~8.6 keV (indices 86-99): all five levels
-  // read 1.0 from the conversion script (division tiny/tiny = 1.0 when the
-  // Emfietzoglou source data runs out of range). Detect that via sum > 1.0001
-  // and fall back to the last valid index (i=85) so we keep physical branching.
+  // XEF holds the 5 excitation-level fractions (from sigma_excitation_e_born.dat).
+  // Historical guard: the OLD Emfietzoglou table degenerated above ~8.6 keV
+  // (each level read 1.0 from the converter → row-sum ≈ 5), so we clamp the
+  // index to the last good bin (85). The current Born table is clean — every
+  // high-index row sums to exactly 1.0 (verified 2026-06-23) — so this clamp is
+  // now a DORMANT safety net. Side effect: it freezes branching at bin 85 for
+  // E > ~10.2 keV (XE[85]); that range is outside the validated 100 eV–10 keV
+  // envelope, so it is a no-op for every headline result. Removing the clamp to
+  // use the valid Born high-E fractions is a physics change pending revalidation.
   if(E<=XE[0]){return array<f32,5>(XEF0[0],XEF1[0],XEF2[0],XEF3[0],XEF4[0]);}
   if(E>=XE[XN-1u]){return array<f32,5>(XEF0[85],XEF1[85],XEF2[85],XEF3[85],XEF4[85]);}
   let t=(log(E)-LOG_XE0)*INV_LOG_XE_STEP;
   var i=u32(clamp(floor(t),0.0,f32(XN-2u)));
-  // Clamp index to the last valid Emfietzoglou bin (85) to dodge the XEF bug.
+  // Clamp index to bin 85 — the dormant Emfietzoglou-era guard; a no-op for the
+  // clean Born table (every high-index row sums to 1.0). See the note above.
   if(i>85u){i=85u;}
   let f=select(t-f32(i),0.0,i==85u);
   let j=min(i+1u,85u);
