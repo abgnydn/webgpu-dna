@@ -8,6 +8,16 @@ Python bindings to `wgpu-native`, running WGSL compute over Vulkan.
 Kaggle's GPU and runs a WGSL compute shader. It is the foundation for a Python
 port of the Phase A+B physics host (see [`../FREE_COMPUTE.md`](../FREE_COMPUTE.md)).
 
+`webgpu_dna_colab.ipynb` (+ `colab_webgpu_smoke.py`) goes further and is the one
+to run if you want to **actually use the GPU**. It (1) makes a genuine best-effort
+to reach the real GPU — it *installs* `libnvidia-gl-<driver>` (the NVIDIA Vulkan
+producer), which the earlier probe only *detected*; (2) **measures** whether the
+adapter is the real GPU or software (`llvmpipe`); and (3) compiles the real
+shipped shaders (assembled exactly like `src/shaders/loader.ts`) on `wgpu-native`
+either way — so even if the datacenter driver stays CUDA-only, you get a free
+cross-implementation validation of the production WGSL. One cell:
+`!git clone … && !python webgpu-dna/kaggle/colab_webgpu_smoke.py`.
+
 ## Import it from GitHub (no download needed)
 
 1. On Kaggle: **Create → Notebook**, then **File → Import Notebook → GitHub**.
