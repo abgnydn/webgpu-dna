@@ -34,3 +34,7 @@ final_demo.webp
 # Experiment IRT cache — recreatable from dumps/rad_E*_N4096.bin via run_irt.cjs.
 experiments/.cache/
 
+
+# Python bytecode cache
+__pycache__/
+*.pyc
