@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "protocol": "B2-colab-gpu-webgpu",
+    "question": "Can a free Colab/Kaggle datacenter GPU run WebGPU/WGSL after all? (Re-test of FREE_COMPUTE.md §3, which closed it 2026-06-08.)",
+    "method": "On a Colab T4 GPU runtime: install libnvidia-gl-<driver_major> (the NVIDIA Vulkan producer the 2026-06-08 probe never installed) + register a Vulkan ICD pointing at libGLX_nvidia.so.0, then measure the wgpu-py adapter and compile the real shipped shaders (primary/secondary/chemistry, assembled exactly like src/shaders/loader.ts). Script: kaggle/colab_webgpu_smoke.py; notebook: kaggle/webgpu_dna_colab.ipynb."
+  },
+  "env": {
+    "platform": "Google Colab",
+    "gpu": "NVIDIA Tesla T4",
+    "nvidia_driver": "580.82.07",
+    "wgpu_py": "0.31.0",
+    "vulkan_producer_pkg": "libnvidia-gl-580",
+    "date": "2026-06-23"
+  },
+  "status": "OPEN — FREE_COMPUTE.md §3 'closed' finding OVERTURNED",
+  "result": {
+    "real_gpu_adapter": true,
+    "adapter_type": "DiscreteGPU",
+    "backend_type": "Vulkan",
+    "device": "Tesla T4",
+    "vendor": "NVIDIA",
+    "trivial_compute": "OK ([11,21,31,41])",
+    "shaders_compiled": { "primary": "OK", "secondary": "OK", "chemistry": "OK" },
+    "vulkaninfo_devices": ["PHYSICAL_DEVICE_TYPE_DISCRETE_GPU: Tesla T4", "PHYSICAL_DEVICE_TYPE_CPU: llvmpipe (LLVM 15.0.7)"]
+  },
+  "honest_scope": "This is shader COMPILE + a trivial compute dispatch on the real T4 — NOT a full physics numeric validation. The marquee Phase A+B physics still needs the buffer/pipeline/dispatch host (src/gpu/{buffers,pipelines,dispatch}.ts) ported to Python; that work is now unblocked.",
+  "supersedes": "The 2026-06-08 probe (FREE_COMPUTE.md §3) reported llvmpipe/CPU/OpenGL and concluded 'datacenter GPUs cannot run our physics'. That was incomplete: it only DETECTED an ICD; it never installed libnvidia-gl-<driver>, so the Vulkan producer library was absent. With it installed, the T4 is Vulkan-visible.",
+  "recipe": "drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | cut -d. -f1); apt-get install -y libnvidia-gl-$drv; echo '{\"file_format_version\":\"1.0.0\",\"ICD\":{\"library_path\":\"libGLX_nvidia.so.0\",\"api_version\":\"1.3.0\"}}' > /usr/share/vulkan/icd.d/nvidia_icd.json; wgpu.gpu.request_adapter_sync(power_preference='high-performance')",
+  "reproduce": "Open kaggle/webgpu_dna_colab.ipynb in Colab with a GPU (T4) runtime and Run all, or: !git clone -b <branch> https://github.com/abgnydn/webgpu-dna && python webgpu-dna/kaggle/colab_webgpu_smoke.py"
+}
