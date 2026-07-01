@@ -164,7 +164,7 @@ Before opening a PR for a new physics model, verify:
 - [ ] L2 track-structure validation passes (or fails honestly with a row in PHYSICS_DIAGNOSIS.md).
 - [ ] README § Numbers updated with the new row + headline number + artifact link.
 - [ ] Commit message states `pass` / `noisy` / `fail (honest negative)` / `marquee closure`.
-- [ ] `npm run test` still 46/46 (or you grew the test count and named the new tests).
+- [ ] `npm run test` still green (add tests for the new behaviour where it's testable).
 - [ ] `npm run lint` clean.
 - [ ] Failed experiments are committed with status=`fail`, not retried until passing.
 

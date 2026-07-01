@@ -48,10 +48,6 @@
         {
           "value": "100%",
           "label": "energy conservation"
-        },
-        {
-          "value": "46/46",
-          "label": "unit tests pass"
         }
       ],
       "cta": "See the simulation →"
