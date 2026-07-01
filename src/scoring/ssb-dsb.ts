@@ -275,9 +275,13 @@ export function scoreDirectSSB(
         direct_expected += l;
       }
       if (vy1 >= 0 && vy1 < vc && vz1 >= 0 && vz1 < vc) {
-        // NOTE: the HTML uses /10.0 here (vs /100.0 above). Preserved verbatim
-        // to keep bit-identical output. TODO: verify intended behaviour.
-        const d = dose_arr[(vz1 * vc + vy1) * vc + vx] / 10.0;
+        // Strand 1 reads the same ×100 fixed-point dose grid as strand 0 (only the
+        // voxel index differs), so it must divide by 100.0. The monolithic reference
+        // (public/geant4dna.html) divided by 10.0 here — a 10× over-count on strand 1.
+        // This voxel-based scorer is an unused reference (production scoring is
+        // scoreDirectSSB_events), so the bug never reached published numbers; it is
+        // corrected here so it can't bite anyone who wires this path in.
+        const d = dose_arr[(vz1 * vc + vy1) * vc + vx] / 100.0;
         const l = d * K;
         lambda[n + base + b] = l;
         direct_expected += l;
