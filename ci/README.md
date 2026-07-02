@@ -1,25 +1,27 @@
-# `ci/` — staged workflow (pending activation)
+# `ci/` — notes on the headless WebGPU smoke workflow
 
-## `webgpu-smoke.yml`
+## `webgpu-smoke.yml` — **now activated**
 
-This is the **headless WebGPU smoke** GitHub Actions workflow. It lives here, not
-in `.github/workflows/`, only because the automation token that authored it lacks
-the GitHub `workflow` OAuth scope (both `git push` and the contents API refuse to
-write `.github/workflows/*` without it). It is otherwise complete and ready.
+The headless WebGPU smoke workflow was staged here while the authoring token
+lacked the GitHub `workflow` OAuth scope. It has since been moved into
+[`.github/workflows/webgpu-smoke.yml`](../.github/workflows/webgpu-smoke.yml)
+and now runs on every `pull_request`, on `push` to `main`, and via
+`workflow_dispatch`.
 
-**To activate it** (needs a token/login with `workflow` scope, e.g. your own):
+What it does: runs the real shipped WGSL shaders (primary / secondary /
+chemistry, assembled exactly like `src/shaders/loader.ts`) on a **software**
+WebGPU adapter (Mesa lavapipe / SwiftShader in headless Chromium) and runs a
+compute dispatch, so a WGSL regression that vitest cannot see (syntax /
+validation / undefined symbol) fails here. See
+`experiments/tools/webgpu-smoke.mjs` and README §Numbers ("GPU coverage in CI").
 
-```bash
-git mv ci/webgpu-smoke.yml .github/workflows/webgpu-smoke.yml
-git commit -m "ci: activate headless WebGPU smoke workflow"
-git push
-```
+It is a **smoke test, not a physics re-validation** (a software adapter at
+small N is too noisy / vendor-dependent — see README §Numbers reproducibility
+tiers).
 
-(Or paste the file via GitHub's web *Add file → Create new file* editor at
-`.github/workflows/webgpu-smoke.yml`.)
+### Still non-blocking
 
-It is marked `continue-on-error: true` (non-blocking), so it cannot fail PRs while
-the software-WebGPU bring-up is proven on a real runner. Once it has a first green
-run, remove that line to make it gating. What it does: runs the real shipped WGSL
-shaders on a software WebGPU adapter — see `experiments/tools/webgpu-smoke.mjs`
-and README §Numbers (reproducibility tiers, "GPU coverage in CI").
+It ships `continue-on-error: true`, so a software-WebGPU/harness hiccup cannot
+fail PRs while the lavapipe/SwiftShader bring-up proves itself on a real runner.
+**Once it has its first green run, remove that line** (and optionally add
+`webgpu-smoke` to branch-protection required checks) to make it gate.
