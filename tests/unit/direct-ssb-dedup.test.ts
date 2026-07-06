@@ -31,7 +31,10 @@ function radBuf(rows: Array<[number, number, number, number]>): Float32Array {
 
 describe('scoreDirectSSB_events de-dup', () => {
   const dna = buildDNATarget(3000, 3, 150);
-  const alwaysBreak = () => 0; // rng() < p_direct always → SSB on every in-reach site
+  const alwaysBreak = () => 0; // rng() < p_break always → SSB whenever p_break > 0
+  // Per-event deposited energy (eV), aligned 1:1 with rad_buf entries. 50 eV is
+  // above SSB_E_HIGH (37.5) so the ramp gives p_break = 1 for these de-dup tests.
+  const hiE = (n: number) => new Float32Array(n).fill(50);
 
   // Exact backbone-atom position for fiber 0, bp b, strand 0.
   function atom0(b: number): [number, number, number] {
@@ -51,7 +54,7 @@ describe('scoreDirectSSB_events de-dup', () => {
       [x + 3, y + 3, z + 3, 5], // pre-therm e-aq @ displaced
       [x, y, z, 3], // H3O+ @ mother
     ]);
-    const r = scoreDirectSSB_events(dna, rad, 3, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, hiE(3), 3, alwaysBreak);
     expect(r.candidates).toBe(1); // one site, not three
     expect(r.ssb_count).toBe(1);
   });
@@ -63,7 +66,7 @@ describe('scoreDirectSSB_events de-dup', () => {
       [x, y, z, 7], // H2 marker @ mother (non-radical)
       [x + 2, y + 2, z + 2, 1], // regular e-aq @ displaced
     ]);
-    const r = scoreDirectSSB_events(dna, rad, 3, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, hiE(3), 3, alwaysBreak);
     expect(r.candidates).toBe(1);
     expect(r.ssb_count).toBe(1);
   });
@@ -77,7 +80,7 @@ describe('scoreDirectSSB_events de-dup', () => {
       [b[0], b[1], b[2], 0],
       [b[0], b[1], b[2], 3],
     ]);
-    const r = scoreDirectSSB_events(dna, rad, 4, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, hiE(4), 4, alwaysBreak);
     expect(r.candidates).toBe(2);
     expect(r.ssb_count).toBe(2);
   });
@@ -90,9 +93,26 @@ describe('scoreDirectSSB_events de-dup', () => {
       [x, y, z, 0], // exactly on the atom
       [x + 0.05, y + 0.05, z, 0], // 0.07 nm away → same bp/strand
     ]);
-    const r = scoreDirectSSB_events(dna, rad, 2, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, hiE(2), 2, alwaysBreak);
     expect(r.candidates).toBe(2); // two distinct scoring passes
     expect(r.in_reach).toBe(2);
     expect(r.ssb_count).toBe(1); // but the same bp/strand breaks only once
+  });
+
+  it('energy ramp: a sub-E_low deposit is in reach but never breaks', () => {
+    const [x, y, z] = atom0(10);
+    const rad = radBuf([[x, y, z, 0]]);
+    const lowE = new Float32Array([3]); // < SSB_E_LOW (5 eV) → p_break = 0
+    const r = scoreDirectSSB_events(dna, rad, lowE, 1, alwaysBreak);
+    expect(r.in_reach).toBe(1);
+    expect(r.ssb_count).toBe(0);
+  });
+
+  it('energy ramp: a mid-range deposit breaks per the linear probability', () => {
+    const [x, y, z] = atom0(10);
+    const rad = radBuf([[x, y, z, 0]]);
+    const midE = new Float32Array([21.25]); // midpoint of 5..37.5 → p_break = 0.5
+    expect(scoreDirectSSB_events(dna, rad, midE, 1, () => 0.4).ssb_count).toBe(1);
+    expect(scoreDirectSSB_events(dna, rad, midE, 1, () => 0.6).ssb_count).toBe(0);
   });
 });

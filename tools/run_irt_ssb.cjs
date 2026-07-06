@@ -26,9 +26,10 @@ const DNA_LENGTH_NM = 3000, DNA_GRID_N = 21;
 // DNA-target geometry to measure how sensitive the SSB/DSB ratio is to it.
 const DNA_SPACING_NM = parseInt(process.argv[5] || '150', 10);
 const SSB_R_DAMAGE_NM = 0.29, SSB_R_DAMAGE_INDIRECT_NM = 1.0;
-// Parameter-free (2026-07): P_INDIRECT = Nikjoo OH+dRibose→SSB branching (0.13),
-// P_DIRECT = 1.0 (ionisation in the reaction radius breaks). No calibrated fit.
-const SSB_P_INDIRECT = 0.13, SSB_P_DIRECT = 1.0, DSB_WINDOW_BP = 10;
+// Parameter-free (2026-07): P_INDIRECT = Nikjoo OH+dRibose→SSB branching (0.13);
+// direct = energy-threshold ramp (Nikjoo/Charlton) on the per-event deposit,
+// P(break)=clamp((E−E_low)/(E_high−E_low),0,1). No calibrated fit.
+const SSB_P_INDIRECT = 0.13, SSB_E_LOW = 5.0, SSB_E_HIGH = 37.5, DSB_WINDOW_BP = 10;
 
 // --- buildDNATarget (src/physics/dna-geometry.ts) ---
 function buildDNATarget(L_nm = 3000, grid_N = 21, spacing_nm = 150) {
@@ -60,8 +61,8 @@ function makeSsbRng(seed = 0x12345678 >>> 0) {
 }
 
 // --- scoreDirectSSB_events (src/scoring/ssb-dsb.ts) ---
-function scoreDirectSSB_events(dna, rad_buf, rad_n, rng) {
-  const r_direct = SSB_R_DAMAGE_NM, r_direct2 = r_direct * r_direct, p_direct = SSB_P_DIRECT;
+function scoreDirectSSB_events(dna, rad_buf, rad_e, rad_n, rng) {
+  const r_direct = SSB_R_DAMAGE_NM, r_direct2 = r_direct * r_direct, e_span = SSB_E_HIGH - SSB_E_LOW;
   const hits = new Uint8Array(dna.n_bp * 2);
   const x_half = (dna.n_bp_per - 1) * dna.rise * 0.5, rise_inv = 1 / dna.rise;
   const grid_off = -((dna.grid_N - 1) * dna.spacing_nm) * 0.5, inv_spacing = 1 / dna.spacing_nm;
@@ -97,7 +98,9 @@ function scoreDirectSSB_events(dna, rad_buf, rad_n, rng) {
     }
     if (best_d2 < r_direct2) {
       in_reach++;
-      if (rng() < p_direct) {
+      const e_dep = rad_e[i];
+      const p_break = e_dep <= SSB_E_LOW ? 0 : e_dep >= SSB_E_HIGH ? 1 : (e_dep - SSB_E_LOW) / e_span;
+      if (rng() < p_break) {
         const global_bp = fiber_idx * dna.n_bp_per + best_bp, idx = global_bp + best_strand * dna.n_bp;
         if (hits[idx] === 0) { hits[idx] = 1; ssb_count++; }
       }
@@ -150,6 +153,17 @@ const rad_buf = new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4)
 const rad_n = rad_buf.length / 4;
 console.error(`[run_irt_ssb] ${dumpFile}: ${rad_n} radicals  n_therm=${n_therm}  E=${E_eV} eV`);
 
+// Per-event deposited energy for the direct-SSB energy-threshold ramp. Written
+// by the shaders (rad_e) and dumped as rade_E<E>_N<np>.bin alongside rad_buf.
+const radeFile = dumpFile.replace(/rad_E/, 'rade_E');
+if (!fs.existsSync(radeFile)) {
+  console.error(`[run_irt_ssb] missing rad_e dump ${radeFile} — regenerate the dump with the current shaders (they emit rad_e).`);
+  process.exit(4);
+}
+const ebuf = fs.readFileSync(radeFile);
+const rad_e = new Float32Array(ebuf.buffer, ebuf.byteOffset, ebuf.byteLength / 4);
+if (rad_e.length < rad_n) { console.error(`[run_irt_ssb] rad_e length ${rad_e.length} < rad_n ${rad_n}`); process.exit(4); }
+
 const dna = buildDNATarget(DNA_LENGTH_NM, DNA_GRID_N, DNA_SPACING_NM);
 const dnaForWorker = {
   fy: dna.fy, fz: dna.fz, rbb0: dna.rbb0, rbb1: dna.rbb1,
@@ -182,7 +196,7 @@ const ind = workerResult.ssb_indirect;
 const ssb_ind = ind.total;
 const indirectHits = ind.hits;
 const rng = makeSsbRng();
-const direct = scoreDirectSSB_events(dna, rad_buf, rad_n, rng);
+const direct = scoreDirectSSB_events(dna, rad_buf, rad_e, rad_n, rng);
 const ssb_dir = direct.ssb_count;
 const combined = combineHits(direct.hits, indirectHits);
 const dsbRes = clusterDSB(dna, combined);
@@ -194,7 +208,7 @@ const out = {
   indirect_over_direct_ratio: ratio,
   in_reach_direct: direct.in_reach, in_reach_indirect: ind.in_reach, candidates_indirect: ind.candidates,
   G_OH_1us: us.G_OH, G_eaq_1us: us.G_eaq,
-  config: { RECOMB_BOOST: 'from dump', SSB_P_INDIRECT, SSB_P_DIRECT, SSB_R_DAMAGE_INDIRECT_NM },
+  config: { RECOMB_BOOST: 'from dump', SSB_P_INDIRECT, SSB_E_LOW, SSB_E_HIGH, SSB_R_DAMAGE_INDIRECT_NM },
 };
 process.stdout.write(JSON.stringify(out) + '\n');
 console.error(`[run_irt_ssb] SSB_dir=${ssb_dir} SSB_ind=${ssb_ind} DSB=${dsbRes.dsb} ratio=${ratio ? ratio.toFixed(2) : 'n/a'} (PARTRAC 2-3) | G(OH)@1us=${us.G_OH.toFixed(3)}`);

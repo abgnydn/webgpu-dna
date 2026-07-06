@@ -6,10 +6,12 @@ pipeline, so "parameter-free" is never ambiguous. The honest one-line summary:
 > **The whole pipeline is now parameter-free / data-sourced — including
 > DNA-damage scoring.** The two former calibrated probabilities
 > (`SSB_P_DIRECT`, `SSB_P_INDIRECT`) were replaced with physical values
-> (2026-07): direct = P 1.0 (ionisation within the sourced reaction radius
-> breaks the strand), indirect = 0.13 (Nikjoo OH+deoxyribose → SSB branching).
+> (2026-07): direct = a Nikjoo/Charlton **energy-threshold ramp** on the
+> per-event deposited energy (`E_low`=5, `E_high`=37.5 eV; the shaders emit the
+> energy via `rad_e`), indirect = 0.13 (Nikjoo OH+deoxyribose → SSB branching).
 > **Category C is now empty.** The consequence: the indirect/direct SSB ratio
-> is a *prediction*, not tuned to PARTRAC's band — so it may land outside it.
+> is a *prediction*, not tuned to PARTRAC's band — and it does land outside it
+> (6.5, E31) — the honest outcome.
 > SSB/DSB is still labelled *methodology* in [README §Numbers](./README.md#numbers)
 > because the fibre grid is a track-core stand-in (category B), not chromatin.
 
@@ -61,7 +63,7 @@ tuned to reproduce a validation number** — including in DNA-damage scoring.
 | Former knob | Was | Now | Change |
 |:---|:---|:---|:---|
 | ~~`SSB_P_INDIRECT`~~ | 0.05 (tuned 0.4→0.05 to land the indirect/direct ratio in PARTRAC's 2–3 band) | **0.13** | Nikjoo OH+deoxyribose → SSB branching (Nikjoo 1997/2001; used by PARTRAC). Data-sourced. |
-| ~~`SSB_P_DIRECT`~~ | 0.15 (uncited, set the direct count directly) | **1.0** | An ionisation within the sourced reaction radius (`SSB_R_DAMAGE_NM`) breaks the strand — the threshold-free physical limit. (Rigorous energy-threshold model needs per-event backbone energy, a shader-side follow-up.) |
+| ~~`SSB_P_DIRECT`~~ | 0.15 (uncited flat probability) | **energy-threshold ramp** `SSB_E_LOW=5.0`, `SSB_E_HIGH=37.5` eV | Break probability ramps linearly with the per-event deposited energy (Nikjoo 1997 / Charlton 1989). The shaders now emit that energy (`rad_e`). Data-sourced bond-energy thresholds, not tuned. (The earlier `P=1` threshold-free limit is kept as a reference point, artifact E30.) |
 
 Consequence: the indirect/direct SSB **ratio is now a prediction**, not tuned —
 it may fall outside PARTRAC's 2–3 band, which is the honest outcome. The

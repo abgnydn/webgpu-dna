@@ -22,7 +22,8 @@ import {
   SSB_R_DAMAGE_NM,
   SSB_R_DAMAGE_INDIRECT_NM,
   SSB_P_INDIRECT,
-  SSB_P_DIRECT,
+  SSB_E_LOW,
+  SSB_E_HIGH,
   DSB_WINDOW_BP,
   SPECIES,
 } from '../physics/constants';
@@ -149,19 +150,22 @@ export function scoreIndirectSSB(
  * What remains (OH, H, H3O+, O, OH-) is emitted at the mother site, so each event
  * yields exactly one site.
  *
- * For each unique site: snap to nearest fiber → nearest bp → check distance
- * to nearest backbone atom; if within `r_direct` (0.29 nm), roll `p_direct`
- * (0.15) to decide SSB.
+ * For each unique site: snap to nearest fiber → nearest bp → check distance to
+ * nearest backbone atom; if within `r_direct` (0.29 nm), break the strand with
+ * the energy-threshold probability P(E) = clamp((E − E_low)/(E_high − E_low),
+ * 0, 1), where E is the energy deposited at that ionisation event (`rad_e`, in
+ * eV, aligned 1:1 with `rad_buf`). Nikjoo/Charlton linear model — no tuned knob.
  */
 export function scoreDirectSSB_events(
   dna: DNATarget,
   rad_buf: Float32Array,
+  rad_e: Float32Array,
   rad_n: number,
   rng: Rng,
 ): DirectSSBResult {
   const r_direct = SSB_R_DAMAGE_NM;
   const r_direct2 = r_direct * r_direct;
-  const p_direct = SSB_P_DIRECT;
+  const e_span = SSB_E_HIGH - SSB_E_LOW;
   const hits = new Uint8Array(dna.n_bp * 2);
   const x_half = (dna.n_bp_per - 1) * dna.rise * 0.5;
   const rise_inv = 1 / dna.rise;
@@ -231,7 +235,10 @@ export function scoreDirectSSB_events(
 
     if (best_d2 < r_direct2) {
       in_reach++;
-      if (rng() < p_direct) {
+      // Energy-threshold break probability from the deposit at this event.
+      const e_dep = rad_e[i];
+      const p_break = e_dep <= SSB_E_LOW ? 0 : e_dep >= SSB_E_HIGH ? 1 : (e_dep - SSB_E_LOW) / e_span;
+      if (rng() < p_break) {
         const global_bp = fiber_idx * dna.n_bp_per + best_bp;
         const idx = global_bp + best_strand * dna.n_bp;
         if (hits[idx] === 0) {
@@ -266,7 +273,10 @@ export function scoreDirectSSB(
   const r_sugar = SSB_R_DAMAGE_NM;
   const bb_vol_per_bp = (4.0 / 3) * Math.PI * r_sugar * r_sugar * r_sugar;
   const E_mean_ion = 22;
-  const p_ion_ssb = SSB_P_DIRECT;
+  // Unused voxel-reference path: approximate the energy-threshold ramp at the
+  // mean ionisation deposit (E_mean_ion) so it stays consistent with the event
+  // scorer without re-introducing a flat calibrated probability.
+  const p_ion_ssb = Math.min(1, Math.max(0, (E_mean_ion - SSB_E_LOW) / (SSB_E_HIGH - SSB_E_LOW)));
   const K = ((bb_vol_per_bp / vox_vol) * p_ion_ssb) / E_mean_ion;
 
   const n = dna.n_bp;

@@ -161,11 +161,15 @@ export const SSB_R_DAMAGE_INDIRECT_NM = 1.0;    // indirect pathway, PARTRAC-eff
 //  - Indirect: the branching probability that an OH radical reacting with the
 //    2-deoxyribose sugar produces a strand break (vs. restitution) ≈ 0.13,
 //    Nikjoo et al. 1997/2001 (also used by PARTRAC). Data-sourced, not tuned.
-//  - Direct: an ionisation deposited inside the sourced reaction radius
-//    (SSB_R_DAMAGE_NM, Nikjoo) breaks the strand → P = 1. This is the
-//    threshold-free limit; the rigorous energy-threshold model (break iff
-//    E_deposited_in_backbone > ~17.5 eV) needs the shader to emit per-event
-//    deposited energy and is the tracked follow-up.
+//  - Direct: energy-threshold model — a strand break occurs with a probability
+//    that ramps linearly from 0 at SSB_E_LOW to 1 at SSB_E_HIGH in the deposited
+//    energy at the ionisation site (within the reaction radius). Nikjoo/Charlton
+//    linear-probability model. This supersedes the flat P=1 threshold-free limit
+//    now that the shaders emit per-event deposited energy (rad_e buffer).
 export const SSB_P_INDIRECT = 0.13;      // Nikjoo OH+dRibose → SSB branching (data-sourced, not tuned)
-export const SSB_P_DIRECT = 1.0;         // ionisation within the reaction radius breaks the strand (parameter-free)
+// Direct-SSB energy-threshold ramp (Nikjoo 1997 / Charlton 1989 linear model):
+// P(break) = clamp((E_dep − E_low)/(E_high − E_low), 0, 1). Physical bond-energy
+// thresholds, not tuned to a target.
+export const SSB_E_LOW = 5.0;            // eV — below this a deposit never breaks the backbone
+export const SSB_E_HIGH = 37.5;          // eV — at/above this a deposit always breaks it
 export const DSB_WINDOW_BP = 10;         // ±bp clustering window for DSB pairing
