@@ -6,9 +6,9 @@ pipeline, so "parameter-free" is never ambiguous. The honest one-line summary:
 > **The whole pipeline is now parameter-free / data-sourced — including
 > DNA-damage scoring.** The two former calibrated probabilities
 > (`SSB_P_DIRECT`, `SSB_P_INDIRECT`) were replaced with physical values
-> (2026-07): direct = a Nikjoo/Charlton **energy-threshold ramp** on the
-> per-event deposited energy (`E_low`=5, `E_high`=37.5 eV; the shaders emit the
-> energy via `rad_e`), indirect = 0.13 (Nikjoo OH+deoxyribose → SSB branching).
+> (2026-07): direct = a Nikjoo/Charlton **accumulated-volume energy threshold**
+> (sum each event's deposit per sugar site, then ramp; `E_low`=5, `E_high`=37.5 eV;
+> the shaders emit the energy via `rad_e`), indirect = 0.13 (Nikjoo OH+deoxyribose → SSB branching).
 > **Category C is now empty.** The consequence: the indirect/direct SSB ratio
 > is a *prediction*, not tuned to PARTRAC's band — and it does land outside it
 > (7.1 accumulated-volume [E32]; 6.5 per-event [E31]) — the honest outcome.
