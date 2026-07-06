@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "protocol": "E32-direct-ssb-accumulated-volume",
+    "question": "Does accumulating per-event deposited energy per sugar-phosphate site (then thresholding once) \u2014 the physically-faithful Nikjoo/Charlton model \u2014 raise direct SSB toward the P=1 limit and pull the ratio back into PARTRAC's band?",
+    "method": "Same fresh v0.7.0 GPU dump + rad_e as E31; direct scorer now SUMS each event's deposit into its nearest (bp,strand) site and thresholds once with the ramp. Node IRT + SSB, N=4096/10 keV.",
+    "gitSha": "865cdf5b21a4aea2660c246b369c9c08aa8dabf2",
+    "nPrimaries": 4096,
+    "energy_eV": 10000
+  },
+  "result": {
+    "ssb_dir": 27,
+    "ssb_ind": 192,
+    "dsb": 33,
+    "indirect_over_direct_ratio": 7.11,
+    "in_reach_direct": 93,
+    "distinct_sugars_est": 87,
+    "G_OH_1us": 1.545,
+    "PARTRAC_band": "2-3",
+    "in_band": false
+  },
+  "bracket": {
+    "threshold_free_P1": {
+      "ssb_dir": 82,
+      "ratio": 2.32,
+      "in_band": true,
+      "artifact": "E30"
+    },
+    "per_event_ramp": {
+      "ssb_dir": 30,
+      "ratio": 6.5,
+      "in_band": false,
+      "artifact": "E31"
+    },
+    "accumulated_ramp": {
+      "ssb_dir": 27,
+      "ratio": 7.11,
+      "in_band": false
+    }
+  },
+  "finding": "HYPOTHESIS REFUTED. Accumulation did NOT raise direct SSB (27 vs 30 per-event; within noise). Diagnosis: the 93 in-reach events map to ~90 DISTINCT sugars \u2014 near-backbone sugars are almost all hit by a SINGLE ionisation because the 0.29 nm reaction radius is too small for deposits to overlap. So per-event and accumulated are equivalent here. The gap to PARTRAC's 2-3 band is therefore NOT the per-event approximation \u2014 it is the ENERGY THRESHOLD itself: requiring >5-37.5 eV makes a single water ionisation break a sugar only ~1/3 of the time (mean deposit ~15 eV). The P=1 limit (2.32) is the outlier that happens to hit the band; both energy-threshold variants give ~6.5-7.1.",
+  "implication": "To reconcile a first-principles energy-threshold direct model with PARTRAC, the lever is the threshold values and/or the effective sugar-phosphate reaction volume (0.29 nm radius may be too small to capture the relevant deposit), NOT the per-event-vs-accumulated aggregation. Both remain parameter-free; this is an honest-negative that localizes the discrepancy.",
+  "status": "pass (implemented + validated); honest-negative \u2014 accumulation hypothesis refuted, gap localized to the threshold/volume"
+}

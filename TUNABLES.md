@@ -11,7 +11,9 @@ pipeline, so "parameter-free" is never ambiguous. The honest one-line summary:
 > energy via `rad_e`), indirect = 0.13 (Nikjoo OH+deoxyribose → SSB branching).
 > **Category C is now empty.** The consequence: the indirect/direct SSB ratio
 > is a *prediction*, not tuned to PARTRAC's band — and it does land outside it
-> (6.5, E31) — the honest outcome.
+> (7.1 accumulated-volume [E32]; 6.5 per-event [E31]) — the honest outcome.
+> The threshold-free `P=1` limit gives 2.32, in-band [E30]; the span brackets
+> the physics without any tuning.
 > SSB/DSB is still labelled *methodology* in [README §Numbers](./README.md#numbers)
 > because the fibre grid is a track-core stand-in (category B), not chromatin.
 
@@ -63,7 +65,7 @@ tuned to reproduce a validation number** — including in DNA-damage scoring.
 | Former knob | Was | Now | Change |
 |:---|:---|:---|:---|
 | ~~`SSB_P_INDIRECT`~~ | 0.05 (tuned 0.4→0.05 to land the indirect/direct ratio in PARTRAC's 2–3 band) | **0.13** | Nikjoo OH+deoxyribose → SSB branching (Nikjoo 1997/2001; used by PARTRAC). Data-sourced. |
-| ~~`SSB_P_DIRECT`~~ | 0.15 (uncited flat probability) | **energy-threshold ramp** `SSB_E_LOW=5.0`, `SSB_E_HIGH=37.5` eV | Break probability ramps linearly with the per-event deposited energy (Nikjoo 1997 / Charlton 1989). The shaders now emit that energy (`rad_e`). Data-sourced bond-energy thresholds, not tuned. (The earlier `P=1` threshold-free limit is kept as a reference point, artifact E30.) |
+| ~~`SSB_P_DIRECT`~~ | 0.15 (uncited flat probability) | **accumulated-volume energy threshold** `SSB_E_LOW=5.0`, `SSB_E_HIGH=37.5` eV | Sum each event's deposit per sugar site (shaders emit it via `rad_e`), threshold once with the Nikjoo/Charlton ramp. Data-sourced bond-energy thresholds, not tuned. Brackets: accumulated 7.1 [E32], per-event 6.5 [E31], threshold-free `P=1` 2.32 [E30]. |
 
 Consequence: the indirect/direct SSB **ratio is now a prediction**, not tuned —
 it may fall outside PARTRAC's 2–3 band, which is the honest outcome. The

@@ -64,6 +64,7 @@ function makeSsbRng(seed = 0x12345678 >>> 0) {
 function scoreDirectSSB_events(dna, rad_buf, rad_e, rad_n, rng) {
   const r_direct = SSB_R_DAMAGE_NM, r_direct2 = r_direct * r_direct, e_span = SSB_E_HIGH - SSB_E_LOW;
   const hits = new Uint8Array(dna.n_bp * 2);
+  const E_acc = new Float32Array(dna.n_bp * 2); // accumulated deposit per (bp,strand)
   const x_half = (dna.n_bp_per - 1) * dna.rise * 0.5, rise_inv = 1 / dna.rise;
   const grid_off = -((dna.grid_N - 1) * dna.spacing_nm) * 0.5, inv_spacing = 1 / dna.spacing_nm;
   let candidates = 0, in_reach = 0, ssb_count = 0;
@@ -98,13 +99,16 @@ function scoreDirectSSB_events(dna, rad_buf, rad_e, rad_n, rng) {
     }
     if (best_d2 < r_direct2) {
       in_reach++;
-      const e_dep = rad_e[i];
-      const p_break = e_dep <= SSB_E_LOW ? 0 : e_dep >= SSB_E_HIGH ? 1 : (e_dep - SSB_E_LOW) / e_span;
-      if (rng() < p_break) {
-        const global_bp = fiber_idx * dna.n_bp_per + best_bp, idx = global_bp + best_strand * dna.n_bp;
-        if (hits[idx] === 0) { hits[idx] = 1; ssb_count++; }
-      }
+      const global_bp = fiber_idx * dna.n_bp_per + best_bp, idx = global_bp + best_strand * dna.n_bp;
+      E_acc[idx] += rad_e[i]; // accumulate into the nearest sugar site
     }
+  }
+  // Threshold once per sugar site on the accumulated energy (Nikjoo/Charlton).
+  for (let idx = 0; idx < E_acc.length; idx++) {
+    const e = E_acc[idx];
+    if (e <= SSB_E_LOW) continue;
+    const p_break = e >= SSB_E_HIGH ? 1 : (e - SSB_E_LOW) / e_span;
+    if (rng() < p_break) { hits[idx] = 1; ssb_count++; }
   }
   return { hits, ssb_count, candidates, in_reach };
 }

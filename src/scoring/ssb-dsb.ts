@@ -150,11 +150,15 @@ export function scoreIndirectSSB(
  * What remains (OH, H, H3O+, O, OH-) is emitted at the mother site, so each event
  * yields exactly one site.
  *
- * For each unique site: snap to nearest fiber → nearest bp → check distance to
- * nearest backbone atom; if within `r_direct` (0.29 nm), break the strand with
- * the energy-threshold probability P(E) = clamp((E − E_low)/(E_high − E_low),
- * 0, 1), where E is the energy deposited at that ionisation event (`rad_e`, in
- * eV, aligned 1:1 with `rad_buf`). Nikjoo/Charlton linear model — no tuned knob.
+ * Accumulated-volume energy-threshold model (Nikjoo/Charlton). For each unique
+ * event: snap to nearest fiber → nearest bp → nearest backbone atom; if within
+ * `r_direct` (0.29 nm), ADD its deposited energy (`rad_e`, eV) to that sugar
+ * site's running total. After all events, break each site ONCE with
+ * P = clamp((E_acc − E_low)/(E_high − E_low), 0, 1). Summing overlapping
+ * deposits before thresholding is the physically-faithful direct model — a
+ * single sub-threshold ionisation can't break a sugar, but several can. No
+ * tuned knob. (The per-event variant — threshold each deposit independently —
+ * is the more conservative bracket; see artifact E31.)
  */
 export function scoreDirectSSB_events(
   dna: DNATarget,
@@ -167,6 +171,9 @@ export function scoreDirectSSB_events(
   const r_direct2 = r_direct * r_direct;
   const e_span = SSB_E_HIGH - SSB_E_LOW;
   const hits = new Uint8Array(dna.n_bp * 2);
+  // Energy accumulated in each (bp, strand) sugar-phosphate site across all
+  // nearby ionisation events — thresholded once at the end.
+  const E_acc = new Float32Array(dna.n_bp * 2);
   const x_half = (dna.n_bp_per - 1) * dna.rise * 0.5;
   const rise_inv = 1 / dna.rise;
   const grid_off = -((dna.grid_N - 1) * dna.spacing_nm) * 0.5;
@@ -235,17 +242,23 @@ export function scoreDirectSSB_events(
 
     if (best_d2 < r_direct2) {
       in_reach++;
-      // Energy-threshold break probability from the deposit at this event.
-      const e_dep = rad_e[i];
-      const p_break = e_dep <= SSB_E_LOW ? 0 : e_dep >= SSB_E_HIGH ? 1 : (e_dep - SSB_E_LOW) / e_span;
-      if (rng() < p_break) {
-        const global_bp = fiber_idx * dna.n_bp_per + best_bp;
-        const idx = global_bp + best_strand * dna.n_bp;
-        if (hits[idx] === 0) {
-          hits[idx] = 1;
-          ssb_count++;
-        }
-      }
+      // Accumulate this event's deposit into its nearest sugar-phosphate site.
+      const global_bp = fiber_idx * dna.n_bp_per + best_bp;
+      const idx = global_bp + best_strand * dna.n_bp;
+      E_acc[idx] += rad_e[i];
+    }
+  }
+
+  // Threshold ONCE per sugar site on the accumulated energy (Nikjoo/Charlton
+  // ramp). Summing overlapping deposits before thresholding is what a single
+  // sub-threshold ionisation cannot do — the physically-faithful direct model.
+  for (let idx = 0; idx < E_acc.length; idx++) {
+    const e = E_acc[idx];
+    if (e <= SSB_E_LOW) continue;
+    const p_break = e >= SSB_E_HIGH ? 1 : (e - SSB_E_LOW) / e_span;
+    if (rng() < p_break) {
+      hits[idx] = 1;
+      ssb_count++;
     }
   }
 
