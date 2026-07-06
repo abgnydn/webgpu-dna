@@ -8,7 +8,7 @@
  */
 
 import { initGPU } from './gpu/device';
-import { allocateBuffers, type GPUBuffers } from './gpu/buffers';
+import { allocateBuffers, destroyBuffers, type GPUBuffers } from './gpu/buffers';
 import { createPipelines, type Pipelines } from './gpu/pipelines';
 import { runAtEnergy } from './gpu/dispatch';
 import { buildDNATarget } from './physics/dna-geometry';
@@ -60,8 +60,27 @@ let cache: PipeCache | null = null;
 export type { PipeCache };
 
 /**
+ * Clamp the requested primary count to what this GPU can actually dispatch and
+ * bind, so an over-large `np` fails loudly here instead of silently producing a
+ * blank results table. Bounds: the primary grid is ceil(np/256) workgroups
+ * (≤ maxComputeWorkgroupsPerDimension) and the results buffer is np×32 B
+ * (≤ maxStorageBufferBindingSize).
+ */
+function clampNp(device: GPUDevice, np: number, log: LogFn): number {
+  const byWorkgroups = device.limits.maxComputeWorkgroupsPerDimension * 256;
+  const byBinding = Math.floor(device.limits.maxStorageBufferBindingSize / 32);
+  const npMax = Math.max(1, Math.min(byWorkgroups, byBinding));
+  const clamped = Math.max(1, Math.min(np, npMax));
+  if (clamped !== np) {
+    log(`Requested np=${np} exceeds this GPU's limit (${npMax}); clamping to ${npMax}.`, 'err');
+  }
+  return clamped;
+}
+
+/**
  * Lazy-initialise GPU device + pipelines. Re-creates buffers/pipelines if
  * the primary count changes (matches makePipes() early-out in the HTML).
+ * Returns the cache whose `np` is the effective (clamped) primary count.
  */
 export async function ensurePipelines(np: number, log: LogFn): Promise<PipeCache | null> {
   if (cache && cache.np === np) return cache;
@@ -69,15 +88,21 @@ export async function ensurePipelines(np: number, log: LogFn): Promise<PipeCache
   if (!cache) {
     const device = await initGPU(log);
     if (!device) return null;
+    np = clampNp(device, np, log);
     const buffers = allocateBuffers(device, np);
     const pipelines = await createPipelines(device, buffers);
     cache = { device, buffers, pipelines, np };
-  } else if (cache.np !== np) {
-    // For simplicity, rebuild all buffers + pipelines on size change. The HTML
-    // has the same behaviour gated by the `G.np === np` early-return in makePipes.
-    const buffers = allocateBuffers(cache.device, np);
-    const pipelines = await createPipelines(cache.device, buffers);
-    cache = { device: cache.device, buffers, pipelines, np };
+  } else {
+    np = clampNp(cache.device, np, log);
+    if (cache.np !== np) {
+      // For simplicity, rebuild all buffers + pipelines on size change. The HTML
+      // has the same behaviour gated by the `G.np === np` early-return in makePipes.
+      // Free the previous (~1 GB) set first so we don't hold two at once.
+      destroyBuffers(cache.buffers);
+      const buffers = allocateBuffers(cache.device, np);
+      const pipelines = await createPipelines(cache.device, buffers);
+      cache = { device: cache.device, buffers, pipelines, np };
+    }
   }
 
   log(`Shaders compiled, buffers allocated (np=${np})`, 'data');
@@ -90,13 +115,15 @@ export async function ensurePipelines(np: number, log: LogFn): Promise<PipeCache
  * validation target — matches the HTML gate).
  */
 export async function runValidation(cfg: ValidationConfig): Promise<void> {
-  const { np, boxNm, ceEV, log, chemBackend = DEFAULT_CHEM_BACKEND } = cfg;
+  const { boxNm, ceEV, log, chemBackend = DEFAULT_CHEM_BACKEND } = cfg;
 
   clearTable();
 
-  const cc = await ensurePipelines(np, log);
+  const cc = await ensurePipelines(cfg.np, log);
   if (!cc) return;
   const { device, buffers, pipelines } = cc;
+  // Use the effective (possibly clamped) primary count everywhere downstream.
+  const np = cc.np;
 
   log(`Running ${np} primaries at ${ESTAR.length} energies, box=${boxNm}nm, cutoff=${ceEV}eV`, 'data');
 
