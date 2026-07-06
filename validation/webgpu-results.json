@@ -1,6 +1,7 @@
 {
-  "$comment": "WebGPU validation harness numbers, structured copy of validation/compare.py's WEBGPU dict. dnaDamage block refreshed 2026-05-12 via E13c (Playwright + full validation harness) after the SSB scoring overhaul: (1) split SSB_R_DAMAGE_NM 0.29→1.0 for indirect only, (2) instrumented IRT worker to score during chemistry timeline, (3) calibrated SSB_P_INDIRECT 0.4→0.05. Tracking/preChemistry/chemistry1Us blocks remain from the 2026-04-21 run (unchanged by the SSB scoring fix).",
-  "harnessVersion": "2026-04-21 base + 2026-05-12 SSB refresh",
+  "$comment": "WebGPU validation harness numbers, structured copy of validation/compare.py's WEBGPU dict. dnaDamage block refreshed 2026-05-12 via E13c (Playwright + full validation harness) after the SSB scoring overhaul: (1) split SSB_R_DAMAGE_NM 0.29->1.0 for indirect only, (2) instrumented IRT worker to score during chemistry timeline, (3) calibrated SSB_P_INDIRECT 0.4->0.05. Tracking/preChemistry/chemistry1Us blocks remain from the 2026-04-21 run.",
+  "$superseded": "These predate v0.6.0 (full tertiary cascade) and v0.7.0 (real Born excitation) and are NOT the current release — e.g. ionsPerPri 194.1 (primary-only) and SSB 24/0/2 here vs the current headline cascade-ion 0.942x and SSB 32/81/17. README section Numbers is the single source of truth; this file documents the migration baseline and is not regenerated per release.",
+  "harnessVersion": "2026-04-21 base + 2026-05-12 SSB refresh (pre-v0.6.0/v0.7.0)",
   "primaryEnergyEv": 10000,
   "nPrimaries": 4096,
   "tracking": {

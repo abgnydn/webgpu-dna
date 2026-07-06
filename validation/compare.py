@@ -16,8 +16,15 @@ import numpy as np
 DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ---- WebGPU reference values (from modular TypeScript build, N=4096) ----
-# Latest run: 2026-04-21, post-migration verification (two independent runs
-# averaged for G-values to smooth RNG variance between seeds).
+# Run: 2026-04-21, post-migration verification (two independent runs averaged
+# for G-values to smooth RNG variance between seeds).
+#
+# ⚠ SUPERSEDED — these predate v0.6.0 (full tertiary cascade) and v0.7.0 (real
+# Born excitation). They are the port's migration-verification baseline, NOT the
+# current release: e.g. ions/pri here is 194.1 (primary-only) and SSB is 24/0/2,
+# whereas the current headline is cascade-ion 0.942× and SSB 32/81/17. README
+# § Numbers is the single source of truth; this dict is retained only to
+# document the baseline and is not regenerated per release.
 WEBGPU = {
     'E_eV': 10000,
     'CSDA_nm': 2714.4,

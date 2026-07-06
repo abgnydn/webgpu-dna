@@ -285,11 +285,15 @@ Measured on Apple M2 Max, Chrome 132, 4096 primaries @ 10 keV.
  Full 8-energy     minutes per energy        ~8 s physics total
  Chemistry @10keV  hours                     ~30–60 s in IRT worker
 
- Physics match (vs Geant4 11.4.1 DNA_Opt2 ntuple, same 4096 × 10 keV):
-   CSDA range       2756.5 nm                2714.4 nm      (0.985×)
-   Ions per pri     509.1                    ≈509            (1.00×)
-   Energy cons.     100.0%                   100.0%
-   Mean W_transfer  57.14 eV                 57.15 eV        (1.000×)
+ Physics match @ 10 keV, 4096 primaries (v0.7.0; README § Numbers is the
+ single source of truth — this only summarizes it):
+   CSDA range       0.997× Geant4 (2739.6 vs 2747.5 nm)          [E5, E29]
+   Ions/primary     primary track 0.999× (195.4 vs 195.6);
+                    full cascade 0.942× (479.6 vs 509.2)         [E20, E29]
+   Energy cons.     100.0%
+   Mean W_transfer  57.14 eV vs 57.15 eV Geant4 (1.000×)
+ (The earlier "Ions/pri 509.1 → 1.00×" row was retracted — see CHANGELOG;
+ it conflated the Geant4 full-cascade sum with the WGSL primary-only count.)
    MFP                                       within 2–14% at all 8 energies
 ```
 

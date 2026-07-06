@@ -41,7 +41,7 @@ faithful (L1, E5).
 
 | # | Knob | Value | Why it's there | Cost / tracked in |
 |---|---|---|---|---|
-| B1 | `SIGMA_EXC_SCALE` | 0.5 | Walks the Emfietzoglou inflation (A1) back from 2.55× to **1.27×** Geant4, into the [1.0, 1.5] target band. | Still 1.27× high → **cascade ions 27% low** (371.9 vs 509.2, 263σ) and **W-value +25.7%** (26.9 vs 21.4 eV ICRU 31). [E6c, E7, E5c] |
+| ~~B1~~ | ~~`SIGMA_EXC_SCALE`~~ | **REMOVED — v0.7.0 uses the real Born excitation XS 2026-06-09** | Was a flat scalar (0.5, later 0.39) approximating Born by down-scaling Emfietzoglou. | **Removed: a physics-list audit (E29) showed option2 — the list both Geant4 oracles register — uses Born excitation, not Emfietzoglou. Swapping in the real Born XS (scalar gone) closed the chronic sub-keV CSDA deficit (100 eV 0.782→0.956×, all 8 energies 0.956–1.005×) and nudged the cascade to 0.942×. Track-structure physics is now parameter-free.** [E29] |
 | ~~B2~~ | ~~`RECOMB_BOOST`~~ | **REMOVED — set to 1.0 (neutral) 2026-06-08** | Was the one genuinely un-physical knob (no Geant4 basis — the H₂O⁺ refutation). | **Removed after the RECOMB→1.0 flip passed all three gates:** cascade ions *recover* 0.677→0.766× [E7d], chemistry parameter-free at +1.4 pp RMS and *improves* OH/eaq/H [E10r], SSB ratio *holds* in PARTRAC's 2–3 band at 2.32 with no recalibration [E13d]. No longer a divergence — production, README, and paper all run RECOMB_BOOST=1.0. [E7d, E10r, E13d] |
 
 > B1 + B2 are coupled: improving CSDA/chemistry via these knobs *worsens*
@@ -61,7 +61,7 @@ faithful (L1, E5).
 | # | Reference | This build | Why | Cost / tracked in |
 |---|---|---|---|---|
 | D1 | fp64 CPU | **fp32** GPU `atomicAdd` (fixed-point ×100/eV for dose) | WGSL atomics are integer-only; fp32 is the GPU native. | Results are statistically equivalent across vendors but **not bit-exact** (same machine+seed+shader *is*). [§Numbers reproducibility caveat] |
-| D2 | bulk / realistic DNA geometry | **21×21 concentrated fiber grid** sampling the track core | Simpler scoring target. | The box-average per-Da yields look 223×/796× high, but E12-local shows this is a **point-source dose artifact**: 98.1% of energy deposits in the central 3 µm core (`start_half=0`), so local dose ≈238 Gy (C≈981). Per *local* dose, absolute yields are **SSB_dir 0.34× / DSB 0.82× / SSB_total 1.28×** of experiment (Ward 1988) — within ~3×, geometry defense **quantitatively vindicated**. Residual: the strand-break *ratio* is reach×*tuned* probability (`P_ind=0.05` calibrated to PARTRAC), so 2.46 is a fit, not a prediction. [E12, E12-local, E13c] |
+| D2 | bulk / realistic DNA geometry | **21×21 concentrated fiber grid** sampling the track core | Simpler scoring target. | The box-average per-Da yields look 223×/796× high, but E12-local shows this is a **point-source dose artifact**: 98.1% of energy deposits in the central 3 µm core (`start_half=0`), so local dose ≈238 Gy (C≈981). Per *local* dose, absolute yields are **SSB_dir 0.34× / DSB 0.82× / SSB_total 1.28×** of experiment (Ward 1988) — within ~3×, geometry defense **quantitatively vindicated**. Residual: the strand-break *ratio* is reach×*tuned* probability (`P_ind=0.05` calibrated to PARTRAC), so the ratio (2.46 at RECOMB=2.0, 2.53 at v0.6.0, **3.26 at v0.7.0 Born**) is a fit, not a prediction. [E12, E12-local, E13c, E29] |
 
 ## The one-line version
 We use Geant4 the standard way (as the oracle), match it on the core
