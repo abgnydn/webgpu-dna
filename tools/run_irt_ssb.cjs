@@ -26,7 +26,9 @@ const DNA_LENGTH_NM = 3000, DNA_GRID_N = 21;
 // DNA-target geometry to measure how sensitive the SSB/DSB ratio is to it.
 const DNA_SPACING_NM = parseInt(process.argv[5] || '150', 10);
 const SSB_R_DAMAGE_NM = 0.29, SSB_R_DAMAGE_INDIRECT_NM = 1.0;
-const SSB_P_INDIRECT = 0.05, SSB_P_DIRECT = 0.15, DSB_WINDOW_BP = 10;
+// Parameter-free (2026-07): P_INDIRECT = Nikjoo OH+dRibose→SSB branching (0.13),
+// P_DIRECT = 1.0 (ionisation in the reaction radius breaks). No calibrated fit.
+const SSB_P_INDIRECT = 0.13, SSB_P_DIRECT = 1.0, DSB_WINDOW_BP = 10;
 
 // --- buildDNATarget (src/physics/dna-geometry.ts) ---
 function buildDNATarget(L_nm = 3000, grid_N = 21, spacing_nm = 150) {
@@ -63,12 +65,16 @@ function scoreDirectSSB_events(dna, rad_buf, rad_n, rng) {
   const hits = new Uint8Array(dna.n_bp * 2);
   const x_half = (dna.n_bp_per - 1) * dna.rise * 0.5, rise_inv = 1 / dna.rise;
   const grid_off = -((dna.grid_N - 1) * dna.spacing_nm) * 0.5, inv_spacing = 1 / dna.spacing_nm;
-  let candidates = 0, in_reach = 0, ssb_count = 0, i = 0;
-  while (i < rad_n) {
+  let candidates = 0, in_reach = 0, ssb_count = 0;
+  // One roll per event: skip the displaced e-aq (species 1, 5) and H2 marker
+  // (species 7), then collapse consecutive entries sharing the mother position.
+  let last_x = NaN, last_y = NaN, last_z = NaN;
+  for (let i = 0; i < rad_n; i++) {
+    const species = Math.round(rad_buf[i * 4 + 3]) % 8;
+    if (species === 1 || species === 5 || species === 7) continue;
     const x = rad_buf[i * 4], y = rad_buf[i * 4 + 1], z = rad_buf[i * 4 + 2];
-    let skip = 1;
-    if (i + 1 < rad_n && rad_buf[(i + 1) * 4] === x && rad_buf[(i + 1) * 4 + 1] === y && rad_buf[(i + 1) * 4 + 2] === z) skip = 2;
-    i += skip;
+    if (x === last_x && y === last_y && z === last_z) continue;
+    last_x = x; last_y = y; last_z = z;
     if (x < -x_half - r_direct || x > x_half + r_direct) continue;
     const fi = Math.round((y - grid_off) * inv_spacing), fj = Math.round((z - grid_off) * inv_spacing);
     if (fi < 0 || fi >= dna.grid_N || fj < 0 || fj >= dna.grid_N) continue;

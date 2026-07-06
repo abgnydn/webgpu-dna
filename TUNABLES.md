@@ -3,10 +3,15 @@
 A complete, audited inventory of every non-physical-constant scalar in the
 pipeline, so "parameter-free" is never ambiguous. The honest one-line summary:
 
-> **The track-structure physics and the IRT chemistry are parameter-free /
-> data-sourced. The DNA-damage *scoring* layer has two calibrated probabilities
-> (`SSB_P_DIRECT`, `SSB_P_INDIRECT`) — which is exactly why [README §Numbers](./README.md#numbers)
-> labels SSB/DSB as *methodology*, not validated absolute physics.**
+> **The whole pipeline is now parameter-free / data-sourced — including
+> DNA-damage scoring.** The two former calibrated probabilities
+> (`SSB_P_DIRECT`, `SSB_P_INDIRECT`) were replaced with physical values
+> (2026-07): direct = P 1.0 (ionisation within the sourced reaction radius
+> breaks the strand), indirect = 0.13 (Nikjoo OH+deoxyribose → SSB branching).
+> **Category C is now empty.** The consequence: the indirect/direct SSB ratio
+> is a *prediction*, not tuned to PARTRAC's band — so it may land outside it.
+> SSB/DSB is still labelled *methodology* in [README §Numbers](./README.md#numbers)
+> because the fibre grid is a track-core stand-in (category B), not chromatin.
 
 Categories:
 
@@ -49,10 +54,16 @@ self-description) on 2026-06-23.
 
 ## C. Calibrated to a target (the only knobs)
 
-| Constant | Value | Where | What it's tuned to |
-|:---|:---|:---|:---|
-| **`SSB_P_INDIRECT`** | 0.05 | `constants.ts:164` | Tuned **0.4 → 0.05** to land the indirect/direct ratio in PARTRAC's 2–3 band (E13c). v0.7.0's Born physics drifted it to 3.26 — reported, not re-tuned. |
-| **`SSB_P_DIRECT`** | 0.15 | `constants.ts:165` | Sets the direct-SSB count directly (`SSB_dir = ⌊reach × 0.15⌋`, E13c). **No source citation** — a chosen scoring probability. |
+**Empty as of 2026-07.** The two former knobs were de-calibrated and moved to
+category A (data-sourced). There are now **no scalars anywhere in the pipeline
+tuned to reproduce a validation number** — including in DNA-damage scoring.
 
-Both knobs are confined to the DNA-damage scoring layer. There are **no calibrated
-scalars in the track-structure physics or the chemistry**.
+| Former knob | Was | Now | Change |
+|:---|:---|:---|:---|
+| ~~`SSB_P_INDIRECT`~~ | 0.05 (tuned 0.4→0.05 to land the indirect/direct ratio in PARTRAC's 2–3 band) | **0.13** | Nikjoo OH+deoxyribose → SSB branching (Nikjoo 1997/2001; used by PARTRAC). Data-sourced. |
+| ~~`SSB_P_DIRECT`~~ | 0.15 (uncited, set the direct count directly) | **1.0** | An ionisation within the sourced reaction radius (`SSB_R_DAMAGE_NM`) breaks the strand — the threshold-free physical limit. (Rigorous energy-threshold model needs per-event backbone energy, a shader-side follow-up.) |
+
+Consequence: the indirect/direct SSB **ratio is now a prediction**, not tuned —
+it may fall outside PARTRAC's 2–3 band, which is the honest outcome. The
+remaining SSB modelling choices (reaction radii, fibre grid) are category B
+above, not fits.
