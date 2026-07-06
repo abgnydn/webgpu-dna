@@ -126,12 +126,28 @@ export function scoreIndirectSSB(
 }
 
 /**
- * Score direct SSBs from rad_buf ionization-site positions.
+ * Score direct SSBs from rad_buf ionization/dissociation-site positions.
  *
- * rad_buf stores one vec4 per radical created at an ionization event. Ionization
- * events emit 2 entries (OH + e-aq at the same position) and dissociative
- * excitation events emit 2 entries (OH + H at the same position). The scorer
- * de-duplicates pairs by comparing the next entry's position.
+ * Direct damage is scored **once per dissociation event**, at the site where the
+ * parent water molecule dissociated (the "mother" position). The scorer must
+ * therefore collapse all of an event's rad_buf entries down to that single site.
+ *
+ * Two things make a naive "compare the next entry" de-dup wrong (it over-counted
+ * `SSB_dir` by ~2x before this was fixed):
+ *   1. An event emits **up to 3** rad_buf entries, not 2 — e.g. the dominant
+ *      no-recomb ionization channel writes OH, e-aq, H3O+ (primary.wgsl:285-288),
+ *      and the recomb / dissociative-attachment channels write a 3rd entry too.
+ *   2. The ejected electron (e-aq, species 1 or 5) is written at a **displaced**
+ *      thermalization point (primary.wgsl:535,618; secondary.wgsl:118,286), so it
+ *      breaks the run of identical mother positions and, if scored, double-books
+ *      the same electron that `scoreIndirectSSB` already counts as a chemistry
+ *      source.
+ *
+ * Fix: skip the displaced e-aq (species 1, 5) and the non-radical H2 marker
+ * (species 7) entirely — they are not energy deposited at the backbone — then
+ * collapse consecutive entries that share the mother position into one roll.
+ * What remains (OH, H, H3O+, O, OH-) is emitted at the mother site, so each event
+ * yields exactly one site.
  *
  * For each unique site: snap to nearest fiber → nearest bp → check distance
  * to nearest backbone atom; if within `r_direct` (0.29 nm), roll `p_direct`
@@ -156,21 +172,29 @@ export function scoreDirectSSB_events(
   let in_reach = 0;
   let ssb_count = 0;
 
-  let i = 0;
-  while (i < rad_n) {
+  // Track the last mother-site position we scored so repeated entries from the
+  // same event collapse to one roll. NaN so the first real entry always differs.
+  let last_x = NaN;
+  let last_y = NaN;
+  let last_z = NaN;
+
+  for (let i = 0; i < rad_n; i++) {
+    // Species code is packed into .w as pid*8 + species (see rad-buf-encoding).
+    const species = Math.round(rad_buf[i * 4 + 3]) % 8;
+    // Skip the ejected electron (e-aq, at a displaced thermalization point — an
+    // INDIRECT seed, already counted by scoreIndirectSSB) and the non-radical H2
+    // marker. Skipping them is also what lets the mother-site entries collapse.
+    if (species === SPECIES.eaq || species === 5 || species === SPECIES.H2) continue;
+
     const x = rad_buf[i * 4 + 0];
     const y = rad_buf[i * 4 + 1];
     const z = rad_buf[i * 4 + 2];
-    // Dedupe paired radicals (same ionization/excitation site).
-    let skip = 1;
-    if (i + 1 < rad_n) {
-      if (rad_buf[(i + 1) * 4 + 0] === x &&
-          rad_buf[(i + 1) * 4 + 1] === y &&
-          rad_buf[(i + 1) * 4 + 2] === z) {
-        skip = 2;
-      }
-    }
-    i += skip;
+    // One roll per event: entries sharing the exact mother position are the same
+    // dissociation site (distinct ionization sites never share an fp position).
+    if (x === last_x && y === last_y && z === last_z) continue;
+    last_x = x;
+    last_y = y;
+    last_z = z;
 
     if (x < -x_half - r_direct || x > x_half + r_direct) continue;
 
