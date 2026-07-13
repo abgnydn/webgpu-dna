@@ -54,7 +54,7 @@ src/
 ├── app.ts         runValidation orchestrator
 └── main.ts        entry point
 
-tests/unit/        Vitest unit tests (46 across 7 files)
+tests/unit/        Vitest unit tests (50 across 9 files)
 tests/fixtures/    Geant4-DNA reference numbers (JSON)
 public/            Generated cross_sections.wgsl, irt-worker.js, monolithic reference HTML
 tools/             Python + Node helpers (G4EMLOW converter, IRT driver)
