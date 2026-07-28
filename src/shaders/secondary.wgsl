@@ -13,6 +13,8 @@ struct Particle{pos_E:vec4<f32>,dir_alive:vec4<f32>,rng:vec4<u32>};
 @group(0)@binding(4) var<storage,read_write> counters:array<atomic<u32>>;
 // Radical position buffer (same as primary)
 @group(0)@binding(5) var<storage,read_write> rad_buf:array<vec4<f32>>;
+// Per-event deposited energy (eV) for direct-SSB energy-threshold scoring.
+@group(0)@binding(6) var<storage,read_write> rad_e:array<f32>;
 
 // Meesungnoen2002: electron thermalization penetration → 1D Gaussian sigma (nm)
 fn meesungnoen_sigma(k:f32)->f32{
@@ -116,6 +118,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
     let re=atomicAdd(&counters[7],1u);
     if(re<sp.max_rad){
       rad_buf[re]=vec4<f32>(epx,epy,epz,5.0+parent_pid); // species=5: pre-thermalized eaq
+      rad_e[re]=0.0;
     }
     particle.dir_alive.w=0.0;
     sec_buf[idx]=particle;
@@ -185,6 +188,9 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
       var W_transfer=sample_W_sec(E,shell_idx,r_w);
       W_transfer=clamp(W_transfer,bind,W_transfer_max);
       let W_sec=max(W_transfer-bind,0.0);
+      // Local deposit at this ionisation site for direct-SSB energy-threshold
+      // scoring (rad_e): bind + W_sec when sub-cutoff (all local), else bind.
+      let e_dep_ion = bind + select(0.0, W_sec, W_sec<=sp.ce);
       let E_before_t=E;
       E-=W_transfer;  // secondary loses total transfer
       atomicAdd(&sec_stats[4],1u);  // tertiary ionizations
@@ -209,7 +215,9 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         let ri=atomicAdd(&counters[7],2u);
         if(ri+1u<sp.max_rad){
           rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
+          rad_e[ri]=e_dep_ion;
           rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,3.0+parent_pid);
+          rad_e[ri+1u]=e_dep_ion;
         }
         // Emit the tertiary into sec_buf (G4DNABornAngle direction sampling)
         let tert_idx=atomicAdd(&counters[6],1u);
@@ -255,8 +263,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             let ri=atomicAdd(&counters[7],3u);
             if(ri+2u<sp.max_rad){
               rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
+              rad_e[ri]=e_dep_ion;
               rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,0.0+parent_pid);
+              rad_e[ri+1u]=e_dep_ion;
               rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,7.0+parent_pid);
+              rad_e[ri+2u]=e_dep_ion;
             }
           }else if(r_vd<0.494){
             atomicAdd(&counters[0],1u);
@@ -264,15 +275,20 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             let ri=atomicAdd(&counters[7],2u);
             if(ri+1u<sp.max_rad){
               rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
+              rad_e[ri]=e_dep_ion;
               rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
+              rad_e[ri+1u]=e_dep_ion;
             }
           }else if(r_vd<0.650){
             atomicAdd(&counters[2],2u);
             let ri=atomicAdd(&counters[7],3u);
             if(ri+2u<sp.max_rad){
               rad_buf[ri]   =vec4<f32>(spx,spy,spz,2.0+parent_pid);
+              rad_e[ri]=e_dep_ion;
               rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
+              rad_e[ri+1u]=e_dep_ion;
               rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,4.0+parent_pid);
+              rad_e[ri+2u]=e_dep_ion;
             }
           }
           // else: 35% relaxation, no products
@@ -283,8 +299,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
           let ri=atomicAdd(&counters[7],3u);
           if(ri+2u<sp.max_rad){
             rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
+            rad_e[ri]=e_dep_ion;
             rad_buf[ri+1u]=vec4<f32>(epx_t,epy_t,epz_t,5.0+parent_pid); // species=5: pre-therm eaq
+            rad_e[ri+1u]=e_dep_ion;
             rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,3.0+parent_pid);
+            rad_e[ri+2u]=e_dep_ion;
           }
         }
       }
@@ -313,6 +332,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         atomicAdd(&counters[0],1u);atomicAdd(&counters[2],1u);
         let re=atomicAdd(&counters[7],2u);
         if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,0.0+parent_pid);rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);}
+        rad_e[re]=dep;
       }
     }else if(exc_lvl==1u){
       // B1A1 — 5 channels from G4ChemDissociationChannels_option1 (cumulative)
@@ -325,8 +345,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         let re=atomicAdd(&counters[7],3u);
         if(re+2u<sp.max_rad){
           rad_buf[re]   =vec4<f32>(px,py,pz,0.0+parent_pid);
+          rad_e[re]=dep;
           rad_buf[re+1u]=vec4<f32>(px,py,pz,0.0+parent_pid);
+          rad_e[re+1u]=dep;
           rad_buf[re+2u]=vec4<f32>(px,py,pz,7.0+parent_pid);
+          rad_e[re+2u]=dep;
         }
       }else if(r_ch<0.7075){
         // 50% B1A1 autoionization → OH + H3O+ + eaq (mother disp RMS=2nm).
@@ -358,8 +381,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             let sabri=atomicAdd(&counters[7],3u);
             if(sabri+2u<sp.max_rad){
               rad_buf[sabri]   =vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);
+              rad_e[sabri]=dep;
               rad_buf[sabri+1u]=vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);
+              rad_e[sabri+1u]=dep;
               rad_buf[sabri+2u]=vec4<f32>(sbpx,sbpy,sbpz,7.0+parent_pid);
+              rad_e[sabri+2u]=dep;
             }
           }else if(sabvd<0.494){
             atomicAdd(&counters[0],1u);
@@ -367,15 +393,20 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             let sabri=atomicAdd(&counters[7],2u);
             if(sabri+1u<sp.max_rad){
               rad_buf[sabri]   =vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);
+              rad_e[sabri]=dep;
               rad_buf[sabri+1u]=vec4<f32>(sbpx,sbpy,sbpz,2.0+parent_pid);
+              rad_e[sabri+1u]=dep;
             }
           }else if(sabvd<0.650){
             atomicAdd(&counters[2],2u);
             let sabri=atomicAdd(&counters[7],3u);
             if(sabri+2u<sp.max_rad){
               rad_buf[sabri]   =vec4<f32>(sbpx,sbpy,sbpz,2.0+parent_pid);
+              rad_e[sabri]=dep;
               rad_buf[sabri+1u]=vec4<f32>(sbpx,sbpy,sbpz,2.0+parent_pid);
+              rad_e[sabri+1u]=dep;
               rad_buf[sabri+2u]=vec4<f32>(sbpx,sbpy,sbpz,4.0+parent_pid);
+              rad_e[sabri+2u]=dep;
             }
           }
           // else 35% relax
@@ -383,17 +414,20 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
           atomicAdd(&counters[0],1u);atomicAdd(&counters[1],1u);atomicAdd(&counters[3],1u);
           let re=atomicAdd(&counters[7],3u);
           if(re+2u<sp.max_rad){rad_buf[re]=vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);rad_buf[re+1u]=vec4<f32>(sbex,sbey,sbez,1.0+parent_pid);rad_buf[re+2u]=vec4<f32>(sbpx,sbpy,sbpz,3.0+parent_pid);}
+          rad_e[re]=dep;
         }
       }else if(r_ch<0.961){
         // 25.35% B1A1 → OH + H
         atomicAdd(&counters[0],1u);atomicAdd(&counters[2],1u);
         let re=atomicAdd(&counters[7],2u);
         if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,0.0+parent_pid);rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);}
+        rad_e[re]=dep;
       }else{
         // 3.9% B1A1 → 2H + O (O not tracked, emit 2 H only)
         atomicAdd(&counters[2],2u);
         let re=atomicAdd(&counters[7],2u);
         if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,2.0+parent_pid);rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);}
+        rad_e[re]=dep;
       }
     }else{
       if(r_ch<0.50){
@@ -426,8 +460,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             let sahri=atomicAdd(&counters[7],3u);
             if(sahri+2u<sp.max_rad){
               rad_buf[sahri]   =vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);
+              rad_e[sahri]=dep;
               rad_buf[sahri+1u]=vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);
+              rad_e[sahri+1u]=dep;
               rad_buf[sahri+2u]=vec4<f32>(shpx,shpy,shpz,7.0+parent_pid);
+              rad_e[sahri+2u]=dep;
             }
           }else if(sahvd<0.494){
             atomicAdd(&counters[0],1u);
@@ -435,15 +472,20 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
             let sahri=atomicAdd(&counters[7],2u);
             if(sahri+1u<sp.max_rad){
               rad_buf[sahri]   =vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);
+              rad_e[sahri]=dep;
               rad_buf[sahri+1u]=vec4<f32>(shpx,shpy,shpz,2.0+parent_pid);
+              rad_e[sahri+1u]=dep;
             }
           }else if(sahvd<0.650){
             atomicAdd(&counters[2],2u);
             let sahri=atomicAdd(&counters[7],3u);
             if(sahri+2u<sp.max_rad){
               rad_buf[sahri]   =vec4<f32>(shpx,shpy,shpz,2.0+parent_pid);
+              rad_e[sahri]=dep;
               rad_buf[sahri+1u]=vec4<f32>(shpx,shpy,shpz,2.0+parent_pid);
+              rad_e[sahri+1u]=dep;
               rad_buf[sahri+2u]=vec4<f32>(shpx,shpy,shpz,4.0+parent_pid);
+              rad_e[sahri+2u]=dep;
             }
           }
           // else 35% relax
@@ -451,6 +493,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
           atomicAdd(&counters[0],1u);atomicAdd(&counters[1],1u);atomicAdd(&counters[3],1u);
           let re=atomicAdd(&counters[7],3u);
           if(re+2u<sp.max_rad){rad_buf[re]=vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);rad_buf[re+1u]=vec4<f32>(shex,shey,shez,1.0+parent_pid);rad_buf[re+2u]=vec4<f32>(shpx,shpy,shpz,3.0+parent_pid);}
+          rad_e[re]=dep;
         }
       }
     }
@@ -473,8 +516,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
     let re=atomicAdd(&counters[7],3u);
     if(re+2u<sp.max_rad){
       rad_buf[re]   =vec4<f32>(px,py,pz,0.0+parent_pid);  // OH
+      rad_e[re]=E;
       rad_buf[re+1u]=vec4<f32>(px,py,pz,6.0+parent_pid);  // OH-
+      rad_e[re+1u]=E;
       rad_buf[re+2u]=vec4<f32>(px,py,pz,7.0+parent_pid);  // H2 marker
+      rad_e[re+2u]=E;
     }
     E=0.0;
   }

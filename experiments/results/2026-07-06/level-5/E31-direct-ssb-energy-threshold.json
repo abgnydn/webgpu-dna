@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "protocol": "E31-direct-ssb-energy-threshold",
+    "question": "Replace the threshold-free direct-SSB limit (P=1) with the rigorous Nikjoo/Charlton energy-threshold ramp on the per-event deposited energy. What does the parameter-free direct model then predict?",
+    "method": "Shaders now emit per-event deposited energy (rad_e buffer, new binding); direct scorer breaks with P(E)=clamp((E-E_low)/(E_high-E_low),0,1). Fresh GPU dump (Phase A+B) + Node IRT + SSB scoring, N=4096/10 keV.",
+    "gitSha": "d505872a31664831869df4ca67568e172e881477",
+    "nPrimaries": 4096,
+    "energy_eV": 10000
+  },
+  "params": {
+    "model": "energy-threshold ramp (Nikjoo 1997 / Charlton 1989)",
+    "SSB_E_LOW_eV": 5.0,
+    "SSB_E_HIGH_eV": 37.5,
+    "SSB_P_INDIRECT": 0.13,
+    "note": "all data-sourced; no calibrated fit"
+  },
+  "result": {
+    "ssb_dir": 30,
+    "ssb_ind": 195,
+    "dsb": 29,
+    "indirect_over_direct_ratio": 6.5,
+    "in_reach_direct": 93,
+    "effective_direct_break_rate": 0.323,
+    "G_OH_1us": 1.546,
+    "PARTRAC_band": "2-3",
+    "in_band": false
+  },
+  "comparison": {
+    "threshold_free_limit_P1": {
+      "ssb_dir": 82,
+      "ratio": 2.32,
+      "in_band": true,
+      "artifact": "E30"
+    },
+    "energy_threshold_ramp": {
+      "ssb_dir": 30,
+      "ratio": 6.5,
+      "in_band": false
+    }
+  },
+  "finding": "The rigorous per-event energy-threshold model predicts indirect/direct = 6.5, ABOVE PARTRAC's 2-3 band. Diagnosis (not a bug): the mean deposit at an in-reach ionisation is ~15 eV, giving ramp P~0.31, so only ~1/3 of near-backbone ionisations break. A single water ionisation rarely deposits >37.5 eV. The per-event threshold under-counts direct SSB vs the ACCUMULATED-volume energy that PARTRAC/Nikjoo integrate (overlapping deposits summed in the sugar-phosphate volume). Both the ramp and the P=1 limit are parameter-free; the 2.32 vs 6.5 span measures direct-SSB sensitivity to sub-threshold accounting.",
+  "followup": "Accumulate deposited energy per sugar-phosphate voxel across events, then threshold once (true Nikjoo/Charlton model), instead of the per-event proxy.",
+  "status": "pass (implemented + GPU-validated); honest-negative on the ratio \u2014 parameter-free prediction lands above PARTRAC's band"
+}

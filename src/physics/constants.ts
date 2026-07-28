@@ -152,15 +152,24 @@ export const DNA_SPACING_NM = 150;
 // future-proof for that follow-up.
 export const SSB_R_DAMAGE_NM = 0.29;            // direct pathway, Nikjoo OH-backbone reaction radius
 export const SSB_R_DAMAGE_INDIRECT_NM = 1.0;    // indirect pathway, PARTRAC-effective (diffusion folded)
-// SSB_P_INDIRECT was 0.4 (Geant4 default). Lowered 2026-05-12 to 0.05 after
-// E13c's 3rd-stage IRT-side scoring lift (SSB_ind 0 → 451 at P=0.4) overshot
-// PARTRAC's indirect/direct ratio of 2-3 by ~6-9× (got 18.79×). Calibrated
-// target: ratio 2-3 → SSB_ind ≈ 60. P=0.4 produced 451 unique-bp damages so
-// at P=0.05 we expect ~60 (non-linear: dedup tightens at low P). The Geant4
-// default (0.4) assumed an event-time scoring model; our IRT-side
-// accumulator visits every OH death event near DNA, so the per-event
-// damage probability must be smaller to match the same overall yield.
-// See PHYSICS_DIAGNOSIS.md §3 option (b1).
-export const SSB_P_INDIRECT = 0.05;      // PARTRAC-calibrated for IRT accumulator (was 0.4 default)
-export const SSB_P_DIRECT = 0.15;        // probability of SSB on direct ionization
+// Parameter-free SSB scoring (no calibrated fit). History: SSB_P_INDIRECT was
+// 0.05, tuned 0.4→0.05 to land the indirect/direct ratio in PARTRAC's 2–3 band
+// (E13c) — a fit to a target. Removed 2026-07: the two damage probabilities are
+// now physical, not tuned, so the indirect/direct ratio is a PREDICTION (it may
+// land outside PARTRAC's band — that is the honest outcome, not a regression).
+//
+//  - Indirect: the branching probability that an OH radical reacting with the
+//    2-deoxyribose sugar produces a strand break (vs. restitution) ≈ 0.13,
+//    Nikjoo et al. 1997/2001 (also used by PARTRAC). Data-sourced, not tuned.
+//  - Direct: energy-threshold model — a strand break occurs with a probability
+//    that ramps linearly from 0 at SSB_E_LOW to 1 at SSB_E_HIGH in the deposited
+//    energy at the ionisation site (within the reaction radius). Nikjoo/Charlton
+//    linear-probability model. This supersedes the flat P=1 threshold-free limit
+//    now that the shaders emit per-event deposited energy (rad_e buffer).
+export const SSB_P_INDIRECT = 0.13;      // Nikjoo OH+dRibose → SSB branching (data-sourced, not tuned)
+// Direct-SSB energy-threshold ramp (Nikjoo 1997 / Charlton 1989 linear model):
+// P(break) = clamp((E_dep − E_low)/(E_high − E_low), 0, 1). Physical bond-energy
+// thresholds, not tuned to a target.
+export const SSB_E_LOW = 5.0;            // eV — below this a deposit never breaks the backbone
+export const SSB_E_HIGH = 37.5;          // eV — at/above this a deposit always breaks it
 export const DSB_WINDOW_BP = 10;         // ±bp clustering window for DSB pairing

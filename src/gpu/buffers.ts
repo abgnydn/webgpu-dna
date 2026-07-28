@@ -19,6 +19,8 @@ export interface GPUBuffers {
   countersRB: GPUBuffer;
   radBuf: GPUBuffer;        // MAX_RAD × 16B
   radBufRB: GPUBuffer;
+  radE: GPUBuffer;          // MAX_RAD × 4B — per-event deposited energy (eV), aligned to radBuf
+  radERB: GPUBuffer;
 
   // Secondary phase
   secBuf: GPUBuffer;        // MAX_SEC × 48B
@@ -66,6 +68,8 @@ export function allocateBuffers(device: GPUDevice, np: number): GPUBuffers {
     countersRB: mk(32, D | R),
     radBuf: mk(MAX_RAD * 16, S | C | D),
     radBufRB: mk(MAX_RAD * 16, D | R),
+    radE: mk(MAX_RAD * 4, S | C | D),
+    radERB: mk(MAX_RAD * 4, D | R),
 
     // COPY_SRC added 2026-05-11 so E8 can read back the secondary buffer for
     // the KE-spectrum experiment. Production Phase A/B never read sec_buf

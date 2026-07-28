@@ -134,6 +134,7 @@ export interface EnergyResult {
   kernel_dna_hits: number;
   chem_result: ChemResult | null;
   rad_buf_final: Float32Array | null;
+  rad_e_final: Float32Array | null;
 }
 
 /** Indirect SSB scoring output */

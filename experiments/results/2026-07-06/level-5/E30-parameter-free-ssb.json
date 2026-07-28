@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "protocol": "E30-parameter-free-ssb",
+    "question": "With the two calibrated SSB probabilities removed (P_indirect 0.05->0.13 Nikjoo, P_direct 0.15->1.0), what is the PREDICTED indirect/direct SSB ratio, and is it stable across shader versions?",
+    "method": "GPU-produced rad_buf dump (Phase A+B, ?dump=1) + Node IRT chemistry & SSB scoring (tools/run_irt_ssb.cjs, --max-old-space-size=13000) with parameter-free constants and the one-roll-per-event direct de-dup.",
+    "nPrimaries": 4096,
+    "energy_eV": 10000,
+    "gitSha": "67dd54b1a03cf7d38b70825ded9c7e6b194f4e69"
+  },
+  "params_parameter_free": {
+    "SSB_P_DIRECT": 1.0,
+    "SSB_P_INDIRECT": 0.13,
+    "SSB_P_INDIRECT_source": "Nikjoo 1997/2001 OH+2-deoxyribose -> SSB branching (used by PARTRAC)",
+    "SSB_P_DIRECT_note": "ionisation within SSB_R_DAMAGE_NM (0.29 nm, Nikjoo) breaks the strand; threshold-free limit"
+  },
+  "result_v070_fresh_dump": {
+    "note": "PRIMARY: fresh dump regenerated on the GPU under current v0.7.0 (Born) primary/secondary shaders",
+    "ssb_dir": 82,
+    "ssb_ind": 190,
+    "dsb": 34,
+    "indirect_over_direct_ratio": 2.317,
+    "G_OH_1us": 1.546,
+    "in_band": true
+  },
+  "result_v060_release_dump_crosscheck": {
+    "note": "cross-check on the v0.6.0-cascade release dump",
+    "ssb_dir": 82,
+    "ssb_ind": 196,
+    "dsb": 33,
+    "indirect_over_direct_ratio": 2.39
+  },
+  "finding": {
+    "prediction_not_fit": true,
+    "PARTRAC_band": "2-3",
+    "ratio_v070": 2.32,
+    "ratio_v060": 2.39,
+    "stability": "The PARAMETER-FREE ratio is stable across the v0.6.0->v0.7.0 shader bump (2.39 -> 2.32), both in-band. Contrast the OLD TUNED ratio, which drifted 2.46 -> 3.26 across the same bump \u2014 evidence the physical values, not a fit, are what make it robust."
+  },
+  "caveats": [
+    "Absolute SSB counts (82/190/34) rose vs the old tuned 32/81/17 because the probabilities are physical, not calibrated down; absolute yields remain methodology (point-source dose geometry), not validated absolute physics.",
+    "P_direct=1.0 is the threshold-free limit; the rigorous energy-threshold direct model needs per-event backbone energy (shader follow-up)."
+  ],
+  "status": "pass \u2014 parameter-free SSB ratio predicted at 2.32 (v0.7.0), in PARTRAC's 2-3 band, and stable across shader versions"
+}

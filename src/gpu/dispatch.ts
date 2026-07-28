@@ -276,6 +276,20 @@ export async function runAtEnergy(
     buffers.radBufRB.unmap();
   }
 
+  // ---- rad_e readback (per-event deposited energy, aligned to rad_buf) ----
+  let rad_e_final: Float32Array | null = null;
+  if (rad_n_stored > 0) {
+    const ebytes = rad_n_stored * 4;
+    const enc = device.createCommandEncoder();
+    enc.copyBufferToBuffer(buffers.radE, 0, buffers.radERB, 0, ebytes);
+    device.queue.submit([enc.finish()]);
+    await buffers.radERB.mapAsync(GPUMapMode.READ, 0, ebytes);
+    rad_e_final = new Float32Array(
+      buffers.radERB.getMappedRange(0, ebytes).slice(0) as ArrayBuffer,
+    );
+    buffers.radERB.unmap();
+  }
+
   // ---- Chemistry (only at 10 keV) ----
   let chem_result: ChemResult | null = null;
   if (E_eV === 10000 && rad_buf_final && rad_n_stored > 0 && runChemistry) {
@@ -317,6 +331,7 @@ export async function runAtEnergy(
     kernel_dna_hits,
     chem_result,
     rad_buf_final,
+    rad_e_final,
     dose_arr: E_eV === 10000 ? doseArr : null,
   };
 }
