@@ -309,7 +309,7 @@ export async function runChemistryIRT(
     [0, 2, 0.45, 0,    0],
     [1, 1, 0.54, 0,    2],
     [1, 2, 0.61, 0,    2],
-    [1, 3, 0.47, 0.71, 3],
+    [1, 3, 0.47, -0.71, 3], // Onsager rc SIGNED negative (attractive eaq+H3O+)
     [2, 2, 0.34, 0,    2],
   ];
   const findRxn = (sa: number, sb: number): number[] | null => {

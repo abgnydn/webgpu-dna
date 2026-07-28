@@ -96,7 +96,7 @@ export const IRT_RXN_ONSAGER: readonly ReactionTuple[] = [
   [0, 2, 0.45, 0,    0],
   [1, 1, 0.54, 0,    2],
   [1, 2, 0.61, 0,    2],
-  [1, 3, 0.47, 0.71, 3],  // eaq+H3O+ → H with Onsager radius
+  [1, 3, 0.47, -0.71, 3],  // eaq+H3O+ → H; Onsager rc SIGNED negative (attractive)
   [2, 2, 0.34, 0,    2],
 ];
 

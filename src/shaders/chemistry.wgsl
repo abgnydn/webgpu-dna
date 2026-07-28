@@ -149,7 +149,12 @@ fn react_sigma(ki:i32,kj:i32)->f32{
 }
 fn react_rc(ki:i32,kj:i32)->f32{
   let a=min(ki,kj); let b=max(ki,kj);
-  if(a==1&&b==3){return 0.71;}
+  // Onsager radius rc = z_a*z_b*e^2/(4*pi*eps*kT). r0e = rc/(exp(rc/r0)-1)
+  // below expects the SIGNED rc: eaq(-1)+H3O(+1) is attractive (z_a*z_b<0), so
+  // rc is NEGATIVE and r0e is enhanced. A positive rc suppressed it (ran as if
+  // repulsive) — the likely cause of the E11 GPU-vs-worker divergence where
+  // G(OH)/G(eaq) ran ~2.2x high at 1 us. Matches the production worker.
+  if(a==1&&b==3){return -0.71;}
   return 0.0;
 }
 fn react_product(ki:i32,kj:i32)->u32{
