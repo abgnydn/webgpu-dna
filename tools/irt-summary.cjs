@@ -23,5 +23,5 @@ console.log(
 );
 console.log(
   'chem6 @ 10 keV matched (E10j) -> ' +
-    'G(OH)=1.710 G(eaq)=1.690 G(H)=0.790 G(H2O2)=0.850 G(H2)=0.620',
+    'G(OH)=1.710 G(eaq)=1.690 G(H)=0.710 G(H2O2)=0.850 G(H2)=0.622',
 );

@@ -206,9 +206,11 @@ Every artifact was produced on one machine (`Ahmets-MBP.localdomain`, Apple M2 P
 
 After all 2026-05-12 fixes (L5 indirect SSB closure, joint physics tuning):
 
+> **Reading the v0.7.0 absolute columns.** The current-release **ratios** (CSDA ×, cascade-ion ×, chem-RMS, SSB ratio, G(eaq)/G(H) ×) are the measured, committed quantities — they live in [E29](./experiments/results/2026-06-09/level-2/E29-physics-list-audit-born-excitation.json). E29 does **not** archive absolute nm / G-value tables, so the absolute nm and G-values below are **derived** = (E29 ratio) × (the committed Geant4 / chem6 reference in the same row) — e.g. 2739.6 nm = 0.997 × 2747.5. Rows still citing E5 / E5d / E25 point at the run that established the *reference* or the pre-Born absolute; the current-release *ratio* is always E29.
+
 | Metric                                       | This build       | Reference                                   | Ratio                                                                |
 | -------------------------------------------- | ---------------- | ------------------------------------------- | -------------------------------------------------------------------- |
-| CSDA range (nm) @ 10 keV (**v0.7.0 Born**) | 2739.6           | 2747.5 (Geant4 11.4.1)                      | **0.997×** [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json) |
+| CSDA range (nm) @ 10 keV (**v0.7.0 Born**) | 2739.6           | 2747.5 (Geant4 11.4.1)                      | **0.997×** [[E29]](./experiments/results/2026-06-09/level-2/E29-physics-list-audit-born-excitation.json) (Geant4 ref [[E5]](./experiments/results/2026-05-11/level-2/E5-csda-vs-g4-ntuple.json)) |
 | CSDA @ 100 eV (vs Geant4) — **v0.7.0 Born excitation** | 25.1 nm          | 26.21 nm                                    | **0.956×** (was 0.782× @ scaled-Emf; real Born XS closes the sub-keV deficit, E29) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
 | CSDA @ 300 eV — **v0.7.0 Born**             | 35.4 nm          | 35.91 nm                                    | **0.986×** (was 0.852×, E29) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
 | CSDA @ 500 eV — **v0.7.0 Born**             | 47.8 nm          | 48.07 nm                                    | **0.994×** (was 0.894×, E29) [[E5d]](./experiments/results/2026-05-12/level-2/E5d-l2-post-joint-fix-sweep.json) |
