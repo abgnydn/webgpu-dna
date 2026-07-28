@@ -132,7 +132,7 @@ Notable current findings (full descriptions in §Numbers):
 - **L4**: G-values vs chem6 @ 10 keV — **production (v0.7.0, Born excitation)** (E29: G(OH) 0.932×, eaq 0.937×, H 0.939×, H₂ 0.970×, H₂O₂ 0.894×, **RMS 7.0%** — down from 19.7% pre-cascade; the long-standing H₂/H₂O₂ deficits are closed by tracking the tertiary cascade, not by inter-track partitioning as E10f had attributed). `RECOMB_BOOST=1.0` (still parameter-free). G(eaq) V-shape 1→3 keV — 12.5% drop, far above the bootstrap noise of the mean (z≈126, *precision of the mean only, not a systematic-inclusive significance*) and independently reproduced by chem6 [E10b, E10d]. **The E22–E24 "over-recombination" was a `n_therm` normalization bug in my own analysis, corrected in E25** — verify-before-asserting catching a multi-turn error.
 - **L5**: two separable claims. **Absolute yields — vindicated** (E12-local, 2026-06-03): the 223×/796× box-normalised over-yield is a **point-source dose artifact** (98.1% of energy in the central 3 µm core, C≈981, local dose ≈238 Gy); per local dose, SSB_dir 0.34× / DSB 0.82× / SSB_total 1.28× experiment (Ward 1988) — within ~3×. **DSB/SSB ratio — calibrated fit** (2.32 parameter-free, was 2.46 @ 2.0; **both** `P_direct`=0.15 and `P_indirect`=0.05 are calibrated scoring probabilities — full inventory in `TUNABLES.md` — tuned to PARTRAC's band; held in-band across the RECOMB→1.0 flip with no recalibration [E13d]). Exact voxel dose confirms C=991 vs the C≈981 proxy [E12-local-exact]. Open follow-up: E12-bulk (spread tracks, `start_half`=box). [E12-local-exact, E13d]
 - **L6**: **~241× vs Geant4 ST / ~148× vs MT-8 (v0.6.0 full cascade, E15d)** — a *fair* both-full-cascade comparison; the v0.5.0 455×/280× compared our truncated cascade to Geant4's full one. Tracking the full cascade ~doubled Phase A+B (635 ms→~1.2 s). **E15-fair (measured)**: G4 init + DNA table-build is only ~2.1 s (0.7% of 289 s). (Retracts an earlier wrong "~160 s serial / ~200×" Amdahl guess — init is negligible.) One real residual asymmetry: G4 writes 6.8 GB per-event ntuple I/O (measured: 1.65 MB/primary, near-linear; likely the cause of the 1.62× MT-8 scaling via row-wise merge); WGSL dispatch excludes its ~87 MB dump. 256-primary run = 19.7 s confirms the 2 s-init + 0.070 s/pri model. **Kernel fusion contributes ~2× to the pipeline, not 40×** — the 40× [E16] is Phase-A-only and Phase A is 2% of the 635 ms. Honest like-for-like number remains **1.48× end-to-end**.
-- **46/46 unit tests** pass (`npm run test`, ~200 ms).
+- Unit tests pass (`npm run test`) — JS helpers/tables only; the WGSL physics is not exercised by them.
 
 See README.md § Numbers for the falsifiable artifact behind each row.
 Run any experiment via `npm run experiments -- <id>` (e.g. `E10`).
@@ -214,7 +214,7 @@ Lives in `src/gpu/buffers.ts`. Key points:
 ```bash
 npm install
 npm run dev            # Vite dev server at http://localhost:8765
-npm run test           # 46 tests, ~200 ms
+npm run test           # unit tests (JS helpers/tables — not the WGSL physics)
 npm run lint           # ESLint src/ tests/
 npm run build          # → dist/
 npm run convert        # tools/convert_g4data.py  (needs data/g4emlow/)

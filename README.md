@@ -4,7 +4,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Live demo](https://img.shields.io/badge/live-webgpudna.com-6ea8ff)](https://webgpudna.com)
 [![Geant4-DNA validated](https://img.shields.io/badge/Geant4--DNA-cross--checked-b0ffd0)](#numbers)
-[![Tests](https://img.shields.io/badge/tests-46%20%E2%9C%93-82c98b)](./tests)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20506339.svg)](https://doi.org/10.5281/zenodo.20506339)
 
 A WebGPU port of [Geant4-DNA](https://geant4-dna.in2p3.fr/) — the CNRS/IN2P3-coordinated Monte Carlo track-structure toolkit for radiobiology — running entirely in the browser.
@@ -24,7 +23,7 @@ One GPU thread per primary electron, full particle history in a single fused com
 ```bash
 npm install
 npm run dev            # http://localhost:8765
-npm run test           # 46 tests, ~200 ms
+npm run test           # unit tests (JS helpers/tables — not the WGSL physics)
 npm run lint
 npm run build          # dist/
 ```
@@ -54,7 +53,7 @@ src/
 ├── app.ts         runValidation orchestrator
 └── main.ts        entry point
 
-tests/unit/        Vitest unit tests (46 across 7 files)
+tests/unit/        Vitest unit tests (JS helpers/tables only — the WGSL shaders are not exercised here)
 tests/fixtures/    Geant4-DNA reference numbers (JSON)
 public/            Generated cross_sections.wgsl, irt-worker.js, monolithic reference HTML
 tools/             Python + Node helpers (G4EMLOW converter, IRT driver)
@@ -237,7 +236,6 @@ After all 2026-05-12 fixes (L5 indirect SSB closure, joint physics tuning):
 | Geant4 init + DNA table-build (E15-fair)     | —                | 2.1 s (16-primary probe = 3.2 s wall) | retracts the earlier "~160 s serial / ~200×" estimate — init is negligible, the 289 s is ~99% event-loop [[E15-fair]](./experiments/results/2026-06-03/level-6/E15-fair-event-loop-timing.json) |
 | End-to-end pre-DNA pipeline vs Geant4 ST     | 194.6 s          | 289.1 s                                     | **1.48× — the honest like-for-like number** (both whole-pipeline; IRT chem on CPU dominates) [[E15b]](./experiments/results/2026-05-11/level-6/E15b-vs-geant4-single-thread.json) |
 | Kernel-fusion speedup (fused vs naive, **Phase A only**) | 17.75 ms         | 704 ms (modeled)                            | 40× — ⚠ applies to Phase A only (now ~1.2% of the ~1.2 s v0.6.0 cascade pipeline; was 2% of 635 ms); fusion's contribution to the *full* tracking pipeline is **~1.6–2×** — Phase A is unchanged by the cascade, which is all Phase B [[E16]](./experiments/results/2026-05-11/level-6/E16-fused-vs-naive.json) |
-| Unit tests                                   | 46 / 46          | —                                           | `npm run test`, ~200 ms |
 
 ## Substantive research findings
 
