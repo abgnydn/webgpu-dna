@@ -52,7 +52,7 @@ self-description) on 2026-06-23.
 | `DNA_LENGTH_NM` | 3000 | `constants.ts:129` | Fibre grid is a track-core stand-in, **not chromatin** (GEANT4_DIVERGENCES). |
 | `DNA_GRID_N` | 21 | `constants.ts:130` | 21×21 fibres. SSB ratio is robust to this (E27 swept 75–300 nm). |
 | `DNA_SPACING_NM` | 150 | `constants.ts:131` | as above |
-| `DSB_WINDOW_BP` | 10 | `constants.ts:166` | ±10 bp clustering — standard convention (Friedland/PARTRAC). |
+| `DSB_WINDOW_BP` | 10 | `constants.ts:175` | ±10 bp clustering — standard convention (Friedland/PARTRAC). |
 | `SSB_R_DAMAGE_NM` | 0.29 | `constants.ts:153` | Nikjoo OH-backbone reaction radius (sourced, but a modelling choice). |
 | `SSB_R_DAMAGE_INDIRECT_NM` | 1.0 | `constants.ts:154` | PARTRAC-effective (folds OH diffusion-to-encounter) — chosen. |
 
