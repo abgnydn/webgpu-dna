@@ -6,9 +6,11 @@
  *     backbone reach radius (r_bb + r_damage) may create a single-strand break
  *     with probability `SSB_P_INDIRECT`.
  *  2. `scoreDirectSSB_events` — loops ionization/excitation sites stored in
- *     rad_buf. Each event near the backbone may create an SSB with probability
- *     `SSB_P_DIRECT`. This is the preferred direct-damage path because it
- *     preserves the nm-scale spatial correlation that voxel dose smears out.
+ *     rad_buf and accumulates each event's deposited energy (`rad_e`) into its
+ *     nearest sugar-phosphate site, then breaks that site once with the
+ *     Nikjoo/Charlton ramp `P(E)=clamp((E−SSB_E_LOW)/(SSB_E_HIGH−SSB_E_LOW),0,1)`.
+ *     This is the preferred direct-damage path because it preserves the nm-scale
+ *     spatial correlation that voxel dose smears out.
  *  3. `scoreDirectSSB` — voxel-based alternative (kept for reference / lambda
  *     used by `expectedDSBLocal`).
  *
