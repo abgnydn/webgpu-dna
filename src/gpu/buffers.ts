@@ -90,6 +90,18 @@ export function allocateBuffers(device: GPUDevice, np: number): GPUBuffers {
 }
 
 /**
+ * Free every GPU buffer in the set. Called before reallocating on an `np`
+ * change so the previous ~1 GB set (radBuf/secBuf/chem*) is reclaimed
+ * immediately instead of lingering until GC finalises it — two live sets at
+ * once can OOM / lose the device on mid-range GPUs.
+ */
+export function destroyBuffers(buffers: GPUBuffers): void {
+  for (const buf of Object.values(buffers)) {
+    (buf as GPUBuffer).destroy();
+  }
+}
+
+/**
  * SplitMix-style deterministic seed for the per-primary RNG state buffer.
  * Matches seedRNG() in public/geant4dna.html exactly.
  */

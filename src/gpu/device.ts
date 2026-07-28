@@ -27,7 +27,20 @@ export async function initGPU(log?: LogFn): Promise<GPUDevice | null> {
     },
   });
 
-  const info = (adapter as unknown as { info?: { description?: string } }).info;
-  log?.(`GPU initialized: ${info?.description ?? 'default adapter'}`, 'ok');
+  // Surface a lost device instead of dead-ending. A TDR / driver reset / OOM
+  // fires device.lost; without this the cached device silently stops responding
+  // and every later mapAsync just hangs with no user-visible reason. 'destroyed'
+  // is the expected reason when we tear the device down ourselves — don't alarm.
+  device.lost.then((info) => {
+    if (info.reason === 'destroyed') return;
+    log?.(`GPU device lost (${info.reason || 'unknown'}): ${info.message} — reload the page to recover.`, 'err');
+  });
+  // Validation/OOM errors that escape an explicit error scope land here.
+  device.addEventListener('uncapturederror', (e) => {
+    const err = (e as GPUUncapturedErrorEvent).error;
+    log?.(`GPU error: ${err.message}`, 'err');
+  });
+
+  log?.(`GPU initialized: ${adapter.info?.description || 'default adapter'}`, 'ok');
   return device;
 }
