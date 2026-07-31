@@ -121,6 +121,9 @@ export function runChemistryWorker(
         max_N: maxN,
         dna: dnaForWorker,
         ssbScoring: dnaForWorker ? ssbScoring : undefined,
+        // Seed the worker's chemistry RNG for reproducibility (reuses the run's
+        // named SSB seed when present; the worker defaults it otherwise).
+        chemSeed: ssbScoring?.seed,
       },
       [buf],
     );

@@ -38,13 +38,26 @@ function erfcinv(x) {
   return x > 1 ? -y : y;
 }
 
+// Seedable RNG (mulberry32). The ENTIRE worker draws from rand() so a run is
+// bit-reproducible from a single seed — matching the project's named-seed
+// discipline. Seeded per message from e.data.chemSeed (see onmessage); the
+// default constant keeps seed-less runs deterministic too.
+let _rngState = 0x9e3779b9;
+function rand() {
+  _rngState = (_rngState + 0x6d2b79f5) >>> 0;
+  let t = _rngState;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
 function randn() {
-  return Math.sqrt(-2 * Math.log(Math.random() + 1e-30)) * Math.cos(6.2831853 * Math.random());
+  return Math.sqrt(-2 * Math.log(rand() + 1e-30)) * Math.cos(6.2831853 * rand());
 }
 
 const F_CLF = Math.SQRT2;
 function clf6() {
-  return (Math.random()+Math.random()+Math.random()+Math.random()+Math.random()+Math.random()-3) * F_CLF;
+  return (rand()+rand()+rand()+rand()+rand()+rand()-3) * F_CLF;
 }
 
 // --- Scaled complementary error function: erfcx(x) = exp(x²)·erfc(x) ---
@@ -93,14 +106,14 @@ function SamplePDC(a, b) {
   const q = 2.0 / Math.sqrt(2.0 * b / a);
   const M = Math.max(1.0 / (a * a), 3.0 * b / a);
   for (let trial = 0; trial < 10000; trial++) {
-    let U = Math.random();
+    let U = rand();
     let X;
     if (U < p / (p + q * M)) {
       X = Math.pow(U * (p + q * M) / 2, 2);
     } else {
       X = Math.pow(2 / ((1 - U) * (p + q * M) / M), 2);
     }
-    U = Math.random();
+    U = rand();
     const sqX = Math.sqrt(X);
     const lambdax = Math.exp(-b * b / X) *
       (1.0 - a * Math.sqrt(Math.PI * X) * erfcx(b / sqX + a * sqX));
@@ -120,7 +133,7 @@ function sampleIRT_type0(r0, sigma, rc, D) {
   if (rc !== 0) r0e = -rc / (1 - Math.exp(rc / r0));
   if (r0e <= sigma) return 0;
   const Winf = sigma / r0e;
-  const U = Math.random();
+  const U = rand();
   if (U <= 0 || U >= Winf) return -1;
   const ei = erfcinv(r0e * U / sigma);
   if (Math.abs(ei) < 1e-10) return -1;
@@ -161,13 +174,13 @@ function sampleIRT_type1(r0, ri, D) {
 
   // Contact reaction
   if (sigma_check > r0_check) {
-    if (prob > Math.random()) return 0; // react with probability p
+    if (prob > rand()) return 0; // react with probability p
     return -1; // rejected
   }
 
   // Survival probability
   const Winf = sigma_check / r0_check * kobs_nm / kdif_nm;
-  if (Winf > Math.random()) {
+  if (Winf > rand()) {
     const X = SamplePDC(a, b);
     if (X > 0) return X / D;
   }
@@ -413,6 +426,9 @@ const R_CUT2 = R_CUT * R_CUT;
 // ============================================================================
 self.onmessage = function(e) {
   const { rad_buf, rad_n, n_therm, E_eV, dna, ssbScoring } = e.data;
+  // Seed the whole-worker RNG so chemistry (and the OH positions the SSB scorer
+  // consumes) are reproducible. Falls back to a fixed constant when unseeded.
+  _rngState = (e.data.chemSeed | 0) >>> 0 || 0x9e3779b9;
   const t0 = performance.now();
 
   // Dissolved O2 (the radiobiological oxygen effect / OER). Background O2 scavenges
@@ -634,7 +650,7 @@ self.onmessage = function(e) {
         // A1B1 excitation: shader stores at excitation site (no mother, correct per Geant4).
         // Product displacement: 0.8 nm RMS (50% chance, shared with H3O+)
         species[k] = 0;
-        if (Math.random() < 0.5) {
+        if (rand() < 0.5) {
           x += dispScale * SIGMA_OH_PROD * clf6();
           y += dispScale * SIGMA_OH_PROD * clf6();
           z += dispScale * SIGMA_OH_PROD * clf6();
@@ -644,7 +660,7 @@ self.onmessage = function(e) {
         // Shader already applied 2.0 nm mother displacement.
         // Product displacement: 0.8 nm RMS (50% chance, other half of OH/H3O+ split)
         species[k] = 3;
-        if (Math.random() < 0.5) {
+        if (rand() < 0.5) {
           x += dispScale * SIGMA_OH_PROD * clf6();
           y += dispScale * SIGMA_OH_PROD * clf6();
           z += dispScale * SIGMA_OH_PROD * clf6();
@@ -709,7 +725,7 @@ self.onmessage = function(e) {
         if (!alive[i]) continue;
         const rate = species[i] === 1 ? rateEaqO2 : (species[i] === 2 ? rateHO2 : 0);
         if (rate <= 0) continue;
-        const t = -Math.log(Math.random()) / rate;
+        const t = -Math.log(rand()) / rate;
         if (t < 1000) heap.push(t, i, i, gen[i], -99);
       }
     }
