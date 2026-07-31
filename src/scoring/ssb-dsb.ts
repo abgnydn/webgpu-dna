@@ -1,7 +1,7 @@
 /**
  * SSB/DSB scoring — direct port from public/geant4dna.html.
  *
- * Three scoring paths:
+ * Two scoring paths:
  *  1. `scoreIndirectSSB` — loops surviving OH at t=1 μs. Each OH within the
  *     backbone reach radius (r_bb + r_damage) may create a single-strand break
  *     with probability `SSB_P_INDIRECT`.
@@ -9,18 +9,12 @@
  *     rad_buf and accumulates each event's deposited energy (`rad_e`) into its
  *     nearest sugar-phosphate site, then breaks that site once with the
  *     Nikjoo/Charlton ramp `P(E)=clamp((E−SSB_E_LOW)/(SSB_E_HIGH−SSB_E_LOW),0,1)`.
- *     This is the preferred direct-damage path because it preserves the nm-scale
- *     spatial correlation that voxel dose smears out.
- *  3. `scoreDirectSSB` — voxel-based alternative (kept for reference / lambda
- *     used by `expectedDSBLocal`).
+ *     It preserves the nm-scale spatial correlation that voxel dose smears out.
  *
- * DSB clustering:
- *  - `clusterDSB` — greedy pairing of strand-0 and strand-1 SSBs within ±10 bp.
- *  - `expectedDSBLocal` — analytical local-density approximation for low-stats
- *    regimes where integer DSB counts are noisy.
+ * DSB clustering: `clusterDSB` — greedy pairing of strand-0 and strand-1 SSBs
+ * within ±DSB_WINDOW_BP.
  */
 import {
-  VC,
   SSB_R_DAMAGE_NM,
   SSB_R_DAMAGE_INDIRECT_NM,
   SSB_P_INDIRECT,
@@ -268,130 +262,6 @@ export function scoreDirectSSB_events(
 }
 
 /**
- * Score direct SSBs per-bp from voxelized dose. Returns a flat per-bp λ array
- * (2 strands × n_bp) plus the total expected direct_ssb. Used as the `lambda`
- * input to {@link expectedDSBLocal}.
- *
- * `dose_arr` is the 128³ u32 voxel grid (×100 units/eV) read back from the GPU.
- * `box_nm` is the half-width of the simulation volume (matches WGSL `p.box`).
- */
-export function scoreDirectSSB(
-  dna: DNATarget,
-  dose_arr: Uint32Array,
-  box_nm: number,
-): { direct_ssb: number; lambda: Float32Array } {
-  const vc = VC;
-  const vox_nm = (2 * box_nm) / vc;
-  const vox_vol = vox_nm * vox_nm * vox_nm;
-  const half = box_nm;
-  const inv_vox = 1 / vox_nm;
-  const r_sugar = SSB_R_DAMAGE_NM;
-  const bb_vol_per_bp = (4.0 / 3) * Math.PI * r_sugar * r_sugar * r_sugar;
-  const E_mean_ion = 22;
-  // Unused voxel-reference path: approximate the energy-threshold ramp at the
-  // mean ionisation deposit (E_mean_ion) so it stays consistent with the event
-  // scorer without re-introducing a flat calibrated probability.
-  const p_ion_ssb = Math.min(1, Math.max(0, (E_mean_ion - SSB_E_LOW) / (SSB_E_HIGH - SSB_E_LOW)));
-  const K = ((bb_vol_per_bp / vox_vol) * p_ion_ssb) / E_mean_ion;
-
-  const n = dna.n_bp;
-  const lambda = new Float32Array(n * 2);
-  let direct_expected = 0;
-
-  for (let fi = 0; fi < dna.n_fibers; fi++) {
-    const fy = dna.fy[fi];
-    const fz = dna.fz[fi];
-    const base = fi * dna.n_bp_per;
-    for (let b = 0; b < dna.n_bp_per; b++) {
-      const bx = dna.x0 + b * dna.rise;
-      const vx = Math.floor((bx + half) * inv_vox);
-      if (vx < 0 || vx >= vc) continue;
-
-      const y0 = fy + dna.rbb0[b * 2 + 0];
-      const z0 = fz + dna.rbb0[b * 2 + 1];
-      const y1 = fy + dna.rbb1[b * 2 + 0];
-      const z1 = fz + dna.rbb1[b * 2 + 1];
-
-      const vy0 = Math.floor((y0 + half) * inv_vox);
-      const vz0 = Math.floor((z0 + half) * inv_vox);
-      const vy1 = Math.floor((y1 + half) * inv_vox);
-      const vz1 = Math.floor((z1 + half) * inv_vox);
-
-      if (vy0 >= 0 && vy0 < vc && vz0 >= 0 && vz0 < vc) {
-        const d = dose_arr[(vz0 * vc + vy0) * vc + vx] / 100.0;
-        const l = d * K;
-        lambda[base + b] = l;
-        direct_expected += l;
-      }
-      if (vy1 >= 0 && vy1 < vc && vz1 >= 0 && vz1 < vc) {
-        // Strand 1 reads the same ×100 fixed-point dose grid as strand 0 (only the
-        // voxel index differs), so it must divide by 100.0. The monolithic reference
-        // (public/geant4dna.html) divided by 10.0 here — a 10× over-count on strand 1.
-        // This voxel-based scorer is an unused reference (production scoring is
-        // scoreDirectSSB_events), so the bug never reached published numbers; it is
-        // corrected here so it can't bite anyone who wires this path in.
-        const d = dose_arr[(vz1 * vc + vy1) * vc + vx] / 100.0;
-        const l = d * K;
-        lambda[n + base + b] = l;
-        direct_expected += l;
-      }
-    }
-  }
-
-  return { direct_ssb: direct_expected, lambda };
-}
-
-/**
- * Spatially-local expected DSB calculation.
- *
- * Treats each bp density as `lambda_direct[b] + indicator(indirect_hit[b])`
- * per strand. For each strand-0 bp b, window-sum strand-1 densities over
- * [b-W, b+W] and accumulate the product. Window size W comes from
- * {@link DSB_WINDOW_BP}.
- */
-export function expectedDSBLocal(
-  dna: DNATarget,
-  direct_lambda: Float32Array,
-  indirect_hits: Uint8Array,
-): number {
-  const W = DSB_WINDOW_BP;
-  const n = dna.n_bp;
-  const n_per = dna.n_bp_per;
-  let dsb_expected = 0;
-
-  const s0 = new Float32Array(n_per);
-  const s1 = new Float32Array(n_per);
-
-  for (let fi = 0; fi < dna.n_fibers; fi++) {
-    const base = fi * n_per;
-    let sum_s0 = 0;
-    let sum_s1 = 0;
-    for (let b = 0; b < n_per; b++) {
-      const v0 = direct_lambda[base + b] + (indirect_hits[base + b] === 1 ? 1 : 0);
-      const v1 = direct_lambda[n + base + b] + (indirect_hits[n + base + b] === 1 ? 1 : 0);
-      s0[b] = v0;
-      s1[b] = v1;
-      sum_s0 += v0;
-      sum_s1 += v1;
-    }
-    if (sum_s0 === 0 || sum_s1 === 0) continue;
-
-    let window_s1 = 0;
-    for (let b = 0; b <= Math.min(W, n_per - 1); b++) window_s1 += s1[b];
-
-    for (let b = 0; b < n_per; b++) {
-      dsb_expected += s0[b] * window_s1;
-      const lo_out = b - W;
-      const hi_in = b + 1 + W;
-      if (hi_in < n_per) window_s1 += s1[hi_in];
-      if (lo_out >= 0) window_s1 -= s1[lo_out];
-    }
-  }
-
-  return dsb_expected;
-}
-
-/**
  * Cluster SSBs on both strands into DSBs.
  *
  * Integer DSB: greedy pairing of strand-0 and strand-1 SSBs within ±{@link DSB_WINDOW_BP} bp
@@ -407,10 +277,8 @@ export function clusterDSB(dna: DNATarget, hits: Uint8Array): DSBClusterResult {
   const n = dna.n_bp;
   const n_per = dna.n_bp_per;
   const W = DSB_WINDOW_BP;
-  const window_bp = 2 * W + 1;
 
   let dsb_int = 0;
-  let dsb_expected = 0;
   let ssb0_tot = 0;
   let ssb1_tot = 0;
 
@@ -452,16 +320,9 @@ export function clusterDSB(dna: DNATarget, hits: Uint8Array): DSBClusterResult {
         }
       }
     }
-
-    if (k0 > 0 && k1 > 0 && n_per > 0) {
-      const p_pair = Math.min(1, window_bp / n_per);
-      const n_pairs = k0 * k1;
-      const p_no_dsb = Math.pow(1 - p_pair, n_pairs);
-      dsb_expected += 1 - p_no_dsb;
-    }
   }
 
-  return { dsb: dsb_int, dsb_expected, ssb0: ssb0_tot, ssb1: ssb1_tot };
+  return { dsb: dsb_int, ssb0: ssb0_tot, ssb1: ssb1_tot };
 }
 
 /**

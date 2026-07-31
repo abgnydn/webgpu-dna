@@ -157,7 +157,6 @@ export interface DirectSSBResult {
 /** DSB clustering output */
 export interface DSBClusterResult {
   dsb: number;
-  dsb_expected: number;
   ssb0: number;
   ssb1: number;
 }
