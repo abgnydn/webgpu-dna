@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "protocol": "E33-direct-ssb-deposit-site",
+    "question": "Direct SSB was scored at the ~2 nm mother-displaced radical position (rad_buf), not the true energy-deposit site. Does scoring at the true site (a new rad_dep buffer, px) change the direct-SSB count and the indirect/direct ratio?",
+    "method": "Fresh v0.7.0 GPU dump with a new rad_dep buffer carrying the true deposit site (px,py,pz) written 1:1 with rad_buf; the accumulated-volume energy-threshold scorer now reads position from rad_dep, keeping rad_buf's displaced positions for the IRT chemistry. Node IRT + SSB, N=4096 / 10 keV.",
+    "gitSha": "45266fdd4a8067d2cdf2f9c04010516f174bcc2d",
+    "nPrimaries": 4096,
+    "energy_eV": 10000,
+    "rad_n": 6303654
+  },
+  "result": {
+    "ssb_dir": 35,
+    "ssb_ind": 201,
+    "dsb": 42,
+    "indirect_over_direct_ratio": 5.74,
+    "in_reach_direct": 112,
+    "in_reach_indirect": 1820,
+    "G_OH_1us": 1.545,
+    "G_eaq_1us": 1.575,
+    "PARTRAC_band": "2-3",
+    "in_band": false
+  },
+  "same_dump_ab": {
+    "note": "Deterministic expectation (sum of p_break, no RNG) scoring the SAME fresh dump both ways, isolating the fix.",
+    "displaced_radical_position_old_rad_buf": { "in_reach": 93, "distinct_sugars": 82, "ssb_dir_expected": 27.18 },
+    "true_deposit_site_new_rad_dep": { "in_reach": 112, "distinct_sugars": 86, "ssb_dir_expected": 31.5 },
+    "cross_check": "old-way 27.18 reproduces the committed E32 value (27), validating the measurement; the production ssb_dir=35 is the seeded-RNG realization of the new-way ~31.5 expectation."
+  },
+  "finding": "Scoring direct SSB at the true energy-deposit site raises the in-reach ionisation count 93 -> 112 and direct SSB from ~27 to 35 (same dump), because ionisations that deposited energy within reach of a sugar were previously scored at their radical's ~2 nm-displaced thermalisation point and missed (while radicals that drifted near an unrelated sugar were spuriously credited). The indirect/direct ratio falls 7.1 -> 5.74, TOWARD but still ABOVE PARTRAC's 2-3 band. This is consistent with E31/E32: the energy threshold remains the dominant gap to the band; the ~2 nm localization error accounted for part of the excess, not all of it.",
+  "deposit_site_bracket": {
+    "note": "All three parameter-free points recomputed at the TRUE deposit site (deterministic p_break expectation), ind=201.",
+    "threshold_free_P1": { "ssb_dir": 86, "ratio": 2.34, "in_band": true },
+    "per_event_ramp": { "ssb_dir": 29.6, "ratio": 6.78, "in_band": false },
+    "accumulated_ramp": { "ssb_dir_expected": 31.5, "ssb_dir_rolled": 35, "ratio_expected": 6.38, "ratio_rolled": 5.74, "in_band": false },
+    "comment": "Same qualitative bracket as the displaced-position E30/E31/E32: threshold-free in-band, energy-threshold above. The production ssb_dir=35 is the seeded-RNG realization of the ~31.5 accumulated expectation (0.6 sigma high)."
+  },
+  "supersedes": "E32 (accumulated-volume at the displaced radical position, ratio 7.11). Same accumulated-volume energy-threshold model; only the scoring POSITION is corrected.",
+  "status": "pass - direct-SSB localization corrected (physical-stage energy-deposit hits, as in Geant4/molecularDNA), ratio moved but still above band; threshold/volume remain the levers"
+}

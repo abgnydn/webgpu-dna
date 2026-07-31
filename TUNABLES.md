@@ -11,9 +11,11 @@ pipeline, so "parameter-free" is never ambiguous. The honest one-line summary:
 > the shaders emit the energy via `rad_e`), indirect = 0.13 (Nikjoo OH+deoxyribose → SSB branching).
 > **Category C is now empty.** The consequence: the indirect/direct SSB ratio
 > is a *prediction*, not tuned to PARTRAC's band — and it does land outside it
-> (7.1 accumulated-volume [E32]; 6.5 per-event [E31]) — the honest outcome.
-> The threshold-free `P=1` limit gives 2.32, in-band [E30]; the span brackets
-> the physics without any tuning.
+> (**5.74** accumulated-volume, scored at the true energy-deposit site [E33]) — the
+> honest outcome. The threshold-free `P=1` limit gives **2.34, in-band** [E33]; the
+> span brackets the physics without any tuning. (Scoring at the true deposit site,
+> not the ~2 nm displaced radical, raised direct SSB 27→35 and dropped the ratio
+> 7.1→5.74; the energy threshold — not localization — is the residual gap.)
 > SSB/DSB is still labelled *methodology* in [README §Numbers](./README.md#numbers)
 > because the fibre grid is a track-core stand-in (category B), not chromatin.
 
@@ -65,7 +67,7 @@ tuned to reproduce a validation number** — including in DNA-damage scoring.
 | Former knob | Was | Now | Change |
 |:---|:---|:---|:---|
 | ~~`SSB_P_INDIRECT`~~ | 0.05 (tuned 0.4→0.05 to land the indirect/direct ratio in PARTRAC's 2–3 band) | **0.13** | Nikjoo OH+deoxyribose → SSB branching (Nikjoo 1997/2001; used by PARTRAC). Data-sourced. |
-| ~~`SSB_P_DIRECT`~~ | 0.15 (uncited flat probability) | **accumulated-volume energy threshold** `SSB_E_LOW=5.0`, `SSB_E_HIGH=37.5` eV | Sum each event's deposit per sugar site (shaders emit it via `rad_e`), threshold once with the Nikjoo/Charlton ramp. Data-sourced bond-energy thresholds, not tuned. Brackets: accumulated 7.1 [E32], per-event 6.5 [E31], threshold-free `P=1` 2.32 [E30]. |
+| ~~`SSB_P_DIRECT`~~ | 0.15 (uncited flat probability) | **accumulated-volume energy threshold** `SSB_E_LOW=5.0`, `SSB_E_HIGH=37.5` eV | Sum each event's deposit per sugar site (shaders emit energy via `rad_e` + true deposit site via `rad_dep`), threshold once with the Nikjoo/Charlton ramp — scored at the true energy-deposit site, not the displaced radical. Data-sourced bond-energy thresholds, not tuned. Deposit-site brackets: accumulated 5.74, threshold-free `P=1` 2.34 in-band [E33]. |
 
 Consequence: the indirect/direct SSB **ratio is now a prediction**, not tuned —
 it may fall outside PARTRAC's 2–3 band, which is the honest outcome. The
