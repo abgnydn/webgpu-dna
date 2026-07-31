@@ -28,7 +28,6 @@ permissions:
 jobs:
   webgpu-smoke:
     runs-on: ubuntu-latest
-    continue-on-error: true          # remove once proven green on a real runner
     timeout-minutes: 20
     env:
       # Force the Mesa lavapipe software-Vulkan ICD so Chrome doesn't chase a
