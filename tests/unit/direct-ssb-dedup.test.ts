@@ -108,6 +108,24 @@ describe('scoreDirectSSB_events de-dup', () => {
     expect(r.ssb_count).toBe(0);
   });
 
+  it('accumulation: two sub-E_low deposits at one sugar sum to cross the threshold', () => {
+    const [x, y, z] = atom0(10);
+    // Two DISTINCT positions (not collapsed by the one-roll de-dup), both within
+    // r_direct of the same atom, each 3 eV < SSB_E_LOW (5). Neither breaks alone
+    // (see the test above), but the site accumulates E_acc = 6 eV > 5, giving
+    // p_break = (6-5)/(37.5-5) ≈ 0.031 > 0 → one break. This pins the
+    // accumulate-then-threshold-once contract: a regression to per-event
+    // thresholding would score 0 here.
+    const rad = radBuf([
+      [x, y, z, 0],
+      [x + 0.05, y + 0.05, z, 0],
+    ]);
+    const subE = new Float32Array([3, 3]);
+    const r = scoreDirectSSB_events(dna, rad, subE, 2, alwaysBreak);
+    expect(r.in_reach).toBe(2);
+    expect(r.ssb_count).toBe(1);
+  });
+
   it('energy ramp: a mid-range deposit breaks per the linear probability', () => {
     const [x, y, z] = atom0(10);
     const rad = radBuf([[x, y, z, 0]]);
