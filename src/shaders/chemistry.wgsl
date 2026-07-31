@@ -166,61 +166,12 @@ fn react_product(ki:i32,kj:i32)->u32{
   return 0u;
 }
 
-// Inverse complementary error function (rational approximation)
-fn erfcinv(x:f32)->f32{
-  if(x<=0.0||x>=2.0){return 0.0;}
-  let p:f32=select(x,2.0-x,x>1.0);
-  let t:f32=sqrt(-2.0*log(max(p*0.5,1e-20)));
-  let c0=2.515517;let c1=0.802853;let c2=0.010328;
-  let d1=1.432788;let d2=0.189269;let d3=0.001308;
-  var y:f32=t-(c0+c1*t+c2*t*t)/(1.0+d1*t+d2*t*t+d3*t*t*t);
-  y=y*0.7071067811865475;
-  return select(y,-y,x>1.0);
-}
-
-// Smoluchowski first-passage time sampling (Geant4 G4DNAIRT port).
-// Smoluchowski first-passage time. Uses thread RNG (one draw per pair per round).
-// Smoluchowski IRT with DETERMINISTIC pair hash.
-// hash(i,j) → same pair always gets same U → exactly one draw per pair.
-// Different pair → different U → fresh chance. No multi-draw inflation.
-fn pair_rand(a:u32,b:u32)->f32{
-  let lo=min(a,b); let hi=max(a,b);
-  var h=lo*2654435761u+hi*340573321u;
-  h^=(h>>16u); h*=0x45d9f3bu; h^=(h>>16u);
-  return f32(h>>1u)/2147483647.0;
-}
-fn sample_irt(r0:f32,sigma:f32,rc:f32,D:f32,idx_i:u32,idx_j:u32)->f32{
-  if(sigma<=0.0||D<=0.0){return 1e30;}
-  if(r0<=sigma){return 0.0;}
-  var r0e:f32=r0;
-  if(rc!=0.0){r0e=-rc/(1.0-exp(rc/r0));}
-  let Winf:f32=sigma/r0e;
-  let U:f32=pair_rand(idx_i,idx_j);
-  if(U<=0.0||U>=Winf){return 1e30;}
-  let ei:f32=erfcinv(r0e*U/sigma);
-  if(abs(ei)<1e-10){return 1e30;}
-  let dr:f32=r0e-sigma;
-  return 0.25*dr*dr/(D*ei*ei);
-}
-
 // Diffusion coefficient by species kind (nm²/ns).
 fn Dk(k:i32)->f32{
   if(k==1){return D_EAQ;}
   if(k==2){return D_H;}
   if(k==3){return D_H3O;}
   return D_OH;
-}
-
-// Complementary error function (Numerical Recipes erfcc, |err| < 1.2e-7).
-// Used by the first-passage reaction probability. Valid for all x; our
-// argument is ≥ 0 (reff ≥ σ) so the x≥0 branch is the hot path.
-fn erfc_ns(x:f32)->f32{
-  let z=abs(x);
-  let t=1.0/(1.0+0.5*z);
-  let ans=t*exp(-z*z-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+
-    t*(-0.18628806+t*(0.27886807+t*(-1.13520398+t*(1.48851587+
-    t*(-0.82215223+t*0.17087277)))))))));
-  return select(2.0-ans,ans,x>=0.0);
 }
 
 // ============================================================================

@@ -15,7 +15,3 @@ export const ESTAR: readonly EstarEntry[] = [
   { E: 10000, csda: 2515,   sp: 2.29 },
   { E: 20000, csda: 8570,   sp: 1.33 },
 ];
-
-export function findEstar(E_eV: number): EstarEntry | undefined {
-  return ESTAR.find(e => e.E === E_eV);
-}
