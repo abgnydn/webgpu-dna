@@ -34,3 +34,6 @@ jobs:
 
       - name: Typecheck + lint + tests
         run: npm run check
+
+      - name: Production build (tsc + vite, all entry points)
+        run: npm run build

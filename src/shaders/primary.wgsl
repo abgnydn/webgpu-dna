@@ -101,7 +101,7 @@ fn meesungnoen_sigma(k:f32)->f32{
 }
 
 // Deposit energy (eV) at voxel containing world position (px,py,pz). Thread-safe.
-// Dose is stored in fixed-point: 1000 units = 1 eV.
+// Dose is stored in fixed-point: 100 units = 1 eV.
 fn deposit(px:f32,py:f32,pz:f32,dep_eV:f32,box:f32,vc:u32){
   if(dep_eV<=0.0){return;}
   let vs=2.0*box/f32(vc);

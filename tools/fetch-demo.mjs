@@ -40,7 +40,10 @@ async function main() {
   const size = statSync(target).size;
   console.log(`[fetch-demo] wrote ${target} (${(size / 1024 / 1024).toFixed(2)} MB)`);
   if (size !== EXPECTED_SIZE) {
-    console.warn(`[fetch-demo] WARNING: size ${size} != expected ${EXPECTED_SIZE}`);
+    throw new Error(
+      `size ${size} != expected ${EXPECTED_SIZE} — download is truncated/corrupt; ` +
+        `refusing to ship a broken wgdna-default.bin`,
+    );
   }
 }
 

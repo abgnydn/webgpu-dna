@@ -28,7 +28,7 @@ export const DIFFUSION = {
   OH: 2.2,
   eaq: 4.9,
   H: 7.0,
-  H3O: 9.0,
+  H3O: 9.46, // G4Hydronium.cc (9.46e-9 m²/s); matches the production worker's IRT_D
 } as const;
 
 /** Species numeric codes (rad_buf .w / chem_pos .w). */
@@ -67,8 +67,8 @@ export const MAX_SEC_STEPS = 2000;
 
 // --- Chemistry reaction tables (MUST mirror WGSL react_* arrays) ---
 
-/** IRT reactions using contact probability pc (used by the GPU kernel and
- *  the CPU irtChemistry() fallback).
+/** IRT reactions using contact probability pc (used by the GPU chemistry kernel;
+ *  also by the unused reference irtChemistry() in irt.ts — not a runtime fallback).
  *  [speciesA, speciesB, R_nm, pc, product (0=none, 1=H2O2, 2=H2, 3=eaq→H)] */
 export const IRT_REACTIONS: readonly ReactionTuple[] = [
   [0, 0, 0.44, 0.376, 1],  // OH+OH  → H2O2
@@ -88,7 +88,8 @@ export const IRT_D = [
   DIFFUSION.H3O,
 ] as const;
 
-/** IRT reactions using Onsager screening radius rc (runChemistryIRT CPU fallback).
+/** IRT reactions using Onsager screening radius rc (used only by the unused
+ *  reference runChemistryIRT() in irt.ts — not a runtime fallback).
  *  [specA, specB, sigma, rc, product] */
 export const IRT_RXN_ONSAGER: readonly ReactionTuple[] = [
   [0, 0, 0.44, 0,    1],

@@ -35,10 +35,12 @@ const read = (p) => readFileSync(join(root, p), 'utf8');
 // Assemble the production bundles exactly like src/shaders/loader.ts.
 const xs = read('public/cross_sections.wgsl');
 const helpers = read('src/shaders/helpers.wgsl');
+const pxs = read('public/proton_cross_sections.wgsl');
 const bundles = [
   { name: 'primary', code: `${xs}\n${helpers}\n${read('src/shaders/primary.wgsl')}` },
   { name: 'secondary', code: `${xs}\n${helpers}\n${read('src/shaders/secondary.wgsl')}` },
   { name: 'chemistry', code: read('src/shaders/chemistry.wgsl') },
+  { name: 'proton', code: `${xs}\n${pxs}\n${helpers}\n${read('src/shaders/proton.wgsl')}` },
 ];
 
 // Software-WebGPU args. --enable-unsafe-swiftshader lets WebGPU fall back to
