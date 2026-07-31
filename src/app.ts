@@ -208,6 +208,19 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
       } catch { /* no dump endpoint, ignore */ }
     }
 
+    if (wantDump && r.rad_dep_final) {
+      const dName = `raddep_E${r.E}_N${np}.bin`;
+      const dab = new ArrayBuffer(r.rad_dep_final.byteLength);
+      new Float32Array(dab).set(r.rad_dep_final);
+      const dblob = new Blob([dab], { type: 'application/octet-stream' });
+      try {
+        const resp = await fetch(`/dump/${dName}`, { method: 'POST', body: dblob });
+        if (resp.ok) {
+          log(`  dumped rad_dep (${(r.rad_dep_final.byteLength / 1e6).toFixed(2)} MB) → /dump/${dName}`, 'data');
+        }
+      } catch { /* no dump endpoint, ignore */ }
+    }
+
     // Optional voxel-dose-grid dump (same ?dump=1 path): the 128³ u32
     // fixed-point (×100/eV) dose grid. Enables E12-local-exact — integrating
     // the ACTUAL local dose over the fibre footprint, replacing the
@@ -229,8 +242,8 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
     const csdaRatio = r.mean_total / ref.csda;
     let damage: DamageRow | null = null;
 
-    if (r.chem_result && r.rad_buf_final && r.rad_e_final && ref.E === 10000) {
-      damage = scoreDamageAt10keV(dna, r.chem_result, r.rad_buf_final, r.rad_e_final, r.rad_n_stored, r.total_deposited_eV, boxNm, ssbRng, log, r.kernel_dna_hits);
+    if (r.chem_result && r.rad_buf_final && r.rad_e_final && r.rad_dep_final && ref.E === 10000) {
+      damage = scoreDamageAt10keV(dna, r.chem_result, r.rad_buf_final, r.rad_e_final, r.rad_dep_final, r.rad_n_stored, r.total_deposited_eV, boxNm, ssbRng, log, r.kernel_dna_hits);
     }
 
     const tbody = document.getElementById('tb');
@@ -265,6 +278,7 @@ function scoreDamageAt10keV(
   chem: ChemResult,
   radBuf: Float32Array,
   radE: Float32Array,
+  radDep: Float32Array,
   radN: number,
   totalDepositedEV: number,
   boxNm: number,
@@ -300,7 +314,7 @@ function scoreDamageAt10keV(
     indirectHits = new Uint8Array(dna.n_bp * 2);
   }
 
-  const direct = scoreDirectSSB_events(dna, radBuf, radE, radN, rng);
+  const direct = scoreDirectSSB_events(dna, radBuf, radE, radDep, radN, rng);
 
   const hitsCombined = combineHits(direct.hits, indirectHits);
   const clust = clusterDSB(dna, hitsCombined);

@@ -284,6 +284,20 @@ export async function runAtEnergy(
     buffers.radERB.unmap();
   }
 
+  // ---- rad_dep readback (true deposit site (x,y,z,_) per rad_buf entry) ----
+  let rad_dep_final: Float32Array | null = null;
+  if (rad_n_stored > 0) {
+    const dbytes = rad_n_stored * 16;
+    const enc = device.createCommandEncoder();
+    enc.copyBufferToBuffer(buffers.radDep, 0, buffers.radDepRB, 0, dbytes);
+    device.queue.submit([enc.finish()]);
+    await buffers.radDepRB.mapAsync(GPUMapMode.READ, 0, dbytes);
+    rad_dep_final = new Float32Array(
+      buffers.radDepRB.getMappedRange(0, dbytes).slice(0) as ArrayBuffer,
+    );
+    buffers.radDepRB.unmap();
+  }
+
   // ---- Chemistry (only at 10 keV) ----
   let chem_result: ChemResult | null = null;
   if (E_eV === 10000 && rad_buf_final && rad_n_stored > 0 && runChemistry) {
@@ -326,6 +340,7 @@ export async function runAtEnergy(
     chem_result,
     rad_buf_final,
     rad_e_final,
+    rad_dep_final,
     dose_arr: E_eV === 10000 ? doseArr : null,
   };
 }

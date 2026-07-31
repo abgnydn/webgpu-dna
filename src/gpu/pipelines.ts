@@ -62,6 +62,7 @@ export async function createPipelines(
       { binding: 6, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
       { binding: 7, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
       { binding: 8, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
+      { binding: 9, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
     ],
   });
 
@@ -79,10 +80,11 @@ export async function createPipelines(
       { binding: 6, resource: { buffer: buffers.dose } },
       { binding: 7, resource: { buffer: buffers.counters } },
       { binding: 8, resource: { buffer: buffers.radE } },
+      { binding: 9, resource: { buffer: buffers.radDep } },
     ],
   });
 
-  // Secondary bind group layout (7 bindings)
+  // Secondary bind group layout (8 bindings)
   const secLayout = device.createBindGroupLayout({
     entries: [
       { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'uniform' } },
@@ -92,6 +94,7 @@ export async function createPipelines(
       { binding: 4, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
       { binding: 5, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
       { binding: 6, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
+      { binding: 7, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' } },
     ],
   });
 
@@ -107,6 +110,7 @@ export async function createPipelines(
       { binding: 4, resource: { buffer: buffers.counters } },
       { binding: 5, resource: { buffer: buffers.radBuf } },
       { binding: 6, resource: { buffer: buffers.radE } },
+      { binding: 7, resource: { buffer: buffers.radDep } },
     ],
   });
 

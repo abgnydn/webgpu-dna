@@ -29,6 +29,18 @@ function radBuf(rows: Array<[number, number, number, number]>): Float32Array {
   return b;
 }
 
+// In these tests the rad_buf positions ARE the deposit sites (no 2 nm mother
+// displacement is modeled), so rad_dep mirrors rad_buf's coordinates (w=0).
+function dep(rb: Float32Array): Float32Array {
+  const d = new Float32Array(rb.length);
+  for (let i = 0; i < rb.length / 4; i++) {
+    d[i * 4] = rb[i * 4];
+    d[i * 4 + 1] = rb[i * 4 + 1];
+    d[i * 4 + 2] = rb[i * 4 + 2];
+  }
+  return d;
+}
+
 describe('scoreDirectSSB_events de-dup', () => {
   const dna = buildDNATarget(3000, 3, 150);
   const alwaysBreak = () => 0; // rng() < p_break always → SSB whenever p_break > 0
@@ -54,7 +66,7 @@ describe('scoreDirectSSB_events de-dup', () => {
       [x + 3, y + 3, z + 3, 5], // pre-therm e-aq @ displaced
       [x, y, z, 3], // H3O+ @ mother
     ]);
-    const r = scoreDirectSSB_events(dna, rad, hiE(3), 3, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, hiE(3), dep(rad), 3, alwaysBreak);
     expect(r.candidates).toBe(1); // one site, not three
     expect(r.ssb_count).toBe(1);
   });
@@ -66,7 +78,7 @@ describe('scoreDirectSSB_events de-dup', () => {
       [x, y, z, 7], // H2 marker @ mother (non-radical)
       [x + 2, y + 2, z + 2, 1], // regular e-aq @ displaced
     ]);
-    const r = scoreDirectSSB_events(dna, rad, hiE(3), 3, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, hiE(3), dep(rad), 3, alwaysBreak);
     expect(r.candidates).toBe(1);
     expect(r.ssb_count).toBe(1);
   });
@@ -80,7 +92,7 @@ describe('scoreDirectSSB_events de-dup', () => {
       [b[0], b[1], b[2], 0],
       [b[0], b[1], b[2], 3],
     ]);
-    const r = scoreDirectSSB_events(dna, rad, hiE(4), 4, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, hiE(4), dep(rad), 4, alwaysBreak);
     expect(r.candidates).toBe(2);
     expect(r.ssb_count).toBe(2);
   });
@@ -93,7 +105,7 @@ describe('scoreDirectSSB_events de-dup', () => {
       [x, y, z, 0], // exactly on the atom
       [x + 0.05, y + 0.05, z, 0], // 0.07 nm away → same bp/strand
     ]);
-    const r = scoreDirectSSB_events(dna, rad, hiE(2), 2, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, hiE(2), dep(rad), 2, alwaysBreak);
     expect(r.candidates).toBe(2); // two distinct scoring passes
     expect(r.in_reach).toBe(2);
     expect(r.ssb_count).toBe(1); // but the same bp/strand breaks only once
@@ -103,7 +115,7 @@ describe('scoreDirectSSB_events de-dup', () => {
     const [x, y, z] = atom0(10);
     const rad = radBuf([[x, y, z, 0]]);
     const lowE = new Float32Array([3]); // < SSB_E_LOW (5 eV) → p_break = 0
-    const r = scoreDirectSSB_events(dna, rad, lowE, 1, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, lowE, dep(rad), 1, alwaysBreak);
     expect(r.in_reach).toBe(1);
     expect(r.ssb_count).toBe(0);
   });
@@ -121,7 +133,7 @@ describe('scoreDirectSSB_events de-dup', () => {
       [x + 0.05, y + 0.05, z, 0],
     ]);
     const subE = new Float32Array([3, 3]);
-    const r = scoreDirectSSB_events(dna, rad, subE, 2, alwaysBreak);
+    const r = scoreDirectSSB_events(dna, rad, subE, dep(rad), 2, alwaysBreak);
     expect(r.in_reach).toBe(2);
     expect(r.ssb_count).toBe(1);
   });
@@ -130,7 +142,7 @@ describe('scoreDirectSSB_events de-dup', () => {
     const [x, y, z] = atom0(10);
     const rad = radBuf([[x, y, z, 0]]);
     const midE = new Float32Array([21.25]); // midpoint of 5..37.5 → p_break = 0.5
-    expect(scoreDirectSSB_events(dna, rad, midE, 1, () => 0.4).ssb_count).toBe(1);
-    expect(scoreDirectSSB_events(dna, rad, midE, 1, () => 0.6).ssb_count).toBe(0);
+    expect(scoreDirectSSB_events(dna, rad, midE, dep(rad), 1, () => 0.4).ssb_count).toBe(1);
+    expect(scoreDirectSSB_events(dna, rad, midE, dep(rad), 1, () => 0.6).ssb_count).toBe(0);
   });
 });
