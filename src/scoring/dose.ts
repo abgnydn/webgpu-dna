@@ -185,5 +185,5 @@ export function renderDoseProjection(
   ctx.fillStyle = '#cfe';
   ctx.font = '10px monospace';
   ctx.fillText(`${col_label}↔${row_label}  ${crop_nm.toFixed(0)} nm`, 4, 10);
-  ctx.fillText(`peak ${(max_v / 100).toFixed(0)} eV/vox  log`, 4, H - 4);
+  ctx.fillText(`peak ${(max_v / 100).toFixed(0)} eV/col  log`, 4, H - 4);
 }

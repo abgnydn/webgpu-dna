@@ -331,8 +331,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
       if(r_ch<0.65){
         atomicAdd(&counters[0],1u);atomicAdd(&counters[2],1u);
         let re=atomicAdd(&counters[7],2u);
-        if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,0.0+parent_pid);rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);}
-        rad_e[re]=dep;
+        if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,0.0+parent_pid);rad_e[re]=dep;rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);rad_e[re+1u]=dep;}
       }
     }else if(exc_lvl==1u){
       // B1A1 — 5 channels from G4ChemDissociationChannels_option1 (cumulative)
@@ -413,21 +412,18 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         }else{
           atomicAdd(&counters[0],1u);atomicAdd(&counters[1],1u);atomicAdd(&counters[3],1u);
           let re=atomicAdd(&counters[7],3u);
-          if(re+2u<sp.max_rad){rad_buf[re]=vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);rad_buf[re+1u]=vec4<f32>(sbex,sbey,sbez,1.0+parent_pid);rad_buf[re+2u]=vec4<f32>(sbpx,sbpy,sbpz,3.0+parent_pid);}
-          rad_e[re]=dep;
+          if(re+2u<sp.max_rad){rad_buf[re]=vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);rad_e[re]=dep;rad_buf[re+1u]=vec4<f32>(sbex,sbey,sbez,1.0+parent_pid);rad_e[re+1u]=dep;rad_buf[re+2u]=vec4<f32>(sbpx,sbpy,sbpz,3.0+parent_pid);rad_e[re+2u]=dep;}
         }
       }else if(r_ch<0.961){
         // 25.35% B1A1 → OH + H
         atomicAdd(&counters[0],1u);atomicAdd(&counters[2],1u);
         let re=atomicAdd(&counters[7],2u);
-        if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,0.0+parent_pid);rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);}
-        rad_e[re]=dep;
+        if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,0.0+parent_pid);rad_e[re]=dep;rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);rad_e[re+1u]=dep;}
       }else{
         // 3.9% B1A1 → 2H + O (O not tracked, emit 2 H only)
         atomicAdd(&counters[2],2u);
         let re=atomicAdd(&counters[7],2u);
-        if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,2.0+parent_pid);rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);}
-        rad_e[re]=dep;
+        if(re+1u<sp.max_rad){rad_buf[re]=vec4<f32>(px,py,pz,2.0+parent_pid);rad_e[re]=dep;rad_buf[re+1u]=vec4<f32>(px,py,pz,2.0+parent_pid);rad_e[re+1u]=dep;}
       }
     }else{
       if(r_ch<0.50){
@@ -492,8 +488,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         }else{
           atomicAdd(&counters[0],1u);atomicAdd(&counters[1],1u);atomicAdd(&counters[3],1u);
           let re=atomicAdd(&counters[7],3u);
-          if(re+2u<sp.max_rad){rad_buf[re]=vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);rad_buf[re+1u]=vec4<f32>(shex,shey,shez,1.0+parent_pid);rad_buf[re+2u]=vec4<f32>(shpx,shpy,shpz,3.0+parent_pid);}
-          rad_e[re]=dep;
+          if(re+2u<sp.max_rad){rad_buf[re]=vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);rad_e[re]=dep;rad_buf[re+1u]=vec4<f32>(shex,shey,shez,1.0+parent_pid);rad_e[re+1u]=dep;rad_buf[re+2u]=vec4<f32>(shpx,shpy,shpz,3.0+parent_pid);rad_e[re+2u]=dep;}
         }
       }
     }

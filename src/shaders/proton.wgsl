@@ -200,8 +200,8 @@ fn main(@builtin(global_invocation_id) gid:vec3<u32>){
       atomicAdd(&counters[3],1u);          // H3O+
       let ri=atomicAdd(&counters[7],2u);
       if(ri+1u<p.max_rad){
-        rad_buf[ri]   =vec4<f32>(px,py,pz,0.0+f32(id));
-        rad_buf[ri+1u]=vec4<f32>(px,py,pz,3.0+f32(id));
+        rad_buf[ri]   =vec4<f32>(px,py,pz,0.0+f32(id)*8.0);
+        rad_buf[ri+1u]=vec4<f32>(px,py,pz,3.0+f32(id)*8.0);
       }
       // emit the ejected electron into sec_buf with the G4DNARuddAngle distribution:
       // cosθ = √(KE/W_max) for energetic deltas (>100 eV, forward-peaked), isotropic
@@ -227,7 +227,7 @@ fn main(@builtin(global_invocation_id) gid:vec3<u32>){
       }else{
         // sub-cutoff ejected electron: thermalises in place -> eaq
         let ri2=atomicAdd(&counters[7],1u);
-        if(ri2<p.max_rad){rad_buf[ri2]=vec4<f32>(px,py,pz,1.0+f32(id));}
+        if(ri2<p.max_rad){rad_buf[ri2]=vec4<f32>(px,py,pz,1.0+f32(id)*8.0);}
         atomicAdd(&counters[1],1u);
         deposit(px,py,pz,ke,p.box,p.vc);
       }

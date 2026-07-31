@@ -5,9 +5,12 @@
  *  - `irtChemistry()` — handoff from the GPU grid chemistry at t = 10 ns.
  *    Uses contact probability `pc`, cutoff = hash radius (4.5 nm).
  *  - `runChemistryIRT()` — standalone CPU post-processing over the full
- *    radical cloud with Onsager screening. Fallback when the worker is
- *    unavailable. (The production path uses public/irt-worker.js which is
- *    a self-contained Worker — see worker.ts.)
+ *    radical cloud with Onsager screening.
+ *
+ * NOTE: this module is an unused REFERENCE implementation — nothing in `src/`
+ * or `tests/` imports it, and `backend.ts` exposes only 'worker' | 'gpu' | 'none'
+ * (there is no runtime CPU fallback). The production chemistry is the
+ * self-contained Worker in public/irt-worker.js (see worker.ts).
  */
 
 import { IRT_D, IRT_REACTIONS } from '../physics/constants';
@@ -232,7 +235,8 @@ export async function runChemistryIRT(
     px[i] = rad_buf_f32[si * 4];
     py[i] = rad_buf_f32[si * 4 + 1];
     pz[i] = rad_buf_f32[si * 4 + 2];
-    species[i] = Math.round(rad_buf_f32[si * 4 + 3]);
+    // .w packs pid*8 + species; strip the primary id before decoding species.
+    species[i] = Math.round(rad_buf_f32[si * 4 + 3]) % 8;
     if (species[i] < 0 || species[i] > 3) alive[i] = 0;
   }
 

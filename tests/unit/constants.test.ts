@@ -31,7 +31,7 @@ describe('Physics constants', () => {
     expect(DIFFUSION.OH).toBeCloseTo(2.2, 1);
     expect(DIFFUSION.eaq).toBeCloseTo(4.9, 1);
     expect(DIFFUSION.H).toBeCloseTo(7.0, 1);
-    expect(DIFFUSION.H3O).toBeCloseTo(9.0, 1);
+    expect(DIFFUSION.H3O).toBeCloseTo(9.46, 1); // G4Hydronium.cc; matches the worker
   });
 
   it('has 7 reaction channels', () => {

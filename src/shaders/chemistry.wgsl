@@ -4,17 +4,16 @@ struct CU{n:u32,dt:f32,stride:u32,rxn_mode:u32}; // rxn_mode: 0=all except eaq+H
 @group(0)@binding(1) var<storage,read_write> chem_pos:array<vec4<f32>>;
 @group(0)@binding(2) var<storage,read_write> chem_alive:array<atomic<u32>>;
 @group(0)@binding(3) var<storage,read_write> chem_rng:array<vec4u>;
-// Self-test accumulators (Float64 precision via two u32 slots per species):
-//   [0..5]  sum(Δr² × 1e3) fixed point, 3 species × 2 slots
-//   [6..8]  live count per species
-//   [9]     total step count (debug)
+// Per-step diagnostic counters (JS zeroes them before each step):
+//   [0..2]  live radical count per species (OH, eaq, H) — see countAlive()
+//   [3],[4] recombination product-event counters (product kind 1, 2)
 @group(0)@binding(4) var<storage,read_write> chem_stats:array<atomic<u32>>;
 
 const PI=3.14159265;
 const D_OH=2.2;   // nm²/ns (Geant4: 2.8e-9 m²/s → 2.8 nm²/ns; using Karamitros value)
 const D_EAQ=4.9;
 const D_H=7.0;
-const D_H3O=9.0;  // nm²/ns (Geant4: 9.0e-9 m²/s)
+const D_H3O=9.46;  // nm²/ns (G4Hydronium.cc 9.46e-9 m²/s; matches the production worker)
 
 fn rl(x:u32,k:u32)->u32{return(x<<k)|(x>>(32u-k));}
 fn rn(s:ptr<function,vec4u>)->u32{let r=rl((*s).x+(*s).w,7u)+(*s).x;let t=(*s).y<<9u;(*s).z^=(*s).x;(*s).w^=(*s).y;(*s).y^=(*s).z;(*s).x^=(*s).w;(*s).z^=t;(*s).w=rl((*s).w,11u);return r;}

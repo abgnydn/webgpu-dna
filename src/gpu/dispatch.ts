@@ -184,7 +184,6 @@ export async function runAtEnergy(
   // ---- Readbacks ----
   const enc3 = device.createCommandEncoder();
   enc3.copyBufferToBuffer(buffers.results, 0, buffers.resultsRB, 0, np * 32);
-  enc3.copyBufferToBuffer(buffers.dbg, 0, buffers.dbgRB, 0, 32);
   enc3.copyBufferToBuffer(buffers.dose, 0, buffers.doseRB, 0, doseSize * 4);
   enc3.copyBufferToBuffer(buffers.counters, 0, buffers.countersRB, 0, 32);
   device.queue.submit([enc3.finish()]);
@@ -195,11 +194,6 @@ export async function runAtEnergy(
   const rsU32 = new Uint32Array(rsBuf);
   const rsF32 = new Float32Array(rsBuf);
   buffers.resultsRB.unmap();
-
-  await buffers.dbgRB.mapAsync(GPUMapMode.READ);
-  const db = new Uint32Array(buffers.dbgRB.getMappedRange().slice(0) as ArrayBuffer);
-  buffers.dbgRB.unmap();
-  void db;
 
   let secStats = new Uint32Array(8);
   if (sec_n > 0) {
