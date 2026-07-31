@@ -1,10 +1,10 @@
 /**
  * Reaction tables + analytical sampling helpers.
  *
- * The contact-probability variant (`IRT_REACTIONS`) is what the GPU kernel
- * uses and what the CPU `irtChemistry()` IRT fallback samples in schedule.ts.
- * The Onsager variant (`IRT_RXN_ONSAGER`) is used by `runChemistryIRT` for
- * the long-time CPU post-processing fallback.
+ * The contact-probability variant (`IRT_REACTIONS`) is what the GPU chemistry
+ * kernel uses (and the unused reference `irtChemistry()` in irt.ts).
+ * The Onsager variant (`IRT_RXN_ONSAGER`) is used only by the unused reference
+ * `runChemistryIRT()` in irt.ts — neither is a runtime fallback.
  */
 
 import type { ReactionTuple } from '../physics/types';

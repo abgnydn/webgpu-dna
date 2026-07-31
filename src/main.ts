@@ -7,7 +7,6 @@ import { runValidation } from './app';
 import {
   generateSnapshotAt10keV,
   openInViewer,
-  downloadBlob,
   exportSnapshotAt10keV,
 } from './splat/export';
 import { createLogger } from './ui/log';
@@ -125,9 +124,6 @@ function main(): void {
       }
     };
   }
-
-  // Silence unused-import warning for downloadBlob (kept exported for callers).
-  void downloadBlob;
 
   lg('Geant4-DNA validation harness (TypeScript modular build)');
   lg('Click "Run validation" to measure CSDA range and stopping power vs NIST ESTAR.');
