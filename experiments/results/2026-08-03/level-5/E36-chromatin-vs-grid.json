@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "protocol": "E36-chromatin-vs-grid",
+    "question": "E34 localized the DNA-damage ratio's out-of-band-ness to the concentrated 21x21 straight-fibre grid inflating indirect. Does re-scoring the same dump against realistic chromatin geometry (analytical nucleosome->fibre) lower the ratio?",
+    "method": "Dual-geometry scoring: same Auger v0.7.0 dump; direct = rad_dep energy-threshold, indirect = 633,979 surviving-OH positions (1us, collected via the worker collectOH hook) with P_indirect=0.13. Both geometries at matched bp (3.89M) in the same +/-1500 nm region. src/physics/chromatin-geometry.ts + experiments/tools/chromatin-score.cjs.",
+    "energy_eV": 10000, "nPrimaries": 4096
+  },
+  "result": {
+    "grid_21x21_straight": {"direct": 33.5, "indirect": 71.0, "ratio": 2.12, "in_reach_dir": 117, "in_reach_ind": 639},
+    "chromatin_matched_bp": {"direct": 20.7, "indirect": 34.7, "ratio": 1.68, "in_reach_dir": 65, "in_reach_ind": 267}
+  },
+  "finding": "Realistic chromatin geometry LOWERS the indirect/direct ratio (2.12 -> 1.68) vs the straight grid — directional support for E34: the ratio is geometry-dependent and the concentrated grid inflates indirect relative to direct.",
+  "caveats": [
+    "Survival-OH indirect model (P=0.13 per near sugar), NOT the worker's full ssb_indirect (which also scores at reaction events) — so absolute numbers differ from the production ratio 5.74; the grid-vs-chromatin comparison is valid because both use the identical model.",
+    "The chromatin fibres are randomly scattered in the 3 um box, so many miss the concentrated track core (99% of dose in the central few um, E12-local) -> both absolute counts drop (a sampling artifact). A rigorous quantitative comparison needs dose-matched placement (chromatin where the track deposits energy) + a proper nuclear dose normalisation.",
+    "Chromatin packs DNA ~27x denser than straight B-DNA (80 vs 3 bp/nm), so 'matched bp + matched region' cannot also match spatial extent."
+  ],
+  "status": "pass (first-order) — geometry infrastructure validated end-to-end (nucleosome/fibre -> spatial hash -> dual scoring); directional evidence that realistic chromatin lowers the ratio (E34 confirmed in direction). Rigorous dose-matched version is future work."
+}
