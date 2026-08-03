@@ -426,6 +426,12 @@ const R_CUT2 = R_CUT * R_CUT;
 // ============================================================================
 self.onmessage = function(e) {
   const { rad_buf, rad_n, n_therm, E_eV, dna, ssbScoring } = e.data;
+  // Experiment hook (off by default): collect surviving-OH positions near the
+  // central DNA region so indirect SSB can be re-scored against alternative
+  // geometries (e.g. chromatin) in JS. No effect on production.
+  const collectOH = !!e.data.collectOH;
+  const ohBound = e.data.ohBound || 1700;
+  const ohSurv = collectOH ? [] : null;
   // Seed the whole-worker RNG so chemistry (and the OH positions the SSB scorer
   // consumes) are reproducible. Falls back to a fixed constant when unseeded.
   _rngState = (e.data.chemSeed | 0) >>> 0 || 0x9e3779b9;
@@ -866,6 +872,9 @@ self.onmessage = function(e) {
         if (!alive[k]) continue;
         if (species[k] !== 0) continue;
         dnaSsbCheck(px[k], py[k], pz[k]);
+        if (collectOH && Math.abs(px[k]) < ohBound && Math.abs(py[k]) < ohBound && Math.abs(pz[k]) < ohBound) {
+          ohSurv.push(px[k], py[k], pz[k]);
+        }
       }
     }
 
@@ -929,5 +938,6 @@ self.onmessage = function(e) {
     type: 'result', timeline, n_reacted: total_reacted,
     chem_n: rad_n, t_wall, n_repaired: 0, rxn_info,
     ssb_indirect,
+    oh_survivors: collectOH ? new Float32Array(ohSurv) : null,
   });
 };
