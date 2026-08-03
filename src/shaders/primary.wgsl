@@ -212,12 +212,15 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
         // Deposit the binding energy at this ionization site. W_sec is carried
         // away by the secondary (to be deposited where IT thermalizes), OR if
         // the secondary is below cutoff then deposit it here too.
-        deposit(px,py,pz,bind,p.box,p.vc);
+        // K-shell binding (539 eV) leaves as the Auger electron (emitted below),
+        // NOT a local deposit; only the ~36 eV L-shell rearrangement stays here.
+        let e_local_bind=select(bind,bind-E_AUGER,shell_idx==4u);
+        deposit(px,py,pz,e_local_bind,p.box,p.vc);
         if(W_sec<=p.ce){deposit(px,py,pz,W_sec,p.box,p.vc);}
         // Energy deposited locally at this ionisation site, for direct-SSB
         // energy-threshold scoring (rad_e). Sub-cutoff: bind + W_sec (= the full
         // transfer, all local); tracked secondary: bind only (W_sec leaves).
-        let e_dep_ion = bind + select(0.0, W_sec, W_sec<=p.ce);
+        let e_dep_ion = e_local_bind + select(0.0, W_sec, W_sec<=p.ce);
         // Pre-chemistry: H2O+ products (OH + H3O+ or H2Ovib branches) emitted
         // inside the recomb-vs-no-recomb branch below. DNA hit counted here.
         if(dna_near(px,py,pz)==1u){atomicAdd(&counters[4],1u);}
@@ -443,6 +446,19 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
             sec.dir_alive=vec4<f32>(sdx,sdy,sdz,f32(gid.x+1u));
             sec.rng=vec4u(r0,r1,r2,r3);
             sec_buf[sec_idx]=sec;
+          }
+        }
+        // Auger electron from the K-shell (1a1) hole — oxygen KLL ~503 eV,
+        // isotropic. The missing piece behind E8's 439-806 eV deficit.
+        if(shell_idx==4u){
+          let a_idx=atomicAdd(&counters[6],1u);
+          if(a_idx<p.max_sec){
+            let ac=2.0*rf(&s)-1.0;let asn=sqrt(max(0.0,1.0-ac*ac));let aph=2.0*PI*rf(&s);
+            var aug:Particle;
+            aug.pos_E=vec4<f32>(px,py,pz,E_AUGER);
+            aug.dir_alive=vec4<f32>(asn*cos(aph),asn*sin(aph),ac,f32(gid.x+1u));
+            aug.rng=vec4u(rn(&s),rn(&s),rn(&s),rn(&s));
+            sec_buf[a_idx]=aug;
           }
         }
       }

@@ -193,7 +193,21 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
       let W_sec=max(W_transfer-bind,0.0);
       // Local deposit at this ionisation site for direct-SSB energy-threshold
       // scoring (rad_e): bind + W_sec when sub-cutoff (all local), else bind.
-      let e_dep_ion = bind + select(0.0, W_sec, W_sec<=sp.ce);
+      // K-shell (539 eV) hole leaves as the Auger electron; only ~36 eV stays local.
+      let e_local_bind=select(bind,bind-E_AUGER,shell_idx==4u);
+      let e_dep_ion = e_local_bind + select(0.0, W_sec, W_sec<=sp.ce);
+      // Auger electron from the K-shell hole (oxygen KLL ~503 eV, isotropic).
+      if(shell_idx==4u){
+        let a_idx=atomicAdd(&counters[6],1u);
+        if(a_idx<sp.max_sec){
+          let ac=2.0*rf(&s)-1.0;let asn=sqrt(max(0.0,1.0-ac*ac));let aph=2.0*PI*rf(&s);
+          var aug:Particle;
+          aug.pos_E=vec4<f32>(px,py,pz,E_AUGER);
+          aug.dir_alive=vec4<f32>(asn*cos(aph),asn*sin(aph),ac,particle.dir_alive.w);
+          aug.rng=vec4u(rn(&s),rn(&s),rn(&s),rn(&s));
+          sec_buf[a_idx]=aug;
+        }
+      }
       let E_before_t=E;
       E-=W_transfer;  // secondary loses total transfer
       atomicAdd(&sec_stats[4],1u);  // tertiary ionizations
@@ -212,7 +226,7 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         // the tertiary's own thermalisation point (mirrors the primary's
         // tracked-secondary path — the tracked electron escapes geminate
         // recombination).
-        deposit(px,py,pz,bind,sp.box,sp.vc);
+        deposit(px,py,pz,e_local_bind,sp.box,sp.vc);
         atomicAdd(&counters[0],1u);  // OH
         atomicAdd(&counters[3],1u);  // H3O+
         let ri=atomicAdd(&counters[7],2u);

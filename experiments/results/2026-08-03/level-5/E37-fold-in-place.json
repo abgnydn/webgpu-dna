@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "protocol": "E37-fold-in-place",
+    "question": "E36 found chromatin lowers the ratio but was placement-confounded (scattered fibres missed the track core). Design (via a 3-expert design workflow): score three geometries on the IDENTICAL central axis lattice so placement/track-dose sampling is byte-identical and only the FOLD differs. Isolate the pure folding effect on the indirect/direct ratio.",
+    "method": "Same fixed Auger v0.7.0 dump (direct=rad_dep energy-threshold; indirect=634k surviving-OH, P=0.13). Three DNA geometries on the SAME 7x7 central axes (150 nm pitch), x-span +/-400 nm: LINE (1 straight duplex/axis), BUNDLE (19 hex-packed straight duplexes/axis, 30 nm girth, no winding), SOLENOID (wound nucleosome fibre/axis). Ratio is intra-geometry so bp need not match across geometries. experiments/tools/e37-fold-in-place.cjs.",
+    "energy_eV": 10000, "nPrimaries": 4096
+  },
+  "result": {
+    "LINE":     {"direct": 16.5, "indirect": 48.3, "ratio": 2.93, "in_reach_dir": 56,  "in_reach_ind": 464,  "raw_capture": 8.29},
+    "BUNDLE":   {"direct": 310.4,"indirect": 837.2,"ratio": 2.70, "in_reach_dir": 1042,"in_reach_ind": 6568, "raw_capture": 6.30},
+    "SOLENOID": {"direct": 190.9,"indirect": 399.9,"ratio": 2.10, "in_reach_dir": 648, "in_reach_ind": 3081, "raw_capture": 4.75}
+  },
+  "decomposition": {
+    "dR_folding_solenoid_over_line": 0.716,
+    "girth_bundle_over_line": 0.922,
+    "winding_solenoid_over_bundle": 0.777,
+    "note": "Folding lowers the indirect/direct ratio ~28%; ~8% is the 30 nm transverse girth, ~22% is the nucleosome winding topology (the dominant sub-effect). The raw in-reach capture (ind/dir, free of the energy ramp + P_indirect) drops the same way (8.29->6.30->4.75), so it is genuine radical-interception geometry, not a scoring nonlinearity."
+  },
+  "finding": "E34 confirmed and quantified with placement controlled: realistic chromatin folding lowers the indirect/direct SSB ratio by ~28% vs straight fibres, driven mostly by nucleosome winding. This is the CLEAN geometry-only signal (E36's confound removed by scoring all geometries on identical axes).",
+  "caveats": [
+    "Survival-OH indirect model + a 7x7 axis subset, so absolute ratios (LINE 2.93) are NOT the production 5.74 (worker's fuller ssb_indirect). The robust, transferable result is the RELATIVE folding factor dR=0.716.",
+    "LINE in-reach direct is only 56 (thin lines intercept few ionisations) -> its ratio has the most statistical noise; the monotonic trend LINE>BUNDLE>SOLENOID and the good-statistics BUNDLE/SOLENOID make the direction robust.",
+    "Point-source dump: the definitive version uses an extended-source (E12-bulk, start_half=box) dump so every axis sees comparable local dose."
+  ],
+  "implication": "Applying dR to production: ~5.74 x 0.716 ~= 4.1 -> still above PARTRAC's 2-3 band. Folding accounts for ~28% of the excess, NOT all of it: the parameter-free ratio's out-of-band-ness is multi-factor (geometry folding + the indirect scoring model/reach + the point-source dose gradient). Realistic chromatin is necessary but not alone sufficient to reach the band.",
+  "status": "pass — rigorous, placement-controlled; pure folding effect isolated + decomposed (winding dominates). Definitive quantitative version needs an extended-source dump + the full worker indirect model on chromatin."
+}

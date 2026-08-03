@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "protocol": "E34-direct-ssb-radius-sweep",
+    "question": "Roadmap item #1 claimed the out-of-band ind/dir ratio is caused by too-small a direct reaction volume (0.29 nm) and a blind bump to ~0.5 nm would fix it. Measure the ratio AND the absolute SSB_total vs direct radius on the committed v0.7.0 deposit-site dump, before changing anything.",
+    "method": "Re-score the committed E33 dump (rad_buf/rade/raddep, N=4096/10 keV) with the accumulated-volume energy-threshold direct scorer at r_direct in {0.29..0.60} nm, deposit-site positions. Indirect is fixed at 201 (chemistry is independent of the direct radius). Deterministic p_break expectation.",
+    "nPrimaries": 4096, "energy_eV": 10000
+  },
+  "sweep": [
+    {"r_direct_nm": 0.29, "in_reach": 112, "direct": 31.5, "ratio": 6.38, "in_band": false, "ssb_total": 232, "x_experiment": 1.28},
+    {"r_direct_nm": 0.35, "in_reach": 184, "direct": 49.9, "ratio": 4.03, "in_band": false, "ssb_total": 251, "x_experiment": 1.38},
+    {"r_direct_nm": 0.40, "in_reach": 258, "direct": 69.6, "ratio": 2.89, "in_band": true,  "ssb_total": 271, "x_experiment": 1.49},
+    {"r_direct_nm": 0.45, "in_reach": 343, "direct": 88.8, "ratio": 2.26, "in_band": true,  "ssb_total": 290, "x_experiment": 1.60},
+    {"r_direct_nm": 0.50, "in_reach": 470, "direct": 119.9, "ratio": 1.68, "in_band": false, "ssb_total": 321, "x_experiment": 1.77},
+    {"r_direct_nm": 0.55, "in_reach": 602, "direct": 148.4, "ratio": 1.35, "in_band": false, "ssb_total": 349, "x_experiment": 1.92},
+    {"r_direct_nm": 0.60, "in_reach": 745, "direct": 182.5, "ratio": 1.10, "in_band": false, "ssb_total": 384, "x_experiment": 2.11}
+  ],
+  "finding": "The ratio enters PARTRAC's 2-3 band at r_direct ~= 0.40-0.45 nm, BUT the absolute SSB_total simultaneously drifts from 1.28x experiment (Ward 1988, at 0.29 nm) to 1.49-1.60x. So the radius is NOT a free lever: bringing the ratio in-band trades away the (already-validated) absolute yield, AND choosing the radius to land the ratio would be calibration (no verified molecularDNA-source value for ~0.45 nm). This confirms the out-of-band ratio is a TWO-SIDED imbalance, dominated by INFLATED INDIRECT: indirect tripled (64->201) when P_indirect went 0.05->0.13 (parameter-free switch), and the concentrated 21x21 fibre grid over-counts near-backbone OH. E27 showed the OLD-calibrated ratio was 2.24-2.53 in-band across fibre spacing; the parameter-free indirect is what pushed it out.",
+  "conclusion": "The DNA-damage ratio/absolute gap to Geant4-DNA/PARTRAC is a GEOMETRY problem (concentrated fibre grid inflates indirect), not a direct-radius problem. The honest fix is realistic chromatin geometry (nucleosome -> 30 nm fibre -> nucleus), which removes the concentration artifact and would bring both the ratio and the absolute toward experiment WITHOUT tuning any probability or radius. Roadmap item #1's blind radius bump is REJECTED (calibration + breaks absolute).",
+  "status": "pass (measured); localizes the damage gap to geometry, rejects the radius knob"
+}
