@@ -4,7 +4,7 @@
  * once chromatin replaces the straight-fibre grid.
  */
 import { describe, it, expect } from 'vitest';
-import { buildNucleosome, R_BB } from '../../src/physics/chromatin-geometry';
+import { buildNucleosome, buildChromatinFibre, R_BB } from '../../src/physics/chromatin-geometry';
 
 const dist = (
   ax: Float32Array, ay: Float32Array, az: Float32Array, i: number,
@@ -50,6 +50,23 @@ describe('nucleosome geometry', () => {
     expect(maxR).toBeLessThan(6.5);
     expect(maxZ - minZ).toBeGreaterThan(3.0); // ~1.65 × 2.39 ≈ 4 nm tall
     expect(maxZ - minZ).toBeLessThan(6.0);
+  });
+
+  it('assembles a ~30 nm chromatin fibre from nucleosomes', () => {
+    const nNuc = 12;
+    const fib = buildChromatinFibre(nNuc);
+    expect(fib.n_bp).toBe(nNuc * 147);
+    let maxR = 0, maxZ = -Infinity, minZ = Infinity, sumSameStrand = 0;
+    for (let i = 0; i < fib.n_bp; i++) {
+      maxR = Math.max(maxR, Math.hypot(fib.bx[i], fib.by[i]));
+      maxZ = Math.max(maxZ, fib.bz[i]); minZ = Math.min(minZ, fib.bz[i]);
+      if (i > 0) sumSameStrand += Math.hypot(fib.bx[i] - fib.bx[i - 1], fib.by[i] - fib.by[i - 1], fib.bz[i] - fib.bz[i - 1]);
+    }
+    expect(maxR * 2).toBeGreaterThan(24); // fibre diameter ~30 nm
+    expect(maxR * 2).toBeLessThan(40);
+    // rigid transforms preserve the intra-nucleosome B-DNA P–P spacing
+    expect(sumSameStrand / (fib.n_bp - 1)).toBeGreaterThan(0.5);
+    expect(sumSameStrand / (fib.n_bp - 1)).toBeLessThan(1.2);
   });
 
   it('winds the DNA around the superhelix (backbones span the full azimuth)', () => {

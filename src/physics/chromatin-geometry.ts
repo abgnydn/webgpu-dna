@@ -85,6 +85,61 @@ function nucleosomeBackbone(): { s0: V3[]; s1: V3[] } {
   return { s0, s1 };
 }
 
+/** 3×3 rotation (row-major) that maps the local disc axis +z onto `t` (unit). */
+function rotAlignZ(t: V3): number[] {
+  const [x, y, z] = t;
+  if (z > 0.999999) return [1, 0, 0, 0, 1, 0, 0, 0, 1];
+  if (z < -0.999999) return [1, 0, 0, 0, -1, 0, 0, 0, -1]; // 180° about x
+  // Rodrigues for rotating +z onto t: axis = z×t (normalised), angle from z·t.
+  const ax = -y, ay = x, az = 0; // z×t = (-y, x, 0)
+  const s = Math.hypot(ax, ay, az);
+  const ux = ax / s, uy = ay / s, uz = az / s;
+  const c = z, k = 1 - c; // cosθ = z·t = z-component
+  return [
+    c + ux * ux * k, ux * uy * k - uz * s, ux * uz * k + uy * s,
+    uy * ux * k + uz * s, c + uy * uy * k, uy * uz * k - ux * s,
+    uz * ux * k - uy * s, uz * uy * k + ux * s, c + uz * uz * k,
+  ];
+}
+const apply = (R: number[], v: V3): V3 => [
+  R[0] * v[0] + R[1] * v[1] + R[2] * v[2],
+  R[3] * v[0] + R[4] * v[1] + R[5] * v[2],
+  R[6] * v[0] + R[7] * v[1] + R[8] * v[2],
+];
+
+// 30 nm chromatin fibre (solenoid): nucleosomes on a helix, disc axes radial.
+const FIB_R = 11.0; // nm, nucleosome-centre → fibre axis (fibre Ø ≈ 2(11+5) ≈ 32 nm)
+const NUC_PER_TURN = 6;
+const FIB_PITCH = 11.0; // nm/turn axial
+
+/**
+ * Build a chromatin fibre of `nNuc` nucleosomes as a solenoid, centred at the
+ * origin. Realistic folded DNA (vs the straight-fibre grid) for the re-scoring
+ * experiment. ~147 bp/nucleosome; linker DNA is omitted (a solenoid-of-cores
+ * approximation, sufficient for the OH/ionisation-proximity comparison).
+ */
+export function buildChromatinFibre(nNuc: number): ChromatinTarget {
+  const { s0, s1 } = nucleosomeBackbone();
+  const perNuc = s0.length;
+  const n = nNuc * perNuc;
+  const bx = new Float32Array(n), by = new Float32Array(n), bz = new Float32Array(n);
+  const b1x = new Float32Array(n), b1y = new Float32Array(n), b1z = new Float32Array(n);
+  const zTop = ((nNuc - 1) * FIB_PITCH) / NUC_PER_TURN;
+  let w = 0;
+  for (let k = 0; k < nNuc; k++) {
+    const theta = (k * 2 * Math.PI) / NUC_PER_TURN;
+    const zax = (k * FIB_PITCH) / NUC_PER_TURN - zTop / 2; // centre the fibre on z
+    const C: V3 = [FIB_R * Math.cos(theta), FIB_R * Math.sin(theta), zax];
+    const R = rotAlignZ([Math.cos(theta), Math.sin(theta), 0]); // disc axis → radial
+    for (let i = 0; i < perNuc; i++, w++) {
+      const p0 = apply(R, s0[i]); const p1 = apply(R, s1[i]);
+      bx[w] = p0[0] + C[0]; by[w] = p0[1] + C[1]; bz[w] = p0[2] + C[2];
+      b1x[w] = p1[0] + C[0]; b1y[w] = p1[1] + C[1]; b1z[w] = p1[2] + C[2];
+    }
+  }
+  return { n_bp: n, bx, by, bz, b1x, b1y, b1z };
+}
+
 /**
  * Build a single nucleosome target (147 bp), centred at the origin. First real,
  * testable geometry unit; the fibre/nucleus assembly stacks these.
