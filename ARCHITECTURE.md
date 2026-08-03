@@ -289,7 +289,7 @@ Measured on Apple M2 Max, Chrome 132, 4096 primaries @ 10 keV.
  single source of truth — this only summarizes it):
    CSDA range       0.997× Geant4 (2739.6 vs 2747.5 nm)          [E5, E29]
    Ions/primary     primary track 0.999× (195.4 vs 195.6);
-                    full cascade 0.942× (479.6 vs 509.2)         [E20, E29]
+                    full cascade 0.981× (499.3 vs 509.2)         [E20, E35]
    Energy cons.     100.0%
    Mean W_transfer  57.14 eV vs 57.15 eV Geant4 (1.000×)
  (The earlier "Ions/pri 509.1 → 1.00×" row was retracted — see CHANGELOG;

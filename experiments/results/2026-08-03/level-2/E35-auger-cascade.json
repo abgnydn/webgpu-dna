@@ -18,7 +18,8 @@
     "bin_438.7_806.0_eV": {"before": 4075, "after": 7209, "g4": 7272, "rel_diff_before": 0.434, "rel_diff_after": 0.009, "status": "FAIL -> PASS"},
     "total_secondaries_per_primary": {"before": 143.35, "after": 144.66, "g4": 144.90},
     "all_other_bins": "all pass (<5% vs g4); neighbours stable (239-439: 0.028, 806-1481: 0.025)",
-    "cascade_ions_per_primary_H3Op": {"before": 461.5, "after": 480.5, "g4": 509.2, "ratio_before": 0.906, "ratio_after": 0.944, "gain": 19.0, "note": "measured on fresh pre/post-Auger Phase-A+B dumps (H3O+ count); the Auger electrons ionise downstream, so the same fix improves BOTH the secondary spectrum AND the cascade-ion deficit."}
+    "cascade_ions_per_primary_H3Op": {"before": 461.5, "after": 480.5, "g4": 509.2, "ratio_before": 0.906, "ratio_after": 0.944, "gain": 19.0, "note": "measured on fresh pre/post-Auger Phase-A+B dumps (H3O+ count); the Auger electrons ionise downstream, so the same fix improves BOTH the secondary spectrum AND the cascade-ion deficit."},
+    "cascade_ions_headline_H3Op_plus_H2marker": {"before": 479.6, "after": 499.3, "g4": 509.2, "ratio_before": 0.942, "ratio_after": 0.981, "note": "The README headline metric (H3O+ + H2-marker). The pre-Auger value 479.6/0.942x reproduces the committed E29 headline EXACTLY, validating the measurement; the Auger fix lifts it to 499.3/0.981x (5.8% -> 1.9% deficit). This is the value now in README Numbers."}
   },
   "status": "pass — real Geant4-DNA fidelity gap (atomic de-excitation) diagnosed from raw G4EMLOW data and closed. Auger improves TWO metrics: E8 439-806 eV bin 43%->0.9%, AND cascade ions/primary 0.906->0.944x. Follow-up: re-measure the README §Numbers cascade-ion headline (479.6/0.942x) with Auger under the full headline methodology."
 }

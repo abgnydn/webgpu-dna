@@ -7,6 +7,17 @@ from `0.1.0`.
 
 ## [Unreleased]
 
+### Added
+- **K-shell Auger electron emission** — the oxygen K-shell (1a1, 539 eV) hole
+  now de-excites by emitting a ~503 eV KLL Auger electron (as Geant4-DNA does via
+  `G4UAtomicDeexcitation`), depositing only the ~36 eV L-shell rearrangement
+  locally. Diagnosed from the raw G4EMLOW 8.8 differential data: the E8 secondary
+  spectrum's 439–806 eV bin was 43 % short purely for lack of the Auger electron.
+  Closes it (4075 → 7209 vs Geant4 7272, 0.9 %) **and** lifts the full-cascade
+  ion count **0.942× → 0.981×** (5.8 % → 1.9 % deficit) since the Auger electrons
+  ionise downstream. Also adds the analytical chromatin geometry (nucleosome →
+  30 nm fibre) and the E34–E37 damage-geometry findings. (E35, E33–E37)
+
 ### Changed
 - **DNA-damage scoring is now parameter-free** — the pipeline's last two calibrated
   knobs (`SSB_P_DIRECT`, `SSB_P_INDIRECT`) are gone. Direct SSB uses a Nikjoo/Charlton
