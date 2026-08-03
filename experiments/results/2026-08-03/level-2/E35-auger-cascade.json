@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "protocol": "E35-auger-cascade",
+    "question": "E8's 438.7-806 eV secondary-KE bin was 43% short of Geant4 (4075 vs 7272). Roadmap #2 blamed sample_W_sec interpolation; that fix moved it only to 4196 (honest-negative). What is the real cause?",
+    "method": "Downloaded G4EMLOW 8.8 (Geant4 11.4.1 data) and analysed the raw sigmadiff_cumulated_ionisation_e_born.dat directly, then implemented + re-measured on the GPU (bench dumpSecBuf, N=4096/10 keV, WGSL vs committed E8 g4_count).",
+    "energy_eV": 10000, "nPrimaries": 4096
+  },
+  "diagnosis": {
+    "cdf_subsampling_loss_in_band": "0.0% (all shells, all energies) — the N_WR=250 subsampled CDF perfectly preserves the 439-806 band; not the cause.",
+    "column_semantics": "column 2 is ENERGY TRANSFER (K-shell CDF starts at 540 eV, valence at ~11 eV) — the shader correctly subtracts binding; not the cause.",
+    "kshell_ionisation_fraction_10keV": 0.0056,
+    "kshell_P_in_band": "0.156-0.192 (a K-shell ionisation has ~17% chance of a 439-806 eV secondary)",
+    "direct_ionisation_accounts_for": "valence+K direct ~= 0.62% of secondaries in-band ~= WGSL's measured 0.694%; Geant4's 1.225% leaves a ~0.6% gap",
+    "root_cause": "MISSING AUGER CASCADE. The oxygen K-shell (1a1, 539 eV) hole de-excites by a ~503 eV KLL Auger electron (fluorescence yield <1%), which Geant4-DNA emits via G4UAtomicDeexcitation. The WGSL port had no Auger emission, so ~0.5-0.7 Auger electrons/primary (~503 eV, squarely in the 439-806 band) were missing = the entire 43% deficit."
+  },
+  "fix": "On K-shell ionisation, emit an isotropic ~503 eV Auger electron into sec_buf and deposit only the ~36 eV L-shell rearrangement locally (539 = 503 Auger + 36 local), conserving energy. Added to both primary.wgsl and secondary.wgsl.",
+  "validation": {
+    "bin_438.7_806.0_eV": {"before": 4075, "after": 7209, "g4": 7272, "rel_diff_before": 0.434, "rel_diff_after": 0.009, "status": "FAIL -> PASS"},
+    "total_secondaries_per_primary": {"before": 143.35, "after": 144.66, "g4": 144.90},
+    "all_other_bins": "all pass (<5% vs g4); neighbours stable (239-439: 0.028, 806-1481: 0.025)"
+  },
+  "status": "pass — real Geant4-DNA fidelity gap (atomic de-excitation) diagnosed from raw G4EMLOW data and closed; E8 439-806 eV bin 43% -> 0.9%. Expected to also improve the 0.942x cascade-ion deficit (the Auger electrons ionise downstream) — to be re-measured."
+}

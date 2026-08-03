@@ -31,6 +31,11 @@ const RECOMB_BOOST:f32=1.0;
 
 // Shell binding energies (eV) — G4DNAWaterIonisationStructure
 const SB=array<f32,5>(10.79,13.39,16.05,32.30,539.0);
+// Oxygen K-shell (1a1, 539 eV) Auger electron energy (KLL, ~503 eV). The K-hole
+// de-excites overwhelmingly by Auger (fluorescence yield <1%); Geant4-DNA emits
+// it via G4UAtomicDeexcitation. Without it the 439-806 eV secondary band is ~43%
+// short (E8). 539 - 503 = ~36 eV of L-shell rearrangement stays as a local deposit.
+const E_AUGER:f32=503.0;
 // Excitation energies (eV) — G4DNAEmfietzoglouWaterExcitationStructure
 const EX=array<f32,5>(8.22,10.00,11.24,12.61,13.77);
 
