@@ -160,6 +160,7 @@ export function scoreDirectSSB_events(
   dna: DNATarget,
   rad_buf: Float32Array,
   rad_e: Float32Array,
+  rad_dep: Float32Array,
   rad_n: number,
   rng: Rng,
 ): DirectSSBResult {
@@ -193,11 +194,15 @@ export function scoreDirectSSB_events(
     // marker. Skipping them is also what lets the mother-site entries collapse.
     if (species === SPECIES.eaq || species === 5 || species === SPECIES.H2) continue;
 
-    const x = rad_buf[i * 4 + 0];
-    const y = rad_buf[i * 4 + 1];
-    const z = rad_buf[i * 4 + 2];
-    // One roll per event: entries sharing the exact mother position are the same
-    // dissociation site (distinct ionization sites never share an fp position).
+    // Position comes from rad_dep (the TRUE energy-deposit site), NOT rad_buf —
+    // rad_buf's ionization products carry the ~2 nm mother-displaced radical
+    // position, which is where the chemistry needs them, not where the sugar
+    // was actually ionised. All entries of one event share the same deposit site.
+    const x = rad_dep[i * 4 + 0];
+    const y = rad_dep[i * 4 + 1];
+    const z = rad_dep[i * 4 + 2];
+    // One roll per event: entries sharing the exact deposit position are the same
+    // ionisation site (distinct ionization sites never share an fp position).
     if (x === last_x && y === last_y && z === last_z) continue;
     last_x = x;
     last_y = y;

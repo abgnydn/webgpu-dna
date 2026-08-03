@@ -24,6 +24,9 @@ export async function initGPU(log?: LogFn): Promise<GPUDevice | null> {
     requiredLimits: {
       maxBufferSize: adapter.limits.maxBufferSize,
       maxStorageBufferBindingSize: adapter.limits.maxStorageBufferBindingSize,
+      // The primary bind group binds 9 storage buffers (rad_dep added for
+      // deposit-site direct-SSB scoring); the guaranteed baseline is 8.
+      maxStorageBuffersPerShaderStage: adapter.limits.maxStorageBuffersPerShaderStage,
     },
   });
 

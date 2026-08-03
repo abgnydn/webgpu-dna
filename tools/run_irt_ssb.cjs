@@ -61,7 +61,7 @@ function makeSsbRng(seed = 0x12345678 >>> 0) {
 }
 
 // --- scoreDirectSSB_events (src/scoring/ssb-dsb.ts) ---
-function scoreDirectSSB_events(dna, rad_buf, rad_e, rad_n, rng) {
+function scoreDirectSSB_events(dna, rad_buf, rad_e, rad_dep, rad_n, rng) {
   const r_direct = SSB_R_DAMAGE_NM, r_direct2 = r_direct * r_direct, e_span = SSB_E_HIGH - SSB_E_LOW;
   const hits = new Uint8Array(dna.n_bp * 2);
   const E_acc = new Float32Array(dna.n_bp * 2); // accumulated deposit per (bp,strand)
@@ -74,7 +74,8 @@ function scoreDirectSSB_events(dna, rad_buf, rad_e, rad_n, rng) {
   for (let i = 0; i < rad_n; i++) {
     const species = Math.round(rad_buf[i * 4 + 3]) % 8;
     if (species === 1 || species === 5 || species === 7) continue;
-    const x = rad_buf[i * 4], y = rad_buf[i * 4 + 1], z = rad_buf[i * 4 + 2];
+    // Position from rad_dep (true deposit site), NOT rad_buf (displaced radical).
+    const x = rad_dep[i * 4], y = rad_dep[i * 4 + 1], z = rad_dep[i * 4 + 2];
     if (x === last_x && y === last_y && z === last_z) continue;
     last_x = x; last_y = y; last_z = z;
     if (x < -x_half - r_direct || x > x_half + r_direct) continue;
@@ -168,6 +169,18 @@ const ebuf = fs.readFileSync(radeFile);
 const rad_e = new Float32Array(ebuf.buffer, ebuf.byteOffset, ebuf.byteLength / 4);
 if (rad_e.length < rad_n) { console.error(`[run_irt_ssb] rad_e length ${rad_e.length} < rad_n ${rad_n}`); process.exit(4); }
 
+// True energy-deposit site (px,py,pz) per rad_buf entry — direct-SSB scores
+// against this, not the mother-displaced radical position in rad_buf. Dumped as
+// raddep_E<E>_N<np>.bin.
+const raddepFile = dumpFile.replace(/rad_E/, 'raddep_E');
+if (!fs.existsSync(raddepFile)) {
+  console.error(`[run_irt_ssb] missing rad_dep dump ${raddepFile} — regenerate the dump with the current shaders (they emit rad_dep).`);
+  process.exit(4);
+}
+const dbuf = fs.readFileSync(raddepFile);
+const rad_dep = new Float32Array(dbuf.buffer, dbuf.byteOffset, dbuf.byteLength / 4);
+if (rad_dep.length < rad_n * 4) { console.error(`[run_irt_ssb] rad_dep length ${rad_dep.length} < rad_n*4 ${rad_n * 4}`); process.exit(4); }
+
 const dna = buildDNATarget(DNA_LENGTH_NM, DNA_GRID_N, DNA_SPACING_NM);
 const dnaForWorker = {
   fy: dna.fy, fz: dna.fz, rbb0: dna.rbb0, rbb1: dna.rbb1,
@@ -200,7 +213,7 @@ const ind = workerResult.ssb_indirect;
 const ssb_ind = ind.total;
 const indirectHits = ind.hits;
 const rng = makeSsbRng();
-const direct = scoreDirectSSB_events(dna, rad_buf, rad_e, rad_n, rng);
+const direct = scoreDirectSSB_events(dna, rad_buf, rad_e, rad_dep, rad_n, rng);
 const ssb_dir = direct.ssb_count;
 const combined = combineHits(direct.hits, indirectHits);
 const dsbRes = clusterDSB(dna, combined);
