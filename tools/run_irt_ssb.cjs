@@ -187,7 +187,10 @@ const dnaForWorker = {
   n_bp_per: dna.n_bp_per, grid_N: dna.grid_N, spacing_nm: dna.spacing_nm,
   x0: dna.x0, x_half: -dna.x0, r_bb: dna.r_bb,
 };
-const ssbScoring = { r_indirect: SSB_R_DAMAGE_INDIRECT_NM, p_indirect: SSB_P_INDIRECT, seed: 0x53534231 };
+// EXPLICIT_DNA=1 → the explicit OH+deoxyribose IRT reaction channel (sugar as a
+// competing reactant) instead of the encounter/survival OH-near-backbone proxy.
+const explicitDnaReaction = !!process.env.EXPLICIT_DNA;
+const ssbScoring = { r_indirect: SSB_R_DAMAGE_INDIRECT_NM, p_indirect: SSB_P_INDIRECT, seed: 0x53534231, explicitDnaReaction };
 
 // Shim WebWorker globals so irt-worker.js runs unmodified (as in run_irt.cjs).
 let workerOnMessage = null;
@@ -224,6 +227,8 @@ const out = {
   type: 'damage', E_eV, ssb_dir, ssb_ind, dsb: dsbRes.dsb,
   indirect_over_direct_ratio: ratio,
   in_reach_direct: direct.in_reach, in_reach_indirect: ind.in_reach, candidates_indirect: ind.candidates,
+  indirect_model: ind.explicit ? 'explicit_OH+deoxyribose' : 'encounter_proxy',
+  dna_reactions: ind.dna_reactions, sig_oh_dna_nm: ind.sig_oh_dna,
   G_OH_1us: us.G_OH, G_eaq_1us: us.G_eaq,
   config: { RECOMB_BOOST: 'from dump', SSB_P_INDIRECT, SSB_E_LOW, SSB_E_HIGH, SSB_R_DAMAGE_INDIRECT_NM },
 };

@@ -466,6 +466,18 @@ self.onmessage = function(e) {
   let ssb_in_reach = 0;    // candidates that actually passed the Bernoulli
   let ssbHits = null;
   let dnaSsbCheck = null;  // function(x, y, z) → { hit_bp, hit_strand, in_reach }
+  // Explicit OH + 2-deoxyribose IRT reaction channel (Geant4-DNA molecularDNA style):
+  // the sugar is a static reactant that competes for the OH in the same time-ordered
+  // heap as the radical reactions — replacing the encounter/survival proxies, which
+  // score OH-near-backbone regardless of whether the OH actually reacts with the sugar
+  // (encounter over-counts; survival under-counts). Reaction radius from the same TDC
+  // Smoluchowski relation σ=k/(4π·D) the reaction table uses, with k(OH+2-deoxyribose)
+  // = 2.5e9 M⁻¹s⁻¹ (Buxton 1988) and D=D_OH (the sugar is fixed in the backbone).
+  let dnaReactQuery = null;  // (x,y,z) → { r0, bp, strand, fiber_idx } | null
+  let scoreDnaHit = null;    // (q) → void: applies p_ssb (Nikjoo 0.13) + (bp,strand) dedup
+  const explicitDna = !!(ssbScoring && ssbScoring.explicitDnaReaction);
+  const D_OH = IRT_D[0];
+  const SIG_OH_DNA = (2.5e9 * K_CONV) / (4 * Math.PI * D_OH);
   if (ssbEnabled) {
     const r_indirect = ssbScoring.r_indirect;
     const r_indirect2 = r_indirect * r_indirect;
@@ -525,6 +537,48 @@ self.onmessage = function(e) {
         }
       }
     };
+    // Explicit-channel geometry query: nearest sugar to (x,y,z) + its identity.
+    // Same nearest-backbone search as dnaSsbCheck, but returns the distance r0 (for
+    // the first-passage sampler) instead of the hard r_indirect cutoff.
+    dnaReactQuery = (x, y, z) => {
+      if (x < -x_half - r_indirect || x > x_half + r_indirect) return null;
+      const fi = Math.round((y - grid_off) * inv_spacing);
+      const fj = Math.round((z - grid_off) * inv_spacing);
+      if (fi < 0 || fi >= grid_N || fj < 0 || fj >= grid_N) return null;
+      const fiber_idx = fi * grid_N + fj;
+      const y_rel = y - fy[fiber_idx];
+      const z_rel = z - fz[fiber_idx];
+      if (y_rel * y_rel + z_rel * z_rel > outer2) return null;
+      const bp_est = Math.round((x + x_half) * rise_inv);
+      const bp0 = Math.max(0, bp_est - 2);
+      const bp1 = Math.min(n_bp_per - 1, bp_est + 2);
+      let best_d2 = Infinity, best_bp = -1, best_strand = -1;
+      for (let b = bp0; b <= bp1; b++) {
+        const dx = x - (x0 + b * 0.34);
+        const dy0 = y_rel - rbb0[b * 2 + 0], dz0 = z_rel - rbb0[b * 2 + 1];
+        const d20 = dx * dx + dy0 * dy0 + dz0 * dz0;
+        if (d20 < best_d2) { best_d2 = d20; best_bp = b; best_strand = 0; }
+        const dy1 = y_rel - rbb1[b * 2 + 0], dz1 = z_rel - rbb1[b * 2 + 1];
+        const d21 = dx * dx + dy1 * dy1 + dz1 * dz1;
+        if (d21 < best_d2) { best_d2 = d21; best_bp = b; best_strand = 1; }
+      }
+      return { r0: Math.sqrt(best_d2), bp: best_bp, strand: best_strand, fiber_idx };
+    };
+    // Score an OH-sugar reaction as an SSB with the Nikjoo per-reaction break
+    // probability (p_indirect=0.13, the SAME value the proxies use — so this
+    // isolates the effect of making the reaction explicit), deduped at (bp,strand).
+    scoreDnaHit = (q) => {
+      ssb_candidates++;
+      if (ssbRng() < p_indirect) {
+        ssb_in_reach++;
+        const global_bp = q.fiber_idx * n_bp_per + q.bp;
+        const idx = global_bp + q.strand * (n_bp_per * grid_N * grid_N);
+        if (ssbHits[idx] === 0) {
+          ssbHits[idx] = 1;
+          if (q.strand === 0) ssb0++; else ssb1++;
+        }
+      }
+    };
   }
 
   // --- Phase 1: Group radicals by primary ID ---
@@ -569,6 +623,18 @@ self.onmessage = function(e) {
   const tbirth = new Float64Array(CAP);  // birth time (ns) for diffusion sync
   const heap = new MinHeap(CAP * 8);
 
+  // Schedule the explicit OH+deoxyribose first-passage reaction for OH index `idx`:
+  // find its nearest sugar, sample the diffusion-controlled reaction time, and push a
+  // self-event (gj=-98) so it competes in the heap with the OH's radical reactions.
+  function scheduleDnaReaction(idx) {
+    const q = dnaReactQuery(px[idx], py[idx], pz[idx]);
+    if (!q) return;
+    const t = sampleIRT_type0(q.r0, SIG_OH_DNA, 0, D_OH);
+    if (t < 0) return;                    // OH escapes the sugar — never reacts
+    const tabs = tbirth[idx] + t;
+    if (tabs < 1000) heap.push(tabs, idx, idx, gen[idx], -98);
+  }
+
   // Timeline accumulators. 0.1 ps added 2026-05-11 to align with Geant4 chem6's
   // earliest checkpoint (chem6 default macro records 0.1 ps too), enabling
   // E9 pre-chemistry G-value comparison.
@@ -586,6 +652,7 @@ self.onmessage = function(e) {
   const tl_O2m = new Float64Array(nCP);
   const tl_Oox = new Float64Array(nCP);  // HO2-, O, O-, O3, O3- (minor)
   let total_reacted = 0;
+  let dna_reactions = 0;  // explicit OH+deoxyribose reactions that fired (SSB candidates)
   const rxn_counts = new Int32Array(N_RXN);  // per-reaction-type counter
 
   // Helper: pair a new/changed particle at index `idx` with all alive particles.
@@ -736,6 +803,12 @@ self.onmessage = function(e) {
       }
     }
 
+    // Explicit OH+deoxyribose channel: schedule each initial OH's first-passage
+    // reaction with its nearest sugar (competes with the radical reactions above).
+    if (explicitDna) {
+      for (let i = 0; i < n; i++) if (alive[i] && species[i] === 0) scheduleDnaReaction(i);
+    }
+
     // Process reactions in time order. Pre-load pri_H2 with the count of
     // initial H2 markers (code 7 in rad_buf) for this primary — these come
     // from B1A1 (3.25%) and DEA channels and exist from t=0.
@@ -776,6 +849,23 @@ self.onmessage = function(e) {
         continue;
       }
 
+      // Explicit OH+deoxyribose reaction (gj=-98 sentinel): the OH reacts with the
+      // sugar and is consumed — an SSB candidate. If a radical reaction already
+      // consumed this OH earlier, alive[k]=0 and the event is skipped (competition).
+      if (evt.gj === -98) {
+        const k = evt.i;
+        if (alive[k] && species[k] === 0 && gen[k] === evt.gi) {
+          alive[k] = 0;                          // OH consumed by the deoxyribose
+          total_reacted++;
+          dna_reactions++;
+          if (scoreDnaHit) {
+            const q = dnaReactQuery(px[k], py[k], pz[k]);
+            if (q) scoreDnaHit(q);
+          }
+        }
+        continue;
+      }
+
       // Validate event
       if (!alive[evt.i] || !alive[evt.j]) continue;
       if (gen[evt.i] !== evt.gi || gen[evt.j] !== evt.gj) continue;
@@ -788,7 +878,7 @@ self.onmessage = function(e) {
       // happened to be within r_indirect of a backbone at consumption.
       // This is the per-event check (OH dies in chemistry — its position
       // at death is the encounter site).
-      if (dnaSsbCheck) {
+      if (dnaSsbCheck && !explicitDna) {
         if (si === 0) { dnaSsbCheck(px[evt.i], py[evt.i], pz[evt.i]); if (collectOH && Math.abs(px[evt.i]) < ohBound && Math.abs(py[evt.i]) < ohBound && Math.abs(pz[evt.i]) < ohBound) ohSurv.push(px[evt.i], py[evt.i], pz[evt.i]); }
         if (sj === 0) { dnaSsbCheck(px[evt.j], py[evt.j], pz[evt.j]); if (collectOH && Math.abs(px[evt.j]) < ohBound && Math.abs(py[evt.j]) < ohBound && Math.abs(pz[evt.j]) < ohBound) ohSurv.push(px[evt.j], py[evt.j], pz[evt.j]); }
       }
@@ -845,6 +935,9 @@ self.onmessage = function(e) {
 
         // Pair new product with all alive radicals
         pairWithAlive(idx, n_total, evt.t);
+
+        // Explicit channel: a freshly-created OH also competes for a sugar.
+        if (explicitDna && newSp === 0) scheduleDnaReaction(idx);
       }
     }
 
@@ -867,7 +960,8 @@ self.onmessage = function(e) {
     // (they made it to 1 μs without reacting; their final position is the
     // closest they ever got to whatever DNA they were near). This mirrors
     // the original scoreIndirectSSB scan at t=1μs.
-    if (dnaSsbCheck) {
+    // (Skipped under the explicit channel — a surviving OH never reacted with a sugar.)
+    if (dnaSsbCheck && !explicitDna) {
       for (let k = 0; k < n_total; k++) {
         if (!alive[k]) continue;
         if (species[k] !== 0) continue;
@@ -929,8 +1023,13 @@ self.onmessage = function(e) {
         in_reach: ssb_in_reach,
         r_indirect: ssbScoring.r_indirect,
         p_indirect: ssbScoring.p_indirect,
+        explicit: explicitDna,
+        dna_reactions,
+        sig_oh_dna: SIG_OH_DNA,
         hits: ssbHits,  // Uint8Array, transferred via postMessage
-        note: 'Accumulated during IRT timeline: every OH death event AND every t=1μs survivor checked for backbone proximity. Replaces the original t=1μs-only scoreIndirectSSB scan. `hits` is the per-bp hit mask suitable for clusterDSB.',
+        note: explicitDna
+          ? 'Explicit OH+deoxyribose channel: each OH competes for its nearest sugar in the IRT heap (σ from k=2.5e9, Buxton 1988); an OH scored as SSB only if it actually reacts with the sugar (before its radical reactions), then p_ssb=0.13. `dna_reactions` = OH-sugar reactions that fired.'
+          : 'Accumulated during IRT timeline: every OH death event AND every t=1μs survivor checked for backbone proximity. Replaces the original t=1μs-only scoreIndirectSSB scan. `hits` is the per-bp hit mask suitable for clusterDSB.',
       }
     : null;
 
