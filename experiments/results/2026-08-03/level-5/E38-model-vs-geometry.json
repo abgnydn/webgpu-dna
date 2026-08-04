@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "protocol": "E38-model-vs-geometry",
+    "question": "E37 (survival-OH model) found folding lowers the ratio (dR=0.716). But the PRODUCTION indirect model is the worker's 'encounter' model (score OH near a backbone when it is consumed/survives, throughout its lifetime), not survival-at-1us. Does folding still lower the ratio under the ACTUAL production model? Decompose the out-of-band ratio into indirect-model vs geometry.",
+    "method": "Extended the worker collectOH hook to return the FULL production indirect candidate set (OH near backbone at reaction events + survivors) = 2,307,782 positions. Validation: scored against the full 21x21 grid -> ratio 5.71 (indirect 191), reproducing the production 5.74 (E33, indirect 201). Then the E37 folded-in-place comparison (LINE/BUNDLE/SOLENOID on identical 7x7 axes) under this full encounter model.",
+    "energy_eV": 10000, "nPrimaries": 4096
+  },
+  "validation": {"grid_encounter_ratio": 5.71, "production_ratio_E33": 5.74, "note": "The full-encounter OH set reproduces the production ratio -> it IS the production indirect model."},
+  "encounter_model_folded_in_place": {
+    "LINE":     {"ratio": 6.27, "raw_capture": 19.04},
+    "BUNDLE":   {"ratio": 7.83, "raw_capture": 18.46},
+    "SOLENOID": {"ratio": 6.50, "raw_capture": 14.86},
+    "dR_folding": 1.038, "girth": 1.249, "winding": 0.831
+  },
+  "decomposition": {
+    "note": "Ratio across indirect-model x geometry (grid vs folded chromatin).",
+    "survival_model":  {"grid": 2.12, "chromatin_folded": 1.50, "dR": 0.716, "in_band_grid": true},
+    "encounter_model_production": {"grid": 5.71, "chromatin_folded": 6.50, "dR": 1.038, "in_band_grid": false}
+  },
+  "finding": "The out-of-band production ratio (5.74) is dominated by the INDIRECT MODEL, not geometry. The encounter model (OH scored near a backbone throughout its lifetime) yields 2.3M candidates -> the per-sugar hit 1-(1-0.13)^k SATURATES, so the indirect count tracks the DNA in the track core regardless of fold. Folding drops the RAW OH capture (19.0->14.9) but saturation absorbs it, leaving the ratio geometry-insensitive (dR=1.04). Under the survival model (OH near backbone at 1us only) the ratio is 2.12 (in band) and folding DOES lower it (dR=0.716) - but that is a different, more restrictive indirect model.",
+  "implication": "Reaching PARTRAC's 2-3 band is an INDIRECT-MODEL question, not a geometry one. This corrects E34's 'geometry is the keystone' framing: geometry (folding) is a ~28% lever ONLY under the survival model; under the actual production (encounter) model it is a red herring (dR~=1.0). The Geant4-DNA-faithful fix is to make DNA an EXPLICIT IRT reactant (OH + 2-deoxyribose -> SSB as a reaction channel, P~0.13 Nikjoo), so an OH damages a sugar only when it actually reacts WITH it - which the encounter proxy over-counts (OH consumed by OTHER radicals near a backbone) and the survival proxy under-counts (misses OH that reacted with the sugar mid-timeline). Neither current proxy matches Geant4's explicit reaction channel.",
+  "status": "pass - decisive: indirect-model saturation (not geometry) drives the out-of-band ratio; the definitive Geant4-level fix is an explicit OH+DNA IRT reaction channel, not realistic geometry."
+}

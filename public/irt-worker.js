@@ -789,8 +789,8 @@ self.onmessage = function(e) {
       // This is the per-event check (OH dies in chemistry — its position
       // at death is the encounter site).
       if (dnaSsbCheck) {
-        if (si === 0) dnaSsbCheck(px[evt.i], py[evt.i], pz[evt.i]);
-        if (sj === 0) dnaSsbCheck(px[evt.j], py[evt.j], pz[evt.j]);
+        if (si === 0) { dnaSsbCheck(px[evt.i], py[evt.i], pz[evt.i]); if (collectOH && Math.abs(px[evt.i]) < ohBound && Math.abs(py[evt.i]) < ohBound && Math.abs(pz[evt.i]) < ohBound) ohSurv.push(px[evt.i], py[evt.i], pz[evt.i]); }
+        if (sj === 0) { dnaSsbCheck(px[evt.j], py[evt.j], pz[evt.j]); if (collectOH && Math.abs(px[evt.j]) < ohBound && Math.abs(py[evt.j]) < ohBound && Math.abs(pz[evt.j]) < ohBound) ohSurv.push(px[evt.j], py[evt.j], pz[evt.j]); }
       }
 
       // Kill reactants
