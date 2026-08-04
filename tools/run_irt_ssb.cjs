@@ -209,8 +209,16 @@ const src = fs.readFileSync(path.resolve(__dirname, '../public/irt-worker.js'), 
 eval(src);
 if (typeof workerOnMessage !== 'function') { console.error('[run_irt_ssb] worker did not register onmessage'); process.exit(2); }
 
-workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV, dna: dnaForWorker, ssbScoring, o2_conc } });
+// COLLECT_OHREC=<path> → export per-OH (x,y,z,t_birth,t_death) for the E40 offline
+// explicit-channel replay against folded chromatin. Uses the encounter/pure-radical
+// run (explicitDna stays off) so t_death is the radical-death time.
+const ohrecPath = process.env.COLLECT_OHREC || '';
+workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV, dna: dnaForWorker, ssbScoring, o2_conc, collectOHrec: !!ohrecPath } });
 if (!workerResult || !workerResult.ssb_indirect) { console.error('[run_irt_ssb] no ssb_indirect from worker'); process.exit(3); }
+if (ohrecPath && workerResult.oh_records) {
+  fs.writeFileSync(ohrecPath, Buffer.from(workerResult.oh_records.buffer));
+  console.error(`[run_irt_ssb] wrote ${workerResult.oh_records.length / 5} OH records → ${ohrecPath}`);
+}
 
 const ind = workerResult.ssb_indirect;
 const ssb_ind = ind.total;

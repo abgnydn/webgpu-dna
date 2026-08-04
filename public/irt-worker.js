@@ -432,6 +432,14 @@ self.onmessage = function(e) {
   const collectOH = !!e.data.collectOH;
   const ohBound = e.data.ohBound || 1700;
   const ohSurv = collectOH ? [] : null;
+  // collectOHrec: export per-OH (x, y, z, t_birth, t_death) so the explicit
+  // OH+deoxyribose competition can be REPLAYED offline against any DNA geometry
+  // (E40): an OH reacts with a sugar iff t_birth + t_firstpassage < t_death (its
+  // radical-death time). Run with explicitDna OFF so t_death is the pure-radical
+  // death time (survivors get t_death = 1e9). ~0.017% of reactions are OH-sugar,
+  // so removing them offline perturbs the radical death times negligibly.
+  const collectOHrec = !!e.data.collectOHrec;
+  const ohRec = collectOHrec ? [] : null;
   // Seed the whole-worker RNG so chemistry (and the OH positions the SSB scorer
   // consumes) are reproducible. Falls back to a fixed constant when unseeded.
   _rngState = (e.data.chemSeed | 0) >>> 0 || 0x9e3779b9;
@@ -883,6 +891,12 @@ self.onmessage = function(e) {
         if (sj === 0) { dnaSsbCheck(px[evt.j], py[evt.j], pz[evt.j]); if (collectOH && Math.abs(px[evt.j]) < ohBound && Math.abs(py[evt.j]) < ohBound && Math.abs(pz[evt.j]) < ohBound) ohSurv.push(px[evt.j], py[evt.j], pz[evt.j]); }
       }
 
+      // collectOHrec: record each OH's death (radical reaction) as (x,y,z,t_birth,t_death).
+      if (collectOHrec) {
+        if (si === 0 && Math.abs(px[evt.i]) < ohBound && Math.abs(py[evt.i]) < ohBound && Math.abs(pz[evt.i]) < ohBound) ohRec.push(px[evt.i], py[evt.i], pz[evt.i], tbirth[evt.i], evt.t);
+        if (sj === 0 && Math.abs(px[evt.j]) < ohBound && Math.abs(py[evt.j]) < ohBound && Math.abs(pz[evt.j]) < ohBound) ohRec.push(px[evt.j], py[evt.j], pz[evt.j], tbirth[evt.j], evt.t);
+      }
+
       // Kill reactants
       alive[evt.i] = 0;
       alive[evt.j] = 0;
@@ -972,6 +986,16 @@ self.onmessage = function(e) {
       }
     }
 
+    // collectOHrec: record surviving OHs with t_death = 1e9 (never reacted with a radical).
+    if (collectOHrec) {
+      for (let k = 0; k < n_total; k++) {
+        if (!alive[k] || species[k] !== 0) continue;
+        if (Math.abs(px[k]) < ohBound && Math.abs(py[k]) < ohBound && Math.abs(pz[k]) < ohBound) {
+          ohRec.push(px[k], py[k], pz[k], tbirth[k], 1e9);
+        }
+      }
+    }
+
     priDone++;
     if (priDone % 500 === 0) {
       self.postMessage({ type: 'progress',
@@ -1038,5 +1062,6 @@ self.onmessage = function(e) {
     chem_n: rad_n, t_wall, n_repaired: 0, rxn_info,
     ssb_indirect,
     oh_survivors: collectOH ? new Float32Array(ohSurv) : null,
+    oh_records: collectOHrec ? new Float32Array(ohRec) : null,
   });
 };
