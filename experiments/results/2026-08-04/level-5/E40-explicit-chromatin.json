@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "protocol": "E40-explicit-chromatin",
+    "question": "E38 found folding ~neutral under the ENCOUNTER model (dR=1.04) because it SATURATES (2.3M candidates). The E39 explicit OH+deoxyribose channel does NOT saturate (~400-1700 reactions), so folding might be a real lever again. Does realistic chromatin folding change the ratio under the FAITHFUL explicit reaction model — and does the faithful model land in PARTRAC's band?",
+    "method": "The full explicit channel needs the worker's IRT competition, but folded chromatin packs ~27x more bp/length -> ~100M backbone atoms, infeasible in the worker. So the competition is REPLAYED OFFLINE: the worker exports per-OH (x,y,z,t_birth,t_death) via collectOHrec (pure-radical death times, explicitDna off); the scorer damages a sugar iff t_birth + sampleIRT_type0(r0) < t_death (the OH reaches the sugar before its radical death) — the same first-passage the worker uses (sigma=0.15nm from k=2.5e9 Buxton). Scored against LINE/BUNDLE/SOLENOID on identical 7x7 axes core (E37 fold-in-place, +-400nm) + a full 21x21 straight-grid control at the FULL fibre length (+-1500nm). RNG reset per geometry -> reproducible paired fold comparison. Removing the ~0.017% OH-sugar reactions offline perturbs the radical death times negligibly.",
+    "energies_eV": [1000, 3000, 10000], "nPrimaries": 4096
+  },
+  "validation": {
+    "survival_replay_reproduces_E37": {"LINE": 2.926, "BUNDLE": 2.697, "SOLENOID": 2.095, "dR": 0.716, "note": "The replay's SURVIVAL-model scoring reproduces E37's LINE 2.93 / BUNDLE 2.70 / SOLENOID 2.10 and dR=0.716 EXACTLY -> the E40 geometry + scoring pipeline is validated; the explicit channel is the only new ingredient."},
+    "direct_count": {"replay_full_grid": 35.6, "worker_online": 32, "note": "full-length replay direct ~ worker direct -> the absolute ratio is comparable."}
+  },
+  "explicit_channel_ratio_full_grid": {
+    "note": "Full 21x21 grid, +-1500nm, global-nearest-sugar search. RISES with energy, reaching IN-BAND at the production energy.",
+    "E1000": 1.430, "E3000": 1.568, "E10000": 2.170,
+    "worker_online_pm2bp_E10000": 1.66,
+    "search_note": "The replay uses the global nearest sugar within 2.5nm; the worker's on-line dnaReactQuery uses a +-2bp single-fibre window and finds fewer reactions (416 vs 640 at 10keV) -> 1.66 vs 2.17. The complete search (2.17) lands IN PARTRAC's 2-3 band; both are far below the encounter proxy's 5.74."
+  },
+  "fold_effect_explicit_channel": {
+    "note": "dR = ratio_solenoid/ratio_line (folding); girth = bundle/line; winding = solenoid/bundle. Same replay + reset RNG across all three.",
+    "E1000":  {"LINE": 1.502, "BUNDLE": 2.061, "SOLENOID": 1.738, "dR": 1.157, "girth": 1.371, "winding": 0.843},
+    "E3000":  {"LINE": 1.960, "BUNDLE": 2.501, "SOLENOID": 2.120, "dR": 1.081, "girth": 1.276, "winding": 0.847},
+    "E10000": {"LINE": 2.623, "BUNDLE": 2.541, "SOLENOID": 2.167, "dR": 0.826, "girth": 0.969, "winding": 0.853}
+  },
+  "cross_model_fold_comparison": {
+    "survival_model_E37":  {"dR": 0.716, "note": "folding LOWERS (outlier; only surviving OHs counted)"},
+    "encounter_model_E38": {"dR": 1.038, "note": "folding ~neutral (saturated)"},
+    "explicit_model_E40":  {"dR_by_energy": {"1keV": 1.157, "3keV": 1.081, "10keV": 0.826}, "note": "folding raises at low E, lowers ~17% at the production energy; girth 1.37->0.97 (falls with E), winding stable ~0.85. Second-order lever throughout."}
+  },
+  "findings": [
+    "The Geant4-faithful explicit OH+deoxyribose channel, at the PRODUCTION energy (10 keV) with a complete nearest-sugar search, gives ratio 2.17 — SQUARELY IN PARTRAC's 2-3 band, parameter-free. The ratio rises with energy (1.43 -> 1.57 -> 2.17 over 1-10 keV). The encounter proxy's out-of-band 5.74 was entirely an over-counting artifact.",
+    "Realistic chromatin folding is a SECOND-ORDER lever under the explicit channel (dR 0.83-1.16): it raises the ratio at low energy and lowers it ~17% at the production energy, but keeps it IN/NEAR band throughout — folded chromatin at 10 keV = 2.17 (in band). Girth (30nm bundle) raises the ratio at low E and is neutral at high E; winding consistently lowers it ~15%.",
+    "The replay reproduces E37's survival-model dR=0.716 exactly, validating the pipeline. The indirect MODEL (encounter 5.74 vs explicit ~1.7-2.2) is the dominant ~3x lever; geometry is second-order (dR~0.8-1.2). E34's 'geometry keystone' is fully closed."
+  ],
+  "interpretation": "This completes the E37-E40 arc and resolves the out-of-band mystery. The production ratio's excess (5.74 vs the 2-3 band) was NOT geometry and NOT real physics — it was the encounter proxy scoring every near-backbone OH regardless of whether it reacted with the sugar. Making the deoxyribose an explicit competing IRT reactant (Geant4-DNA molecularDNA structure) brings the ratio to 2.17 at the production energy — IN BAND, parameter-free — and realistic chromatin folding keeps it in band. The damage layer now matches Geant4/PARTRAC at the mechanism level, not by tuning.",
+  "caveats": [
+    "Offline replay of the competition (justified: OH-sugar reactions are ~0.017% of all reactions, so removing them perturbs radical death times negligibly; the survival replay reproduces E37 exactly as a check).",
+    "The worker's on-line explicit search (+-2bp single fibre) under-counts vs the complete global-nearest search (1.66 vs 2.17) — the on-line dnaReactQuery should be widened to a full nearest-sugar search to match; that is an implementation refinement, not a physics change.",
+    "p_ssb=0.13 held fixed (Nikjoo); the in-band result needs no tuning of it."
+  ],
+  "status": "pass - decisive: the faithful explicit OH+deoxyribose channel lands the production-energy ratio IN PARTRAC's 2-3 band (2.17) parameter-free, and chromatin folding keeps it there. Completes E37-E40: the out-of-band 5.74 was an indirect-model (encounter over-counting) artifact, not geometry."
+}

@@ -16,7 +16,8 @@
 const fs = require('fs');
 const R = '/Users/ahmetbarisgunaydin/dev/webgpu-dna';
 const E_LOW = 5, E_HIGH = 37.5, R_DIR = 0.29, R_IND = 1.0, P_IND = 0.13, r_bb = 1.0;
-const SP = 150, XSPAN = 400, RISE = 0.34, TWIST = 2 * Math.PI / 10.5;
+const SP = 150, RISE = 0.34, TWIST = 2 * Math.PI / 10.5;
+let XSPAN = 400; // core span for the fold comparison; the validation grid uses full ±1500
 
 const E_eV = parseInt(process.argv[2] || '10000', 10);
 const OHREC = process.argv[3];
@@ -111,6 +112,7 @@ function scoreDirect(at, h, rb, re, rd, rn) {
 }
 // EXPLICIT indirect: OH reacts with nearest sugar iff tb + fp(r0) < td (competition replay)
 function scoreExplicit(at, h, rec, recN) {
+  RNG = 0x40e40e40 >>> 0; // reset per geometry -> paired, reproducible fold comparison
   const ns = at.ax.length, K = new Int32Array(ns);
   let react = 0, inReach = 0;
   for (let i = 0; i < recN; i++) {
@@ -155,11 +157,13 @@ function run(at, label) {
 
 // 1) full 21×21 straight-LINE control (validate replay vs worker on-line explicit)
 const buildG = (half, fn) => { const A = { ax: [], ay: [], az: [] }; for (const [fy, fz] of axes(half)) fn(A, fy, fz); return pack(A); };
-console.log('— full 21×21 straight grid (validation vs worker on-line explicit) —');
-const full = run(buildG(10, (A, fy, fz) => addLine(A, fy, fz)), 'GRID-21x21');
+console.log('— full 21×21 straight grid, FULL fibre length ±1500nm (validation vs worker on-line explicit) —');
+XSPAN = 1500;
+const full = run(buildG(10, (A, fy, fz) => addLine(A, fy, fz)), 'GRID-full');
+XSPAN = 400;
 
-// 2) folded-in-place 7×7: LINE / BUNDLE / SOLENOID
-console.log('\n— folded-in-place, 7×7 identical axes —');
+// 2) folded-in-place 7×7: LINE / BUNDLE / SOLENOID (core span ±400nm)
+console.log('\n— folded-in-place, 7×7 identical axes (core ±400nm) —');
 const res = {
   LINE: run(buildG(3, (A, fy, fz) => addLine(A, fy, fz)), 'LINE'),
   BUNDLE: run(buildG(3, (A, fy, fz) => addBundle(A, fy, fz)), 'BUNDLE'),
