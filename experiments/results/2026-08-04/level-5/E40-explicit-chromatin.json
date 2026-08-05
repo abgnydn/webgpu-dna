@@ -13,7 +13,8 @@
     "note": "Full 21x21 grid, +-1500nm, global-nearest-sugar search. RISES with energy, reaching IN-BAND at the production energy.",
     "E1000": 1.430, "E3000": 1.568, "E10000": 2.170,
     "worker_online_pm2bp_E10000": 1.66,
-    "search_note": "The replay uses the global nearest sugar within 2.5nm; the worker's on-line dnaReactQuery uses a +-2bp single-fibre window and finds fewer reactions (416 vs 640 at 10keV) -> 1.66 vs 2.17. The complete search (2.17) lands IN PARTRAC's 2-3 band; both are far below the encounter proxy's 5.74."
+    "worker_online_WIDENED": {"E3000": 1.85, "E10000": 2.28, "note": "After widening dnaReactQuery to +-7bp + a 2.5nm react-radius (the +-2bp proxy window truncated the first-passage reach), the ON-LINE worker explicit channel gives 2.28 at 10 keV — IN BAND, rxns 607 ~ replay 640 — confirming the replay. The shipped explicit channel is now faithful on-line."},
+    "search_note": "The +-2bp single-fibre window undercounts (416 rxns -> 1.66); a complete search (replay global-nearest 2.5nm, OR the widened on-line +-7bp) finds ~610-640 reactions -> 2.17-2.28, IN PARTRAC's 2-3 band. All far below the encounter proxy's 5.74."
   },
   "fold_effect_explicit_channel": {
     "note": "dR = ratio_solenoid/ratio_line (folding); girth = bundle/line; winding = solenoid/bundle. Same replay + reset RNG across all three.",

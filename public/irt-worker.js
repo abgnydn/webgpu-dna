@@ -548,18 +548,25 @@ self.onmessage = function(e) {
     // Explicit-channel geometry query: nearest sugar to (x,y,z) + its identity.
     // Same nearest-backbone search as dnaSsbCheck, but returns the distance r0 (for
     // the first-passage sampler) instead of the hard r_indirect cutoff.
+    // Reach for the explicit reaction: an OH reacts with a sugar via first-passage
+    // (Winf=σ/r0 ∝ 1/r0), so search wide enough that the cutoff doesn't bias the
+    // reaction probability — ~2.5 nm captures >95% of it. A ±2 bp window (the
+    // proxy's reach) truncates this and undercounts; use ±7 bp (±2.4 nm in x) and
+    // a react-radius of r_bb+2.5 nm in y/z (a sugar sits r_bb from the fibre axis).
+    const R_REACT = 2.5;
+    const react_outer2 = (r_bb + R_REACT) * (r_bb + R_REACT);
     dnaReactQuery = (x, y, z) => {
-      if (x < -x_half - r_indirect || x > x_half + r_indirect) return null;
+      if (x < -x_half - R_REACT || x > x_half + R_REACT) return null;
       const fi = Math.round((y - grid_off) * inv_spacing);
       const fj = Math.round((z - grid_off) * inv_spacing);
       if (fi < 0 || fi >= grid_N || fj < 0 || fj >= grid_N) return null;
       const fiber_idx = fi * grid_N + fj;
       const y_rel = y - fy[fiber_idx];
       const z_rel = z - fz[fiber_idx];
-      if (y_rel * y_rel + z_rel * z_rel > outer2) return null;
+      if (y_rel * y_rel + z_rel * z_rel > react_outer2) return null;
       const bp_est = Math.round((x + x_half) * rise_inv);
-      const bp0 = Math.max(0, bp_est - 2);
-      const bp1 = Math.min(n_bp_per - 1, bp_est + 2);
+      const bp0 = Math.max(0, bp_est - 7);
+      const bp1 = Math.min(n_bp_per - 1, bp_est + 7);
       let best_d2 = Infinity, best_bp = -1, best_strand = -1;
       for (let b = bp0; b <= bp1; b++) {
         const dx = x - (x0 + b * 0.34);

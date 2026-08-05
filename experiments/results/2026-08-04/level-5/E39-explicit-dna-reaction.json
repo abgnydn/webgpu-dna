@@ -11,7 +11,7 @@
     "E1000":  {"ssb_dir": 72, "encounter": {"ssb_ind": 183, "ratio": 2.542, "candidates": 6368}, "explicit": {"ssb_ind": 90, "ratio": 1.250, "dna_reactions": 1248}, "react_fraction": 0.196},
     "E3000":  {"ssb_dir": 40, "encounter": {"ssb_ind": 125, "ratio": 3.125, "candidates": 2550}, "explicit": {"ssb_ind": 46, "ratio": 1.150, "dna_reactions": 524},  "react_fraction": 0.205},
     "E5000":  {"ssb_dir": 34, "encounter": {"ssb_ind": 145, "ratio": 4.265, "candidates": 2047}, "explicit": {"ssb_ind": 48, "ratio": 1.412, "dna_reactions": 457},  "react_fraction": 0.223},
-    "E10000": {"ssb_dir": 32, "encounter": {"ssb_ind": null, "ratio": 5.74, "candidates": null, "source": "E33 (committed); same-tooling encounter re-run in progress"}, "explicit": {"ssb_ind": 53, "ratio": 1.656, "dna_reactions": 416}, "react_fraction": null}
+    "E10000": {"ssb_dir": 32, "encounter": {"ssb_ind": 187, "ratio": 5.84, "candidates": 2066, "in_reach": 1748, "source": "same-tooling re-run, reproduces E33's 5.74"}, "explicit": {"ssb_ind": 53, "ratio": 1.656, "dna_reactions": 416}, "react_fraction": 0.201}
   },
   "findings": [
     "The explicit channel measures directly what the encounter proxy assumed: only ~20% of near-backbone OHs actually react with the sugar (react_fraction 0.196-0.223). The other ~80% react with OTHER radicals or diffuse away — the encounter proxy miscredited all of them as SSBs.",
@@ -20,6 +20,7 @@
   ],
   "interpretation": "Making the deoxyribose an explicit competing IRT reactant — the Geant4-DNA molecularDNA structure — collapses the out-of-band production ratio (5.74) to 1.66, resolving the E34-E38 mystery: the excess was the encounter proxy over-counting, not geometry and not real physics. 1.66 sits just below PARTRAC's 2-3 aerated band; the residual is the single well-defined chemistry parameter p_ssb (strand-break yield per OH-sugar reaction), held here at the conservative Nikjoo 0.13 — the literature spans ~0.13-0.4, and ~0.2 would place the explicit channel squarely in band. That parameter is NOT tuned here; the point is that the explicit channel is now structurally faithful and its band position is governed by one documented yield, not by a geometry/model artifact.",
   "caveats": [
+    "The 5.74->1.66 here uses the initial dnaReactQuery +-2bp single-fibre search, which TRUNCATES the first-passage reach and undercounts. E40 widened it to +-7bp + a 2.5nm react-radius -> on-line explicit = 2.28 at 10 keV, IN PARTRAC's 2-3 band (matching the E40 replay 2.17). So the faithful headline is 5.74 -> ~2.2 (in band), parameter-free; 1.66 was an under-search artifact.",
     "Still the concentrated 21x21 fibre grid, not bulk chromatin — but direct and indirect share the identical geometry so the ratio is geometry-robust (E27) and the fold is ~neutral under a saturating model (E38); this comparison isolates the indirect mechanism.",
     "TDC Smoluchowski reaction radius (sigma=0.15nm, sugar static) rather than a PDC contact-radius treatment; both reproduce the same bulk k, detail differs near-contact.",
     "p_ssb=0.13 held fixed (Nikjoo, the shipped value) so the explicit-vs-encounter comparison is a clean controlled experiment; not re-tuned to hit the band."
