@@ -34,6 +34,9 @@ export interface SSBScoringOptions {
   r_indirect: number;
   p_indirect: number;
   seed: number;
+  /** Explicit OH+deoxyribose IRT reaction channel (faithful, in-band 2.28) vs the
+   *  legacy encounter proxy. See SSB_EXPLICIT_DNA_REACTION in constants.ts [E39/E40]. */
+  explicitDnaReaction?: boolean;
 }
 
 export function runChemistryWorker(

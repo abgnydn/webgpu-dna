@@ -155,6 +155,14 @@ export const SSB_R_DAMAGE_INDIRECT_NM = 1.0;    // indirect pathway, PARTRAC-eff
 //    linear-probability model. This supersedes the flat P=1 threshold-free limit
 //    now that the shaders emit per-event deposited energy (rad_e buffer).
 export const SSB_P_INDIRECT = 0.13;      // Nikjoo OH+dRibose → SSB branching (data-sourced, not tuned)
+// Indirect-SSB mechanism: the deoxyribose is an EXPLICIT competing IRT reactant
+// (Geant4-DNA molecularDNA structure) — an OH damages a sugar only when it actually
+// reacts with it before its radical reactions (first-passage, k=2.5e9 Buxton), not
+// merely when it dies within r_indirect of a backbone. This is the faithful model:
+// it gives indirect/direct = 2.28 at 10 keV, IN PARTRAC's 2–3 band, parameter-free
+// [E39/E40], vs the encounter proxy's 5.74 (which over-counted every near-backbone
+// OH — only ~20% actually react with the sugar). false → the legacy encounter proxy.
+export const SSB_EXPLICIT_DNA_REACTION = true;
 // Direct-SSB energy-threshold ramp (Nikjoo 1997 / Charlton 1989 linear model):
 // P(break) = clamp((E_dep − E_low)/(E_high − E_low), 0, 1). Physical bond-energy
 // thresholds, not tuned to a target.

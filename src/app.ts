@@ -22,7 +22,7 @@ import {
   combineHits,
   makeSsbRng,
 } from './scoring/ssb-dsb';
-import { SSB_R_DAMAGE_INDIRECT_NM, SSB_P_INDIRECT } from './physics/constants';
+import { SSB_R_DAMAGE_INDIRECT_NM, SSB_P_INDIRECT, SSB_EXPLICIT_DNA_REACTION } from './physics/constants';
 import { paintDoseProjection } from './ui/canvas';
 import { appendResultRow, clearResults, type DamageRow } from './ui/table';
 import type { ChemResult, LogFn } from './physics/types';
@@ -146,6 +146,7 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
     r_indirect: SSB_R_DAMAGE_INDIRECT_NM,
     p_indirect: SSB_P_INDIRECT,
     seed: 0x53534231, // 'SSB1'
+    explicitDnaReaction: SSB_EXPLICIT_DNA_REACTION, // faithful channel → in-band 2.28 [E39/E40]
   };
   const chemCallback = chemBackend === 'none'
     ? undefined
