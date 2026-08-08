@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "protocol": "E41-shipped-explicit-counts",
+    "question": "E39/E40 established the shipped explicit OH+deoxyribose channel gives indirect/direct ratio = 2.28 at 10 keV (widened on-line dnaReactQuery), but the absolute SSB_ind and DSB counts behind the README §Numbers headline row (32 / 73 / 15) were never committed as a standalone artifact — only the direct count (32, E39) and the ratio (2.28, E40) were. Measure and commit the exact shipped-default counts so every number in the §Numbers SSB row is backed.",
+    "method": "Ran the production DNA-damage scorer tools/run_irt_ssb.cjs on the SAME committed 10 keV GPU dump (dumps/rad_E10000_N4096.bin, N=4096, n_therm=4096) with EXPLICIT_DNA=1 — i.e. the exact shipped default (SSB_EXPLICIT_DNA_REACTION=true) with the widened dnaReactQuery (+-7bp + 2.5nm react-radius, commit ab7c7e0). Direct SSB via the Nikjoo/Charlton energy-threshold ramp at the true deposit site (raddep dump); indirect via the explicit competing OH+deoxyribose IRT channel; DSB via greedy +-10bp strand-0/strand-1 clustering. All constants at their shipped values (no tuning).",
+    "energy_eV": 10000, "nPrimaries": 4096, "n_therm": 4096,
+    "indirect_model": "explicit_OH+deoxyribose",
+    "gpu_dump": "dumps/rad_E10000_N4096.bin", "shader_state_commit": "3758a0a"
+  },
+  "result": {
+    "ssb_dir": 32,
+    "ssb_ind": 73,
+    "dsb": 15,
+    "indirect_over_direct_ratio": 2.28125,
+    "in_reach_direct": 117,
+    "in_reach_indirect": 78,
+    "candidates_indirect": 607,
+    "dna_reactions": 607,
+    "sig_oh_dna_nm": 0.15016430577644785,
+    "G_OH_1us": 1.5548095703125,
+    "G_eaq_1us": 1.5944384765625
+  },
+  "config": {
+    "SSB_EXPLICIT_DNA_REACTION": true,
+    "SSB_P_INDIRECT": 0.13,
+    "SSB_E_LOW": 5.0, "SSB_E_HIGH": 37.5,
+    "SSB_R_DAMAGE_INDIRECT_NM": 1.0,
+    "k_OH_deoxyribose": 2.5e9, "note": "sigma from the worker's own TDC Smoluchowski relation, sugar static"
+  },
+  "findings": [
+    "The shipped explicit-channel default scores SSB_dir=32 / SSB_ind=73 / DSB=15 at 10 keV, indirect/direct ratio = 2.281 — IN PARTRAC's 2-3 band, parameter-free. This is the exact triple quoted in README §Numbers; E41 is now its committed backing (previously only ssb_dir=32 (E39) and the ratio 2.28 (E40) were committed; ssb_ind=73 and dsb=15 were unbacked).",
+    "607 explicit OH+deoxyribose reactions (deduped to 73 SSBs at p_ssb=0.13, bp/strand). Reproduces the E40 widened on-line ratio 2.28 exactly."
+  ],
+  "status": "pass - the shipped-default absolute SSB/DSB counts (32/73/15, ratio 2.281) are measured on the committed dump and committed here; the README §Numbers SSB row is now fully artifact-backed."
+}

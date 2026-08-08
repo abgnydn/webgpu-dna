@@ -5,9 +5,24 @@ format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/) starting
 from `0.1.0`.
 
-## [Unreleased]
+## [0.8.0] — 2026-08-08
 
 ### Added
+- **Explicit OH+deoxyribose IRT reaction channel — shipped as the default indirect-SSB
+  model** (`SSB_EXPLICIT_DNA_REACTION = true`). The deoxyribose is now an **explicit
+  competing IRT reactant** (Geant4-DNA *molecularDNA* structure): an OH damages a sugar
+  only when it actually *reacts* with it (first-passage against the sugar, k=2.5e9
+  Buxton 1988, σ=0.15 nm) before its radical reactions — not merely when it dies within
+  1 nm of a backbone. This collapses the out-of-band production indirect/direct ratio
+  **5.74 → 2.28** at 10 keV, **IN PARTRAC's 2–3 band, parameter-free** (same `p_ssb`=0.13,
+  same geometry, identical direct count). E39 measured directly that only ~20 % of
+  near-backbone OHs actually react with the sugar — the legacy `encounter` proxy
+  miscredited all of them, and its excess *climbs with track density* (2.54→5.74 over
+  1–10 keV) while the faithful channel stays flat/rising in band. E40 confirmed with a
+  folded-chromatin offline replay (folding is a second-order dR≈0.83–1.16 lever) and
+  reproduced E37's survival dR=0.716 exactly as a pipeline check. The live app and both
+  deploys (webgpudna.com + HF Space) now score the in-band 2.28; the encounter proxy
+  (5.74) is kept as the `false` fallback and the documented honest-negative. (E39, E40)
 - **K-shell Auger electron emission** — the oxygen K-shell (1a1, 539 eV) hole
   now de-excites by emitting a ~503 eV KLL Auger electron (as Geant4-DNA does via
   `G4UAtomicDeexcitation`), depositing only the ~36 eV L-shell rearrangement
@@ -29,6 +44,9 @@ from `0.1.0`.
   (E30/E31/E32). Testing accumulation vs per-event **refuted** aggregation as the
   cause of the above-band ratio — near-backbone sugars are single-hit; the gap is
   the energy threshold itself. (#5, #9, #10, #11)
+  **Superseded within this release by E39/E40:** the above-band *indirect* ratio was
+  not the energy threshold but the `encounter` proxy over-counting near-backbone OHs;
+  the explicit OH+deoxyribose channel (above) fixes it at the source (5.74 → 2.28, in band).
 
 ### Fixed
 - Direct-SSB production scorer over-counted `SSB_dir` ~2× — the 3-entry ionisation
