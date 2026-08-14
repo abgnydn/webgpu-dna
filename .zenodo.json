@@ -1,0 +1,19 @@
+{
+  "title": "WebGPU Geant4-DNA",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Gunaydin, Ahmet Baris",
+      "affiliation": "Independent Researcher"
+    }
+  ],
+  "license": "mit",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/abgnydn/webgpu-dna",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

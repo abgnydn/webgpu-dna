@@ -5,10 +5,10 @@ message: >-
   using the metadata below.
 type: software
 authors:
-  - given-names: Ahmet Barış
-    family-names: Günaydın
-    email: abgunaydin94@gmail.com
-    affiliation: Independent researcher
+  - given-names: Ahmet Baris
+    family-names: Gunaydin
+    email: hi@barisgunaydin.com
+    affiliation: Independent Researcher
 repository-code: https://github.com/abgnydn/webgpu-dna
 url: https://webgpudna.com
 abstract: >-
@@ -61,8 +61,10 @@ preferred-citation:
   type: software
   title: WebGPU Geant4-DNA — Monte Carlo track-structure radiobiology in the browser
   authors:
-    - given-names: Ahmet Barış
-      family-names: Günaydın
+    - given-names: Ahmet Baris
+      family-names: Gunaydin
+      email: hi@barisgunaydin.com
+      affiliation: Independent Researcher
   version: "0.8.0"
   year: 2026
   url: https://github.com/abgnydn/webgpu-dna
