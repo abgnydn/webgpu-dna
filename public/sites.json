@@ -38,16 +38,16 @@
       "githubRepo": "https://github.com/abgnydn/webgpu-dna",
       "stats": [
         {
-          "value": "71",
-          "label": "unit tests pass"
-        },
-        {
           "value": "Geant4-DNA",
           "label": "physics ported"
         },
         {
           "value": "validated",
           "label": "radiolysis vs Karamitros 2011"
+        },
+        {
+          "value": "browser-native",
+          "label": "no install"
         }
       ],
       "cta": "See the simulation →"
@@ -57,23 +57,23 @@
       "url": "https://zerotvm.com",
       "domain": "zerotvm.com",
       "name": "zerotvm.com",
-      "tagline": "Phi-3-mini in the browser on 51 hand-written WGSL kernels, no compiler.",
-      "shortDesc": "Phi-3-mini (3.8B) running end-to-end on 51 hand-written WGSL files, replacing the 85 TVM-autotuned shaders WebLLM needs. 69.55 tok/s against WebLLM's 59.95 on identical weights in the same session, +16%.",
+      "tagline": "Phi-3-mini in the browser on hand-written WGSL kernels, no compiler.",
+      "shortDesc": "Phi-3-mini running end-to-end in the browser on hand-written WGSL, replacing the TVM-autotuned shader set WebLLM compiles. 69.55 tok/s against WebLLM's 59.95 on identical weights in the same session, +16%.",
       "category": "LLM inference",
       "badge": "applied",
       "githubRepo": "https://github.com/abgnydn/zero-tvm",
       "stats": [
         {
-          "value": "85",
-          "label": "TVM shaders replaced"
+          "value": "hand-written",
+          "label": "every WGSL kernel"
         },
         {
-          "value": "51",
-          "label": "WGSL files"
+          "value": "no compiler",
+          "label": "no TVM, no codegen"
         },
         {
           "value": "69.55",
-          "label": "tok/s (M2 Max)"
+          "label": "tok/s (M2 Max, vs WebLLM same session)"
         }
       ],
       "cta": "Run it live →"
@@ -84,18 +84,18 @@
       "domain": "gpubench.dev",
       "name": "gpubench.dev",
       "tagline": "How fast is your GPU in the browser?",
-      "shortDesc": "Open WebGPU compute benchmarks — Rastrigin, N-body, Monte Carlo Pi, RL environments. 794 runs published, no cherry-picking.",
+      "shortDesc": "Open WebGPU compute benchmarks — Rastrigin, N-body, Monte Carlo Pi, RL environments. Every submitted run is public, no cherry-picking.",
       "category": "Benchmarks",
       "badge": "companion",
       "githubRepo": "https://github.com/abgnydn/gpubench",
       "stats": [
         {
-          "value": "794",
-          "label": "runs published"
+          "value": "no install",
+          "label": "runs in the browser"
         },
         {
           "value": "public",
-          "label": "every run downloadable"
+          "label": "every submitted run downloadable"
         }
       ],
       "cta": "Benchmark your GPU →"
