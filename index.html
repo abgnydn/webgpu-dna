@@ -698,7 +698,7 @@
     The core trick: invert Geant4's sequential tracking loop. Phase A dispatches <strong>one GPU thread per primary</strong> and runs the full particle history in a WGSL loop — no per-step dispatch overhead. Phase B wavefront-steps secondaries. Phase C is 133 chemistry ticks × 4 dispatches (diffuse → hash → react). Everything writes to a shared <code>128³</code> atomic voxel grid and a <code>16M × 16 B</code> radical buffer.
   </p>
   <p class="sublead">
-    That &ldquo;one dispatch, full history&rdquo; shape is the same <a href="https://kernelfusion.dev" target="_blank" rel="noopener">single-kernel fusion</a> pattern that has given 3–4 orders of magnitude of speedup on other GPU workloads dominated by launch overhead — here it is what makes the entire electron history cheap enough to run live in a browser tab.
+    That &ldquo;one dispatch, full history&rdquo; shape is the same <a href="https://kernelfusion.dev" target="_blank" rel="noopener">single-kernel fusion</a> pattern the research line is built on — measured here rather than assumed. Fusing the per-step dispatch chain is 40× on the primary-tracking phase alone, but that phase is a small slice of the run, so fusion buys the full tracking pipeline about 2× (1324 ms → 635 ms on the same GPU). The protocol's ≥100× hypothesis is recorded as falsified: <a href="https://github.com/abgnydn/webgpu-dna/blob/main/experiments/results/2026-05-11/level-6/E16-fused-vs-naive.json" target="_blank" rel="noopener">E16</a>.
   </p>
   <p class="sublead">
     Full pipeline diagram, buffer sizing, and WGSL constraints are in <a href="https://github.com/abgnydn/webgpu-dna/blob/main/ARCHITECTURE.md" target="_blank" rel="noopener">ARCHITECTURE.md</a>. Physics provenance and known gaps are in <a href="https://github.com/abgnydn/webgpu-dna/blob/main/CLAUDE.md" target="_blank" rel="noopener">CLAUDE.md</a>.
@@ -725,7 +725,7 @@
     <a class="related-card" href="https://zerotvm.com" target="_blank" rel="noopener">
       <div class="related-tag">LLM inference</div>
       <h3>zerotvm.com</h3>
-      <p>Phi-3-mini (3.8B parameters) running entirely in the browser via 10 hand-written WebGPU kernel roles across 50 WGSL files, replacing the 85 TVM-autotuned shaders WebLLM needs. 69.55 tok/s on an M2 Max against WebLLM's 59.95 on identical weights in the same session, +16%.</p>
+      <p>Phi-3-mini (3.8B parameters) running end-to-end in the browser on 51 hand-written WGSL files, replacing the 85 TVM-autotuned shaders WebLLM needs. 69.55 tok/s on an M2 Max against WebLLM's 59.95 on identical weights in the same session, +16%.</p>
       <div class="related-cta">Run it live →</div>
     </a>
     <a class="related-card" href="https://neuropulse.live" target="_blank" rel="noopener">
