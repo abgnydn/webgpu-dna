@@ -113,7 +113,7 @@
       "stats": [
         {
           "value": "Phi-3-mini",
-          "label": "3.8B params, rendered live"
+          "label": "params rendered live"
         },
         {
           "value": "every tensor",
@@ -165,7 +165,7 @@
       "domain": "fused-lora.pages.dev",
       "name": "fused-lora",
       "tagline": "LoRA fine-tuning of BitNet b1.58 2B4T, live in a browser tab.",
-      "shortDesc": "First public demo of fine-tuning a ternary LLM entirely in the browser via WebGPU. ~86 ms/step on M-series laptops. Adapters emit as 4 MB .flora files. Includes a Phi-3 LoRA reference.",
+      "shortDesc": "First public demo of fine-tuning a ternary LLM entirely in the browser via WebGPU. Adapters emit as compact .flora files. Includes a Phi-3 LoRA reference.",
       "category": "LLM training",
       "badge": "research",
       "githubRepo": "https://github.com/abgnydn/fused-lora",
