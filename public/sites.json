@@ -6,7 +6,7 @@
       "domain": "kernelfusion.dev",
       "name": "kernelfusion.dev",
       "tagline": "Single-kernel fusion — 2,865× on Apple Silicon, 623× on phones.",
-      "shortDesc": "The research line. Two published preprints, one npm SDK, 592 real devices tested. The theory that all the applied projects build on.",
+      "shortDesc": "The research line. Two published preprints and one npm SDK. The theory the applied projects build on.",
       "category": "Theory",
       "badge": "research",
       "githubRepo": "https://github.com/abgnydn/kernelfusion",
@@ -18,10 +18,6 @@
         {
           "value": "623×",
           "label": "Android avg"
-        },
-        {
-          "value": "592",
-          "label": "devices tested"
         }
       ],
       "cta": "Read the research →"
@@ -84,18 +80,14 @@
       "domain": "gpubench.dev",
       "name": "gpubench.dev",
       "tagline": "How fast is your GPU in the browser?",
-      "shortDesc": "Open WebGPU compute benchmarks on 592 real devices — Rastrigin, N-body, Monte Carlo Pi, RL environments. Every result published, no cherry-picking.",
+      "shortDesc": "Open WebGPU compute benchmarks — Rastrigin, N-body, Monte Carlo Pi, RL environments. 794 runs published, no cherry-picking.",
       "category": "Benchmarks",
       "badge": "companion",
       "githubRepo": "https://github.com/abgnydn/gpubench",
       "stats": [
         {
-          "value": "592",
-          "label": "devices tested"
-        },
-        {
-          "value": "170",
-          "label": "transformer runs"
+          "value": "794",
+          "label": "runs published"
         },
         {
           "value": "100%",
