@@ -16,8 +16,11 @@ import { join } from 'node:path';
  * mirrors the eval-shim harness in tools/run_irt.cjs.
  */
 
-// Deterministic PRNG so the worker's Math.random sequence is identical across
-// runs, isolating n_therm (the only varied input) as the cause of any G change.
+// Deterministic worker RNG so the physics is identical across runs,
+// isolating n_therm (the only varied input) as the cause of any G change.
+// NOTE: the worker draws from its own seeded `_rngState` (mulberry32,
+// default seed when no chemSeed is passed — see irt-worker.js rand()), NOT
+// Math.random, so overriding Math.random below is belt-and-braces only.
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {

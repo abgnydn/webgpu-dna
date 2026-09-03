@@ -170,7 +170,16 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
   const wantDump = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('dump');
 
   for (const ref of ESTAR) {
-    const r = await runAtEnergy(device, buffers, pipelines, ref.E, np, boxNm, ceEV, dna, chemCallback);
+    let r: Awaited<ReturnType<typeof runAtEnergy>>;
+    try {
+      r = await runAtEnergy(device, buffers, pipelines, ref.E, np, boxNm, ceEV, dna, chemCallback);
+    } catch (e) {
+      // One bad energy point (e.g. transient worker/GPU failure) must not
+      // abort the whole 8-energy sweep — log loudly and continue.
+      const msg = e instanceof Error ? e.message : String(e);
+      log(`  E=${ref.E} eV FAILED: ${msg} — continuing sweep.`, 'err');
+      continue;
+    }
 
     if (r.dose_arr) {
       lastDose = r.dose_arr;
@@ -254,7 +263,7 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
       `  E=${r.E} eV: CSDA=${r.mean_total.toFixed(1)}nm (${csdaRatio.toFixed(2)}×) ` +
         `ions/pri=${r.mean_ions.toFixed(1)} sec/pri=${r.sec_per_pri.toFixed(1)} ` +
         `G_init(OH/eaq/H)=${r.G_OH.toFixed(2)}/${r.G_eaq.toFixed(2)}/${r.G_H.toFixed(2)} ` +
-        `rad_n=${r.rad_n_stored}${r.rad_dropped > 0 ? ' ⚠' + r.rad_dropped + 'dropped' : ''} ` +
+        `rad_n=${r.rad_n_stored}${r.rad_dropped > 0 ? ' ⚠' + r.rad_dropped + 'dropped (stored-basis G=' + r.G_OH_stored.toFixed(2) + '/' + r.G_eaq_stored.toFixed(2) + '/' + r.G_H_stored.toFixed(2) + ')' : ''} ` +
         `E_cons=${(r.cons_ratio * 100).toFixed(1)}%`,
       'data',
     );

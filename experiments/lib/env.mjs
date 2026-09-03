@@ -3,7 +3,7 @@
 // experiments (Level 2+) extend this with adapter info from
 // `navigator.gpu.requestAdapter()` when run in a browser.
 
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { hostname, platform, arch, cpus, totalmem } from 'node:os';
 
 function safeGitSha() {
@@ -31,7 +31,10 @@ function safeGitDirty() {
 // the working-tree content (not influenced by uncommitted neighbors).
 function safeShaderHash(path) {
   try {
-    return execSync(`git hash-object ${path}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    // execFileSync with argv (no shell) so a future caller passing a less
+    // trusted path cannot inject shell metacharacters. All current callers
+    // pass hardcoded shader paths.
+    return execFileSync('git', ['hash-object', path], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
   } catch {
     return 'dev-unknown';
   }

@@ -14,7 +14,11 @@ export async function initGPU(log?: LogFn): Promise<GPUDevice | null> {
     return null;
   }
 
-  const adapter = await navigator.gpu.requestAdapter();
+  // Prefer the discrete/high-performance adapter on dual-GPU systems (e.g.
+  // MacBook Pro with external GPU, Windows iGPU + dGPU laptops): the default
+  // pick can be the low-power GPU, which runs this ~2 GB compute pipeline
+  // correctly but 5-10x slower with no user-visible reason.
+  const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
   if (!adapter) {
     log?.('No GPU adapter found.', 'err');
     return null;
