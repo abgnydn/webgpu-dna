@@ -62,9 +62,39 @@ jobs:
             "dumps/$DUMP" 4096 "$ENERGY" \
             > "ci-results/ssb_${LABEL}_E${ENERGY}.json"
           echo "--- result ---"; cat "ci-results/ssb_${LABEL}_E${ENERGY}.json"
-      - name: Compare to RECOMB=2.0 baseline (E13c)
+      - name: Compare to E41 shipped baseline (fail on regression)
+        # E41 (shipped explicit OH+deoxyribose default, 10 keV dump):
+        # SSB_dir=32 SSB_ind=73 DSB=15 ratio=2.281. Bands are regression
+        # tripwires for the scoring toolchain, not physics pass bars — the
+        # ratio itself is a prediction, so band position vs PARTRAC is
+        # reported, never gated. Non-default dump/energy runs are
+        # informational (no baseline to compare against).
         run: |
-          echo "RECOMB=2.0 baseline (E13c): SSB_dir=26 SSB_ind=64 DSB=9 ratio=2.46 (PARTRAC 2-3 band)"
+          node -e "
+            const fs = require('fs');
+            const f = 'ci-results/ssb_${{ inputs.label }}_E${{ inputs.energy }}.json';
+            const r = JSON.parse(fs.readFileSync(f, 'utf8'));
+            console.log('result:', JSON.stringify({ ssb_dir: r.ssb_dir, ssb_ind: r.ssb_ind, dsb: r.dsb, ratio: r.indirect_over_direct_ratio }));
+            if ('${{ inputs.dump }}' !== 'rad_E10000_recomb1.bin' || '${{ inputs.energy }}' !== '10000') {
+              console.log('non-default dump/energy — informational only, no gate');
+              process.exit(0);
+            }
+            const fails = [];
+            const band = (name, got, want, tol) => {
+              const lo = Math.min(want * (1 - tol), want - 3), hi = Math.max(want * (1 + tol), want + 3);
+              if (!(got >= lo && got <= hi)) fails.push(name + ' got ' + got + ', want ' + want + ' ±' + Math.round(tol * 100) + '%');
+            };
+            band('SSB_dir', r.ssb_dir, 32, 0.25);
+            band('SSB_ind', r.ssb_ind, 73, 0.25);
+            band('DSB', r.dsb, 15, 0.25);
+            if (r.ssb_dir > 0) {
+              const ratio = r.ssb_ind / r.ssb_dir;
+              if (Math.abs(ratio - 2.281) / 2.281 > 0.15) fails.push('ratio got ' + ratio.toFixed(3) + ', want 2.281 ±15%');
+              console.log('PARTRAC 2-3 band position (informational):', ratio >= 2 && ratio <= 3 ? 'IN' : 'OUT');
+            }
+            if (fails.length) { console.error('SSB REGRESSION: ' + fails.join('; ')); process.exit(1); }
+            console.log('SSB revalidation within E41 baseline bands ✓');
+          "
       - name: Upload result
         uses: actions/upload-artifact@v4
         with:
