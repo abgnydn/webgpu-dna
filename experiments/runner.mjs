@@ -118,6 +118,12 @@ async function main() {
   if (!id || !REGISTRY[id]) {
     const known = Object.keys(REGISTRY).join(', ');
     console.error(`usage: node experiments/runner.mjs <id>   (known: ${known})`);
+    console.error(
+      `note: results for post-May IDs (E17, E20-E29, E30-E41, E10r, E7d/E7e, E13d, ` +
+        `E15-fair, …) are archived under experiments/results/ but have no runner ` +
+        `driver — they were produced ad-hoc/manual and cannot be re-run via this CLI. ` +
+        `See experiments/results/README.md "Registry coverage".`,
+    );
     process.exit(2);
   }
 

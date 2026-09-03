@@ -59,6 +59,13 @@ export async function runE5() {
   const wgsl = JSON.parse(
     readFileSync(join(REPO_ROOT, 'validation', 'webgpu-results.json'), 'utf8'),
   );
+  // The WGSL input file is self-marked superseded (pre-cascade/pre-Born
+  // migration baseline). Propagate that marker so re-runs of E5 cannot be
+  // mistaken for a production validation — see validation/webgpu-results.json
+  // $superseded. This is additive metadata only; it does not change pass/fail.
+  const wgslStaleInput =
+    typeof wgsl.$superseded === 'string' && wgsl.$superseded.length > 0;
+  const wgslHarnessVersion = wgsl.harnessVersion ?? null;
   const events = readG4Ntuple(join(REPO_ROOT, 'validation', 'g4_per_event.csv'));
 
   if (wgsl.primaryEnergyEv !== 10000) {
@@ -149,6 +156,8 @@ export async function runE5() {
       trials: 1,
       sources: {
         wgsl: 'validation/webgpu-results.json (post-migration 2026-04-21 browser run)',
+        wgslStaleWarning:
+          'validation/webgpu-results.json carries $superseded (pre-v0.6.0/v0.7.0 migration baseline) — E5 re-runs validate that baseline, not the production cascade/Born build',
         g4Ntuple: 'validation/g4_per_event.csv (Geant4 11.4.1 dnaphysics, 4096 events at 10 keV)',
       },
     },
@@ -158,6 +167,9 @@ export async function runE5() {
     summary: {
       nMetrics: rows.length,
       nFailedMetrics: failures.length,
+      wgslStaleInput,
+      wgslHarnessVersion,
+      wgslSupersededNote: wgslStaleInput ? wgsl.$superseded : null,
       nPrimaries: events.length,
       primaryEnergyEv: 10000,
       g4Stats: {
