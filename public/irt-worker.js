@@ -2,7 +2,8 @@
  * IRT Chemistry Web Worker — per-primary processing.
  * Direct port of G4DNAIRT.cc + chem6 beam.in (Karamitros 2011 reaction table)
  *
- * 9 reactions: 4 TDC (Type 0) + 5 PDC (Type 1)
+ * 47 reactions: 9 Karamitros 2011 (4 TDC Type 0 + 5 PDC Type 1) + 38
+ * oxygen-network reactions from G4EmDNAChemistry_option3 (all TDC).
  * Uses G4ChemDissociationChannels_option1 diffusion coefficients + VDW radii
  * (matching chem6 example with G4EmDNAChemistry_option3)
  *
@@ -1035,9 +1036,15 @@ self.onmessage = function(e) {
     'eaq+eaq→2OH-+H2 [TDC]', 'eaq+H→OH-+H2 [TDC]', 'eaq+H3O+→H [PDC]',
     'H+H→H2 [TDC]', 'eaq+H2O2→OH-+OH [PDC]', 'H3O++OH-→H2O [TDC]'
   ];
+  // Short species names for generated fallback labels (must match the
+  // N_SPECIES encoding above: 0=OH … 13=O3-). rxn_labels only covers the 9
+  // Karamitros reactions; the oxygen network (and any future rows) falls
+  // back to a generated `A+B [type]` label so rxn_info never emits undefined.
+  const RXN_SHORT = ['OH', 'eaq', 'H', 'H3O+', 'H2O2', 'OH-', 'O2', 'HO2', 'O2-', 'HO2-', 'O', 'O-', 'O3', 'O3-'];
   const rxn_info = [];
   for (let r = 0; r < N_RXN; r++) {
-    rxn_info.push({ label: rxn_labels[r], count: rxn_counts[r],
+    const fb = `${RXN_SHORT[RXN_TABLE[r].a] ?? '?'}+${RXN_SHORT[RXN_TABLE[r].b] ?? '?'} [${RXN_TABLE[r].type === 0 ? 'TDC' : 'PDC'}]`;
+    rxn_info.push({ label: rxn_labels[r] ?? fb, count: rxn_counts[r],
       sigma: rxnSigma[r].toFixed(4), rc: rxnRc[r].toFixed(3) });
   }
   // Indirect-SSB scoring summary — empty if dna/ssbScoring was not provided.
