@@ -18,16 +18,23 @@ instead of hiding.
 So the divergence list reads against the right backdrop — these match Geant4:
 
 - **Born ionisation** (5 shells) — same model and data as `DNA_Opt2`.
-- **Screened-Rutherford + Champion elastic** — ported formula + G4EMLOW CDFs.
+- **Born excitation** (5 levels) — same model and data as `DNA_Opt2` since
+  v0.7.0 (E29); the earlier Emfietzoglou hybrid + `SIGMA_EXC_SCALE` is gone.
+- **Champion elastic** — G4EMLOW total XS + angular CDF across the full range
+  (no screened-Rutherford formula remains in `src/`).
 - **Sanche vibrational** — bit-exact (E4).
-- **Karamitros 2011 9-reaction IRT chemistry** — same reaction table,
-  diffusion coefficients, VDW radii as `G4EmDNAChemistry_option1` / chem6.
+- **Karamitros 2011 9-reaction IRT chemistry as the base** — same rates,
+  diffusion coefficients, VDW radii as `G4EmDNAChemistry_option1` / chem6;
+  the worker additionally carries a 38-reaction oxygen network from
+  `G4EmDNAChemistry_option3` (47 rows total), so "9-reaction" describes the
+  base, not the full table.
 - **e⁻aq thermalisation at 1.7 eV** (Meesungnoen 2002, Geant4 autoionisation
   default) and **2.0 nm mother displacement** — both match Geant4.
 
-Cross sections agree to **peak ratios 0.975–1.000** (median devs ~1e-3),
-CSDA range is **0.988×** Geant4 — i.e. the faithful parts are genuinely
-faithful (L1, E5).
+Cross sections agree to **peak ratios 0.975–1.000** (median devs ~1e-3);
+CSDA range is **0.997×** Geant4 at 10 keV under v0.7.0 Born excitation
+(E29; the older 0.988× was the scaled-Emfietzoglou value) — i.e. the
+faithful parts are genuinely faithful (L1, E5/E29).
 
 ## Deliberate divergences
 
@@ -35,7 +42,7 @@ faithful (L1, E5).
 
 | # | `DNA_Opt2` | This build | Why | Cost / tracked in |
 |---|---|---|---|---|
-| A1 | **Born** excitation (`G4DNABornExcitationModel`) | **Emfietzoglou** excitation | Born excitation gives too few radicals; Emfietzoglou gives the correct **initial G(H) = 0.33**. (Emfietzoglou is Geant4's own model — it's the one `G4EmDNAPhysics_option4` uses; we run a hybrid: Born ionisation from `DNA_Opt2` + Emfietzoglou excitation from `option4`.) | Emfietzoglou σ_exc is **2.55× Geant4's effective value** → channels energy away from ionisation. [E6b] |
+| ~~A1~~ | ~~**Born** excitation (`G4DNABornExcitationModel`) vs **Emfietzoglou**~~ | **RETIRED — both sides now use Born excitation (v0.7.0, E29).** The Emfietzoglou hybrid + `SIGMA_EXC_SCALE` era is over; see B1. | ~~Emfietzoglou σ_exc was **2.55× Geant4's effective value**~~ → real Born XS closed the sub-keV CSDA deficit (100 eV 0.782→0.956×, all 8 energies 0.956–1.005×). [E6b, E29] |
 
 ### B. Tuning knobs (the honest fudges)
 
@@ -53,7 +60,7 @@ faithful (L1, E5).
 
 | # | Geant4 chem6 | This build | Why | Cost / tracked in |
 |---|---|---|---|---|
-| C1 | IRT over **all primaries in one pool** | **Per-primary** IRT (`priMap`) | Cross-primary IRT is O(N²)-hard for a point source (551 nm horizon spans the blob) → ~71 hr in-browser. Needs a native runtime. | Misses inter-track reactions: **ΔG(H₂) = +0.149 at 1 µs** (96% of the residual chem6 gap). [E10f, CROSS_PRIMARY_IRT + GPU_SBS findings] |
+| C1 | IRT over **all primaries in one pool** | **Per-primary** IRT (`priMap`) | Cross-primary IRT is O(N²)-hard for a point source (551 nm horizon spans the blob) → ~71 hr in-browser. Needs a native runtime. | Misses inter-track reactions: **ΔG(H₂) = +0.149 at 1 µs** on H₂ alone [E10f]. **Interpretation superseded**: E17 showed cross-primary pooling is a coupled H₂↑/OH↓ tradeoff (not the chem6-gap fix), and v0.6.0 showed the gap was the untracked tertiary cascade, closed browser-native (RMS 19.7→7.6%, E25). [E10f, E17, E25, CROSS_PRIMARY_IRT + GPU_SBS findings] |
 | C2 | (n/a) | GPU chemistry backend (`chemistry.wgsl`) | A fast CSDA-only alternative to the IRT worker. | Undercounts long-time reactions; **default backend is `'worker'` (IRT)** so production never uses it. [E11] |
 
 ### D. Numerical / geometry
@@ -61,12 +68,12 @@ faithful (L1, E5).
 | # | Reference | This build | Why | Cost / tracked in |
 |---|---|---|---|---|
 | D1 | fp64 CPU | **fp32** GPU `atomicAdd` (fixed-point ×100/eV for dose) | WGSL atomics are integer-only; fp32 is the GPU native. | Results are statistically equivalent across vendors but **not bit-exact** (same machine+seed+shader *is*). [§Numbers reproducibility caveat] |
-| D2 | bulk / realistic DNA geometry | **21×21 concentrated fiber grid** sampling the track core | Simpler scoring target. | The box-average per-Da yields look 223×/796× high, but E12-local shows this is a **point-source dose artifact**: 98.1% of energy deposits in the central 3 µm core (`start_half=0`), so local dose ≈238 Gy (C≈981). Per *local* dose, absolute yields are **SSB_dir 0.34× / DSB 0.82× / SSB_total 1.28×** of experiment (Ward 1988) — within ~3×, geometry defense **quantitatively vindicated**. Residual: the strand-break *ratio* is now **parameter-free** — indirect uses the Nikjoo OH+deoxyribose→SSB branching (`SSB_P_INDIRECT=0.13`, data-sourced, not tuned) and direct a Nikjoo/Charlton energy-threshold ramp (`E_low=5`/`E_high=37.5` eV, no tuned probability), so the ratio is a *prediction*, not a fit: **5.74 (accumulated-volume, scored at the true energy-deposit site [E33])**, threshold-free `P=1` limit **2.34 in-band** [E33] — the current release lands **above** PARTRAC's 2–3 band (honest-negative; correcting a ~2 nm scoring-position error dropped it 7.1→5.74). [E12, E12-local, E30, E31, E33] |
+| D2 | bulk / realistic DNA geometry | **21×21 concentrated fiber grid** sampling the track core | Simpler scoring target. | The box-average per-Da yields look 223×/796× high, but E12-local shows this is a **point-source dose artifact**: 98.1% of energy deposits in the central 3 µm core (`start_half=0`), so local dose ≈238 Gy (C≈981). Per *local* dose, absolute yields are **SSB_dir 0.34× / DSB 0.82× / SSB_total 1.28×** of experiment (Ward 1988) — within ~3×, geometry defense **quantitatively vindicated**. Residual: the strand-break *ratio* is now **parameter-free** — indirect uses the Nikjoo OH+deoxyribose→SSB branching (`SSB_P_INDIRECT=0.13`, data-sourced, not tuned) and direct a Nikjoo/Charlton energy-threshold ramp (`E_low=5`/`E_high=37.5` eV, no tuned probability), so the ratio is a *prediction*, not a fit: **5.74 (accumulated-volume, scored at the true energy-deposit site [E33])**, threshold-free `P=1` limit **2.34 in-band** [E33] — the encounter-proxy release lands **above** PARTRAC's 2–3 band (honest-negative; correcting a ~2 nm scoring-position error dropped it 7.1→5.74). **Update (2026-08, shipped default):** making the deoxyribose an **explicit competing IRT reactant** (molecularDNA structure) gives **2.28 at 10 keV, in-band, parameter-free** [E39/E40/E41] — the 5.74 was encounter-proxy over-counting, not geometry. [E12, E12-local, E30, E31, E33, E39, E40, E41] |
 
 ## The one-line version
 We use Geant4 the standard way (as the oracle), match it on the core
-transport physics, and diverge in a short, labelled list: one model swap (A1,
-for correct radical yields), two tuning knobs (B1/B2, one of which is a fudge
-we want to delete), and a few tractability/geometry approximations (C/D). Each
-costs something specific, each cost is measured, and the biggest open ones
-have removal plans.
+transport physics, and diverge in a short, labelled list: no active model
+swaps (A1 retired — both sides Born), no tuning knobs (B1/B2 removed), and a
+few tractability/geometry approximations (C/D). Each costs something
+specific, each cost is measured, and the biggest open ones have removal
+plans.

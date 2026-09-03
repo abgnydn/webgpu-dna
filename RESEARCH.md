@@ -79,12 +79,12 @@ Each level has its own `protocol.md` under `experiments/level-N-<slug>/`.
 | Level | Status | Notes |
 |-------|--------|-------|
 | 0 — Env / infra | **In progress.** B0 (browser-runner sanity) passing. | Playwright + headless Chromium + WebGPU pipeline functional; B1 (webgpu-dna harness liveness) deferred. |
-| 1 — Cross sections | **Complete.** E1, E2, E3, E4, E4b all passing. | Born ionization + Emfietzoglou excitation + Champion elastic + Sanche vibrational total + per-mode fractions bit-match. |
-| 2 — Track structure | **In progress.** E5 (CSDA + E-cons + ions @ 10 keV) and E6 (MFP across 6 energy bins) implemented and passing. E7/E8 deferred — need per-energy WebGPU dumps. | Replaces ad-hoc `validation/compare.py` with structured `validation/webgpu-results.json` + research artifacts. |
-| 3 — Pre-chemistry | Protocol only. | Awaits Geant4 chem6 ntuple ingest. |
-| 4 — Chemistry | **In progress.** E10 implemented (IRT vs Karamitros 2011 across 5 energies). E11 (GPU vs IRT) deferred — needs browser-runner infra. | |
-| 5 — DNA damage | Protocol only. | Awaits Friedland 2011 / molecularDNA reference ingest. |
-| 6 — Performance | Protocol only. | Awaits same-machine Geant4 single-thread baseline. |
+| 1 — Cross sections | **Complete.** E1, E2, E3, E4, E4b all passing. | Born ionization + Born excitation (v0.7.0, E29) + Champion elastic + Sanche vibrational total + per-mode fractions bit-match. |
+| 2 — Track structure | **Complete (headline) + open residual.** E5–E8 plus E20–E29/E35 cascade + Auger work. | CSDA 0.997× @10 keV (E29), cascade 0.981× (E35), primary 0.1% (E20); residual ~1.9% secondary-cascade deficit. |
+| 3 — Pre-chemistry | **Measured (honest negative).** E9. | 0.1 ps vs chem6: OH/eaq/H ~0.87–0.90×, H₂/H₂O₂ ~0.5× — deficit localised to pre-chemistry. |
+| 4 — Chemistry | **Measured.** E10 family (incl. E10r/E17/E25) + E11. | 1 µs RMS 7.0% vs chem6 (E29); GPU backend diverges at long times (E11, honest negative). |
+| 5 — DNA damage | **Measured.** E12/E12-local/E13 family + E30–E41. | Absolute yields vindicated per local dose (E12-local); explicit OH+deoxyribose channel 2.28 in-band (E39–E41). E14 molecularDNA comparison deferred. |
+| 6 — Performance | **Measured.** E15 family + E16. | Tracking ~241× ST / ~148× MT-8 (v0.6.0 full cascade); honest end-to-end 1.48×; fusion 40× Phase-A-only (E16 honest negative). |
 
 ## References
 

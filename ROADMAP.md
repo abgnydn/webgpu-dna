@@ -34,8 +34,9 @@ Each item below lists: **(scope) (parallelism) (sequential bottleneck) (validati
   The flip RECOMB 2.0→1.0 passed all three gates — cascade ions *recover*
   0.677→0.766× [E7d], chemistry parameter-free [E10r], SSB holds at 2.32 [E13d].
   Production, README, paper, and live site all parameter-free. Zenodo v0.5.0
-  DOI `10.5281/zenodo.20593367`. The only non-unity scalar left is
-  `SIGMA_EXC_SCALE=0.5` (a documented physics-data divergence, not a fudge).
+   DOI `10.5281/zenodo.20593367`. The track-structure scalars are both neutral
+   (`RECOMB_BOOST=1.0`, `SIGMA_EXC_SCALE=1.0` — the latter since v0.7.0 loads
+   the real Born excitation XS, E29).
 - ~~**Free-compute infrastructure.**~~ **DONE 2026-06-08.** IRT chemistry +
   SSB/DSB validation run GPU-free on GitHub Actions 16 GB runners
   (`chemistry-validation.yml`, `ssb-revalidation.yml`); dumps on the
@@ -66,11 +67,14 @@ validation oracle. (First read from 11.3.0 by mistake, then re-confirmed in 11.4
 option2's models are stable across the two — only cosmetic + opt6/opt8 branch changes
 that don't touch opt2. **Always read the oracle's exact version.**) Ordered by impact.
 
-1. **Chemistry: option1 → option3 (the oxygen network). ⚠ BIGGEST.** chem6 — the
+1. **Chemistry: option1 → option3 (the oxygen network). ~~⚠ BIGGEST — TODO~~ DONE (worker carries 38 option3 oxygen reactions, 47 rows total).** chem6 — the
    chemistry oracle — uses `G4EmDNAChemistry_option3` (~188 reaction-data entries),
-   but the project implements `option1` (~9 reactions). option3 has the entire
+   and the project implemented `option1` (~9 reactions) first. option3 has the entire
    **oxygen/peroxyl chemistry — HO2•, O2, O2⁻ (superoxide), HO2⁻** — that the project
-   has **zero of** (verified). This is *the* radiobiology gap: no oxygen chemistry
+   had **zero of** (verified at the time). That gap is now ported at the IRT level
+   (see `public/irt-worker.js` RXN_TABLE + `CHEMISTRY_OPTION3.md`); the remaining
+   work is quantitative validation against the option3 oracle (E34 found
+   over-consumption + weak recombination — open), not the port itself. This is *the* radiobiology gap: no oxygen chemistry
    means **no oxygen effect / OER** (why hypoxic tumours are radioresistant), and no
    realistic high-LET proton chemistry. The "RMS 7% vs chem6" is agreement on only
    the 5 primary species both options share; ~95% of option3's network is missing.
