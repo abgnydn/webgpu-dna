@@ -33,6 +33,7 @@ const {
   clusterDSB,
   combineHits,
 } = require('./scoring-common.cjs');
+const { runWorkerSync } = require('./worker-shim.cjs');
 
 // Fibre spacing is the 4th optional arg (default 150 nm) — lets E27 sweep the
 // DNA-target geometry to measure how sensitive the SSB/DSB ratio is to it.
@@ -84,28 +85,21 @@ const dnaForWorker = {
 const explicitDnaReaction = !!process.env.EXPLICIT_DNA;
 const ssbScoring = { r_indirect: SSB_R_DAMAGE_INDIRECT_NM, p_indirect: SSB_P_INDIRECT, seed: 0x53534231, explicitDnaReaction };
 
-// Shim WebWorker globals so irt-worker.js runs unmodified (as in run_irt.cjs).
-let workerOnMessage = null;
-let workerResult = null;
-const shim = {
-  onmessage: null,
-  postMessage(data) {
-    if (data.type === 'progress') console.error(`[worker] ${data.msg}`);
-    else if (data.type === 'result') workerResult = data;
-  },
-};
-Object.defineProperty(shim, 'onmessage', { set(fn) { workerOnMessage = fn; }, get() { return workerOnMessage; } });
-global.self = shim;
-const src = fs.readFileSync(path.resolve(__dirname, '../public/irt-worker.js'), 'utf8');
-// eslint-disable-next-line no-eval
-eval(src);
-if (typeof workerOnMessage !== 'function') { console.error('[run_irt_ssb] worker did not register onmessage'); process.exit(2); }
-
 // COLLECT_OHREC=<path> → export per-OH (x,y,z,t_birth,t_death) for the E40 offline
 // explicit-channel replay against folded chromatin. Uses the encounter/pure-radical
 // run (explicitDna stays off) so t_death is the radical-death time.
 const ohrecPath = process.env.COLLECT_OHREC || '';
-workerOnMessage({ data: { rad_buf, rad_n, n_therm, E_eV, dna: dnaForWorker, ssbScoring, o2_conc, collectOHrec: !!ohrecPath } });
+
+const workerPath = path.resolve(__dirname, '../public/irt-worker.js');
+const { getResult } = runWorkerSync(
+  workerPath,
+  { rad_buf, rad_n, n_therm, E_eV, dna: dnaForWorker, ssbScoring, o2_conc, collectOHrec: !!ohrecPath },
+  (data) => {
+    if (data.type === 'progress') console.error(`[worker] ${data.msg}`);
+  }
+);
+
+const workerResult = getResult();
 if (!workerResult || !workerResult.ssb_indirect) { console.error('[run_irt_ssb] no ssb_indirect from worker'); process.exit(3); }
 if (ohrecPath && workerResult.oh_records) {
   fs.writeFileSync(ohrecPath, Buffer.from(workerResult.oh_records.buffer));
