@@ -108,7 +108,7 @@ No inter-step synchronization, no per-step dispatch — pure loop.
     │                                                 │
     │  r < σ_ion + σ_exc?                             │
     │    YES → Excitation                             │
-    │      Level from Emfietzoglou per-level fractions │
+    │      Level from Born per-level fractions (v0.7.0, E29) │
     │      G4ChemDissociationChannels:                │
     │        Lev 0 (A¹B₁): 65% OH+H                   │
     │        Lev 1 (B¹A₁): 55% autoion, 15% 2OH+H₂   │
@@ -133,8 +133,11 @@ Instead: 2000 dispatches, each advancing all alive secondaries by 1 step.
     ──────────────────────────────────────────
     if dead: return early
     Same physics as Phase A except:
-      - Tertiaries absorbed in place (not emitted to another buffer)
-      - deposit(bind + W_sec) for tertiaries (full transfer deposited locally)
+      - Above-cutoff tertiaries (gen3+) are TRACKED: emitted into sec_buf
+        as new particles (v0.6.0, E21/E25) — the wavefront grows in chunks
+        until stable, then thermalises
+      - Sub-cutoff tertiaries absorbed in place: deposit(bind + W_sec)
+        (full transfer deposited locally)
     Writes to same shared dose[], rad_buf[], counters[]
 ```
 
@@ -180,7 +183,9 @@ order (retaining products, re-pairing them into the pool).
   │    snapshot alive[] + products → G(t)             │
   └───────────────────────────────────────────────────┘
 
-  9-reaction table (Karamitros 2011, G4EmDNAChemistry_option1):
+  9-reaction base table (Karamitros 2011, G4EmDNAChemistry_option1) — the
+  worker now carries 47 rows total (base 9 + 38-reaction oxygen network from
+  G4EmDNAChemistry_option3):
   ┌───┬──────────────────┬──────────┬──────┬──────────────────┐
   │ # │ reaction         │ k (M⁻¹s⁻¹)│ type │ products         │
   ├───┼──────────────────┼──────────┼──────┼──────────────────┤
@@ -266,7 +271,7 @@ for throughput. Not the validation path.
 |-------------|-----------|-----------|----------------|
 | G4DNABornIonisationModel1 | sigma_ionisation_e_born | `xs_all().x` + `sample_W_sec()` | Paired CDF binary search vs Geant4's std::map |
 | G4DNABornAngle | (analytical) | Inline in ionization block | 3 regimes: <50 eV iso, 50–200 mixed, >200 kinematic |
-| G4DNAEmfietzoglouExcitationModel | sigma_excitation_e_emfietzoglou | `xs_all().y` + `xs_exc_fracs()` | Data-driven level fractions, not hardcoded |
+| G4DNABornExcitationModel | sigma_excitation_e_born | `xs_all().y` + `xs_exc_fracs()` | Data-driven level fractions, not hardcoded (Born since v0.7.0, E29) |
 | G4ChemDissociationChannels | (code) | Inline branching in primary.wgsl | Autoionization for levels 1–4 (produces eaq) |
 | G4DNAChampionElasticModel | sigma_elastic_e_champion | `xs_all().z` + `xs_el_cos()` | Scale: 1e-16 cm² (not Emfietzoglou's 1e-22/3.343 m²) |
 | G4DNASancheExcitationModel | sigma_excitationvib_e_sanche | `xs_vib_total()` + `sample_vib_mode()` | 2× liquid phase factor applied |

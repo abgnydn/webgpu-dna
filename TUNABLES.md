@@ -70,6 +70,8 @@ tuned to reproduce a validation number** — including in DNA-damage scoring.
 | ~~`SSB_P_DIRECT`~~ | 0.15 (uncited flat probability) | **accumulated-volume energy threshold** `SSB_E_LOW=5.0`, `SSB_E_HIGH=37.5` eV | Sum each event's deposit per sugar site (shaders emit energy via `rad_e` + true deposit site via `rad_dep`), threshold once with the Nikjoo/Charlton ramp — scored at the true energy-deposit site, not the displaced radical. Data-sourced bond-energy thresholds, not tuned. Deposit-site brackets: accumulated 5.74, threshold-free `P=1` 2.34 in-band [E33]. |
 
 Consequence: the indirect/direct SSB **ratio is now a prediction**, not tuned —
-it may fall outside PARTRAC's 2–3 band, which is the honest outcome. The
-remaining SSB modelling choices (reaction radii, fibre grid) are category B
-above, not fits.
+the encounter-proxy value is **5.74** (above band [E33]); with the shipped
+**explicit OH+deoxyribose competing-reactant channel** (molecularDNA structure,
+same `p_ssb`=0.13) it is **2.28, in band** [E39/E40/E41] — the 5.74 was
+encounter-proxy over-counting, not a fit residual. The remaining SSB modelling
+choices (reaction radii, fibre grid) are category B above, not fits.
