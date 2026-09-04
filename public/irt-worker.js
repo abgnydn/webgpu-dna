@@ -1036,10 +1036,10 @@ self.onmessage = function(e) {
     'eaq+eaq→2OH-+H2 [TDC]', 'eaq+H→OH-+H2 [TDC]', 'eaq+H3O+→H [PDC]',
     'H+H→H2 [TDC]', 'eaq+H2O2→OH-+OH [PDC]', 'H3O++OH-→H2O [TDC]'
   ];
-  // Short species names for generated fallback labels (must match N_SPECIES
-  // encoding above: 0=OH … 13=O3-). rxn_labels curates the 9 Karamitros rows;
-  // oxygen-network rows (and any future rows) fall back to A+B [type] so
-  // rxn_info never emits undefined labels.
+  // Short species names for generated fallback labels (must match the
+  // N_SPECIES encoding above: 0=OH … 13=O3-). rxn_labels only covers the 9
+  // Karamitros reactions; the oxygen network (and any future rows) falls
+  // back to a generated `A+B [type]` label so rxn_info never emits undefined.
   const RXN_SHORT = ['OH', 'eaq', 'H', 'H3O+', 'H2O2', 'OH-', 'O2', 'HO2', 'O2-', 'HO2-', 'O', 'O-', 'O3', 'O3-'];
   const rxn_info = [];
   for (let r = 0; r < N_RXN; r++) {
