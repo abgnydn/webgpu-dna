@@ -68,7 +68,7 @@ const shim = {
       }
       console.error('\n[reactions]');
       for (const rx of (data.rxn_info || [])) {
-        if (rx.count > 0) console.error(`  ${rx.label.padEnd(28)} ${rx.count}`);
+        if (rx.count > 0) console.error(`  ${String(rx.label ?? 'rxn_?').padEnd(28)} ${rx.count}`);
       }
 
       // ASSERTIONS
@@ -85,7 +85,7 @@ const shim = {
       console.error(`  ✓ initial H2 markers ARE counted at 1 ps`);
 
       // Check OH- + H3O+ → H2O reaction fired. Reaction index 8.
-      const r8_count = (data.rxn_info || []).find(r => r.label.includes('H3O++OH-'))?.count || 0;
+      const r8_count = (data.rxn_info || []).find(r => String(r.label ?? '').includes('H3O++OH-'))?.count || 0;
       if (r8_count > 0) {
         console.error(`  ✓ OH- (code 6) reacts with H3O+ (rxn 8 fired ${r8_count}× across primaries)`);
       } else {
