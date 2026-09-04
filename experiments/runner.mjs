@@ -118,6 +118,9 @@ async function main() {
   if (!id || !REGISTRY[id]) {
     const known = Object.keys(REGISTRY).join(', ');
     console.error(`usage: node experiments/runner.mjs <id>   (known: ${known})`);
+    console.error(
+      'note: post-May IDs (E17, E20, E25, E29, E35, E39, E40, E41, E10r, E7d, E7e, E13d, E15-fair, B2, E10-ci, and E30–E37 collisions) are archived under experiments/results/ but driverless — see experiments/results/README.md.',
+    );
     process.exit(2);
   }
 

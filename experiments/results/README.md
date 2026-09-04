@@ -13,6 +13,17 @@ alongside passing ones. Each artifact carries:
 - `summary` — aggregated metrics (median, p90, max, peak ratio, etc.)
 - `rows` — per-trial / per-cell observations
 
+## Registry coverage
+
+`experiments/runner.mjs` covers the May-era IDs (`B0-B1`, `E1-E16` families as
+listed in its `REGISTRY`). Results for later IDs (`E17`, `E20-E29`, `E30-E41`
+— note `E30-E37` prefixes are reused across levels — plus `E10r`, `E7d/E7e`,
+`E13d`, `E15-fair`, `E15d-v060`, `E12-local*`, `B2`, `E10-ci`) are **archived
+but driverless**: they were produced ad-hoc/manual (Geant4 ntuple analysis,
+offline replays, one-off Node scripts) and cannot be re-run via
+`npm run experiments -- <id>`. The runner now says so on unknown IDs. Do not
+add new result IDs without a driver + registry row (see `EXTENDING.md` §0).
+
 ## Index (chronological)
 
 | Date | Level | Experiment | Status | Headline |
