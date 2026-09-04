@@ -42,18 +42,8 @@ const MGJ=array<f32,5>(19820.0,23490.0,27770.0,30830.0,33080.0);
 const MGW=array<f32,5>(0.85,0.88,0.88,0.78,0.78);
 const MGE=array<f32,5>(8.17,10.13,11.31,12.91,14.50);  // Miller-Green liquid excitation levels
 
-// Fixed-point dose deposit (same as primary.wgsl).
-fn deposit(px:f32,py:f32,pz:f32,dep_eV:f32,box:f32,vc:u32){
-  if(dep_eV<=0.0){return;}
-  let vs=2.0*box/f32(vc);
-  let ix=i32(floor((px+box)/vs));
-  let iy=i32(floor((py+box)/vs));
-  let iz=i32(floor((pz+box)/vs));
-  let n=i32(vc);
-  if(ix<0||ix>=n||iy<0||iy>=n||iz<0||iz>=n){return;}
-  let vi=u32((iz*n+iy)*n+ix);
-  atomicAdd(&dose[vi],u32(dep_eV*100.0));
-}
+// deposit() lives in helpers.wgsl (shared with the primary + secondary
+// shaders — R2 dedup, WGSL_REFACTOR_PARITY_PROTOCOL.md).
 
 // Lower grid index for E on the proton log grid (for per-shell fractions).
 fn p_idx(e:f32)->u32{

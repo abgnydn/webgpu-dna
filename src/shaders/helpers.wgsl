@@ -221,3 +221,36 @@ fn xs_dea(E:f32)->f32{
 fn rl(x:u32,k:u32)->u32{return(x<<k)|(x>>(32u-k));}
 fn rn(s:ptr<function,vec4u>)->u32{let r=rl((*s).x+(*s).w,7u)+(*s).x;let t=(*s).y<<9u;(*s).z^=(*s).x;(*s).w^=(*s).y;(*s).y^=(*s).z;(*s).x^=(*s).w;(*s).z^=t;(*s).w=rl((*s).w,11u);return r;}
 fn rf(s:ptr<function,vec4u>)->f32{return f32(rn(s)>>1u)/2147483647.0;}
+
+// --- Shared pure helpers (R2 dedup, WGSL_REFACTOR_PARITY_PROTOCOL.md) ---
+// Moved verbatim from primary.wgsl (were duplicated in primary, secondary,
+// and — for deposit() — proton). Uniform-agnostic by construction: deposit
+// takes (box, vc) as explicit params, meesungnoen_sigma takes only k, and
+// neither draws RNG. Each bundle declares its own `dose` storage binding,
+// which these resolve against at compile time per bundle.
+
+// Meesungnoen2002: electron thermalization penetration → 1D Gaussian sigma (nm)
+// Polynomial fit to mean radial distance, converted via sigma = r_mean * sqrt(pi/8)
+fn meesungnoen_sigma(k:f32)->f32{
+  if(k<=0.1){return 0.0;}
+  var r=-4.06217193e-08;
+  r=r*k+3.06848412e-06;r=r*k-9.93217814e-05;r=r*k+1.80172797e-03;
+  r=r*k-2.01135480e-02;r=r*k+1.42939448e-01;r=r*k-6.48348714e-01;
+  r=r*k+1.85227848e+00;r=r*k-3.36450378e+00;r=r*k+4.37785068e+00;
+  r=r*k-4.20557339e+00;r=r*k+3.81679083e+00;r=r*k-2.34069784e-01;
+  return max(r,0.0)*0.6267;
+}
+
+// Deposit energy (eV) at voxel containing world position (px,py,pz). Thread-safe.
+// Dose is stored in fixed-point: 100 units = 1 eV.
+fn deposit(px:f32,py:f32,pz:f32,dep_eV:f32,box:f32,vc:u32){
+  if(dep_eV<=0.0){return;}
+  let vs=2.0*box/f32(vc);
+  let ix=i32(floor((px+box)/vs));
+  let iy=i32(floor((py+box)/vs));
+  let iz=i32(floor((pz+box)/vs));
+  let n=i32(vc);
+  if(ix<0||ix>=n||iy<0||iy>=n||iz<0||iz>=n){return;}
+  let vi=u32((iz*n+iy)*n+ix);
+  atomicAdd(&dose[vi],u32(dep_eV*100.0));
+}

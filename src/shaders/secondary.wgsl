@@ -19,31 +19,8 @@ struct Particle{pos_E:vec4<f32>,dir_alive:vec4<f32>,rng:vec4<u32>};
 // reads this instead of rad_buf's mother-displaced radical position.
 @group(0)@binding(7) var<storage,read_write> rad_dep:array<vec4<f32>>;
 
-// Meesungnoen2002: electron thermalization penetration → 1D Gaussian sigma (nm)
-fn meesungnoen_sigma(k:f32)->f32{
-  if(k<=0.1){return 0.0;}
-  var r=-4.06217193e-08;
-  r=r*k+3.06848412e-06;r=r*k-9.93217814e-05;r=r*k+1.80172797e-03;
-  r=r*k-2.01135480e-02;r=r*k+1.42939448e-01;r=r*k-6.48348714e-01;
-  r=r*k+1.85227848e+00;r=r*k-3.36450378e+00;r=r*k+4.37785068e+00;
-  r=r*k-4.20557339e+00;r=r*k+3.81679083e+00;r=r*k-2.34069784e-01;
-  return max(r,0.0)*0.6267;
-}
-
-// Same deposit() as primary — WGSL doesn't let us share non-helper fns between
-// compiled modules cleanly, so we duplicate. (Move to HELPERS if this pattern
-// grows.) Dose stored in fixed point: 100 units = 1 eV.
-fn deposit(px:f32,py:f32,pz:f32,dep_eV:f32,box:f32,vc:u32){
-  if(dep_eV<=0.0){return;}
-  let vs=2.0*box/f32(vc);
-  let ix=i32(floor((px+box)/vs));
-  let iy=i32(floor((py+box)/vs));
-  let iz=i32(floor((pz+box)/vs));
-  let n=i32(vc);
-  if(ix<0||ix>=n||iy<0||iy>=n||iz<0||iz>=n){return;}
-  let vi=u32((iz*n+iy)*n+ix);
-  atomicAdd(&dose[vi],u32(dep_eV*100.0));
-}
+// meesungnoen_sigma() and deposit() live in helpers.wgsl (shared with the
+// primary + proton shaders — R2 dedup, WGSL_REFACTOR_PARITY_PROTOCOL.md).
 // Secondary-shader DNA hit check — same as primary dna_near but uses sp.
 fn dna_near_sec(px:f32,py:f32,pz:f32)->u32{
   if(sp.dna_enable==0u){return 0u;}
