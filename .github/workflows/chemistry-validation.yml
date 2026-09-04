@@ -23,6 +23,14 @@ on:
         description: "comma-separated energies in eV, or 'all' for the 8-energy ESTAR sweep"
         type: string
         default: "all"
+  # Auto-canary: a PR touching the IRT worker or its drivers runs the 10 keV
+  # point only (the full 8-energy sweep stays manual via workflow_dispatch).
+  pull_request:
+    paths:
+      - 'public/irt-worker.js'
+      - 'tools/run_irt.cjs'
+      - 'tools/irt-summary.cjs'
+      - '.github/workflows/chemistry-validation.yml'
 
 permissions:
   contents: read
@@ -37,7 +45,9 @@ jobs:
       - name: Generate matrix
         id: gen
         run: |
-          if [ "${{ inputs.energies }}" = "all" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            list="10000"
+          elif [ "${{ inputs.energies }}" = "all" ] || [ -z "${{ inputs.energies }}" ]; then
             list="100,300,500,1000,3000,5000,10000,20000"
           else
             list="${{ inputs.energies }}"

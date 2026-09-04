@@ -126,6 +126,25 @@ async function main() {
 
   const entry = REGISTRY[id];
   const result = await entry.run();
+
+  // Artifact schema gate: every driver must return the RESEARCH.md envelope
+  // (meta.protocol, env with gitSha, status, rows) so a driver that silently
+  // drops its provenance fails loudly here instead of writing a hollow JSON.
+  // 'skip' (missing oracle binary/data) is allowed but still needs meta+env.
+  {
+    const problems = [];
+    if (!result || typeof result !== 'object') problems.push('result is not an object');
+    else {
+      if (!result.meta || typeof result.meta.protocol !== 'string') problems.push('meta.protocol missing');
+      if (!result.env || typeof result.env.gitSha !== 'string') problems.push('env.gitSha missing');
+      if (!['pass', 'fail', 'noisy', 'skip'].includes(result.status)) problems.push(`status=${JSON.stringify(result.status)} not in pass/fail/noisy/skip`);
+      if (!Array.isArray(result.rows)) problems.push('rows missing');
+    }
+    if (problems.length) {
+      console.error(`[${id}] ✗ ARTIFACT SCHEMA: ${problems.join('; ')}`);
+      process.exit(2);
+    }
+  }
   const date = todayUtcDate();
   const outPath = join(REPO_ROOT, 'experiments', 'results', date, entry.level, `${entry.id}.json`);
 
