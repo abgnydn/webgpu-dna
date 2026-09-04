@@ -59,6 +59,11 @@ export async function runE5() {
   const wgsl = JSON.parse(
     readFileSync(join(REPO_ROOT, 'validation', 'webgpu-results.json'), 'utf8'),
   );
+  const wgslStaleInput = typeof wgsl.$superseded === 'string';
+  const wgslHarnessVersion = wgsl.harnessVersion ?? null;
+  const wgslStaleWarning = wgslStaleInput
+    ? `STALE: validation/webgpu-results.json is marked $superseded=${JSON.stringify(wgsl.$superseded)}`
+    : 'WGSL validation file is current (no $superseded marker).';
   const events = readG4Ntuple(join(REPO_ROOT, 'validation', 'g4_per_event.csv'));
 
   if (wgsl.primaryEnergyEv !== 10000) {
@@ -149,6 +154,7 @@ export async function runE5() {
       trials: 1,
       sources: {
         wgsl: 'validation/webgpu-results.json (post-migration 2026-04-21 browser run)',
+        wgslStaleWarning,
         g4Ntuple: 'validation/g4_per_event.csv (Geant4 11.4.1 dnaphysics, 4096 events at 10 keV)',
       },
     },
@@ -160,6 +166,8 @@ export async function runE5() {
       nFailedMetrics: failures.length,
       nPrimaries: events.length,
       primaryEnergyEv: 10000,
+      wgslStaleInput,
+      wgslHarnessVersion,
       g4Stats: {
         meanCsdaNm: path.mean,
         stdCsdaNm: path.std,
