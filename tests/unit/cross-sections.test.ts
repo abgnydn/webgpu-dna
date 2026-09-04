@@ -72,10 +72,11 @@ describe('Cross section tables', () => {
     expect(xs100.ion).toBeGreaterThan(xs500.ion);
   });
 
-  // Bands are ~1.7x the measured margins on the committed table
-  // (ion worst 1.035x @1 keV; total worst 1.097x @5 keV, 0.924x @100 eV —
-  // measured 2026-09-03) so a real conversion/interpolation regression fails
-  // instead of hiding inside the old 15%/20% bands.
+  // Bands carry ~1.2–1.7x headroom over the measured margins on the committed
+  // table (ion worst 1.035x @1 keV → 6% band is 1.7x; total worst 1.097x @5 keV
+  // and 0.924x @100 eV → 12% band is 1.2x on the tight high side — measured
+  // 2026-09-03) so a real conversion/interpolation regression fails instead
+  // of hiding inside the old 15%/20% bands.
   for (const [E, ref] of Object.entries(G4_REF)) {
     const eV = Number(E);
     it(`matches Geant4 σ_ion at ${E} eV within 6%`, () => {
