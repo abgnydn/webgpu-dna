@@ -24,6 +24,7 @@
 import { initGPU } from './gpu/device';
 import { allocateBuffers, seedPrimaryRNG } from './gpu/buffers';
 import { createPipelines } from './gpu/pipelines';
+import { runAtEnergy } from './gpu/dispatch';
 import { MAX_SEC, MAX_RAD, VC } from './physics/constants';
 import type { GPUBuffers } from './gpu/buffers';
 import type { Pipelines } from './gpu/pipelines';
@@ -93,6 +94,7 @@ interface BenchResult {
 declare global {
   interface Window {
     runPhaseABench?: (opts: BenchOpts) => Promise<BenchResult>;
+    runParitySnapshot?: (opts: ParityOpts) => Promise<ParityDigest>;
     __benchReady?: boolean;
     __benchError?: string;
   }
@@ -312,9 +314,184 @@ async function runPhaseABench(opts: BenchOpts): Promise<BenchResult> {
   };
 }
 
+/**
+ * Refactor-parity snapshot (R2 protocol — WGSL_REFACTOR_PARITY_PROTOCOL.md).
+ *
+ * Runs the PRODUCTION Phase A+B pipeline (`runAtEnergy`, same code path as
+ * validation) at small N with a fixed seed and returns a JSON-safe digest
+ * of everything the GPU wrote. No new dispatch code: determinism comes from
+ * `seedPrimaryRNG(np, floor(E))` inside `runAtEnergy`, and state is zeroed
+ * on entry there, so back-to-back calls are independent.
+ *
+ * E is fixed at 10000 eV (not a physics choice): the dose grid is only
+ * returned at 10 keV, and chemistry is skipped without a callback — so the
+ * digest covers Phase A+B exactly, nothing else.
+ *
+ * Comparison rules (see protocol doc): counters/scalars/dose exact;
+ * rad_buf/rad_e/rad_dep as multisets (sorted rows, then hashed) because
+ * atomic slot-claim order may vary with scheduling.
+ */
+export interface ParityOpts {
+  np: number;
+  energyEv: number;
+  boxNm?: number;
+  ceEV?: number;
+}
+
+export interface ParityDigest {
+  E: number;
+  np: number;
+  boxNm: number;
+  ceEV: number;
+  counters: number[];
+  n_therm: number;
+  n_esc: number;
+  mean_total: number;
+  mean_ions: number;
+  cons_ratio: number;
+  total_deposited_eV: number;
+  rad_n_raw: number;
+  rad_n_stored: number;
+  rad_dropped: number;
+  sec_n: number;
+  sec_tertiary_ions: number;
+  sec_steps: number;
+  doseSum: number;
+  doseHash: string;
+  radHash: string;
+  radEHash: string;
+  radDepHash: string;
+  adapter: { vendor: string; architecture: string; device: string; description: string };
+  wallMs: number;
+}
+
+function fnv1aStr(s: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0');
+}
+
+function fnv1aU32(a: Uint32Array): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < a.length; i++) {
+    const v = a[i] >>> 0;
+    h ^= v & 0xffff;
+    h = Math.imul(h, 0x01000193) >>> 0;
+    h ^= (v >>> 16) & 0xffff;
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0');
+}
+
+/** Sort float rows lexicographically (order-insensitive multiset key). */
+function sortedRowHash(a: Float32Array, stride: 4): string {
+  const n = Math.floor(a.length / stride);
+  const keys = new Array<string>(n);
+  for (let i = 0; i < n; i++) {
+    const o = i * stride;
+    keys[i] = `${a[o]},${a[o + 1]},${a[o + 2]},${a[o + 3]}`;
+  }
+  keys.sort();
+  return fnv1aStr(keys.join(';'));
+}
+
+async function runParitySnapshot(opts: ParityOpts): Promise<ParityDigest> {
+  const { np, energyEv } = opts;
+  const boxNm = opts.boxNm ?? 15000;
+  const ceEV = opts.ceEV ?? 7.4;
+  // Staging logs: the snapshot runs minutes on software WebGPU — a silent
+  // hang vs slow progress must be distinguishable in the driver log.
+  const plog = (m: string): void => console.log(`[parity-snap] ${m}`);
+  plog(`start np=${np} E=${energyEv}`);
+
+  if (!cached || cached.npAlloc < np) {
+    plog('setupRig (device + ~1.5GB buffers + 3 shader compiles)…');
+    cached = await setupRig(np);
+    plog('rig ready');
+  }
+  const { device, buffers, pipelines, adapter } = cached;
+  // Permanent: surface device loss in the driver log (device.ts only logs
+  // via an optional callback this harness doesn't pass).
+  device.lost.then((info) => {
+    console.log(`[parity-snap] device.lost reason=${info.reason} msg=${info.message}`);
+  });
+  const adapterInfo = (adapter as unknown as { info?: GPUAdapterInfo }).info ?? {
+    vendor: '',
+    architecture: '',
+    device: '',
+    description: '',
+  };
+
+  const t0 = performance.now();
+  plog('runAtEnergy (full Phase A+B)…');
+  const r = await runAtEnergy(device, buffers, pipelines, energyEv, np, boxNm, ceEV, null, undefined);
+  plog(`runAtEnergy done n_therm=${r.n_therm} rad_n=${r.rad_n_stored} sec_n=${r.sec_n}, re-reading counters…`);
+
+  // Re-read the full counters[0..7] (runAtEnergy returns only named fields).
+  // The counters buffer still holds final state; mirror the dumpSecBuf pattern.
+  const countersRB = device.createBuffer({
+    size: 32,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  });
+  const enc = device.createCommandEncoder();
+  enc.copyBufferToBuffer(buffers.counters, 0, countersRB, 0, 32);
+  device.queue.submit([enc.finish()]);
+  await device.queue.onSubmittedWorkDone();
+  await countersRB.mapAsync(GPUMapMode.READ);
+  const counters = Array.from(new Uint32Array(countersRB.getMappedRange().slice(0) as ArrayBuffer));
+  countersRB.unmap();
+  countersRB.destroy();
+  plog('digest: hashing dose + sorted rad buffers…');
+
+  const doseArr = r.dose_arr ?? new Uint32Array(0);
+  let doseSum = 0;
+  for (let i = 0; i < doseArr.length; i++) doseSum += doseArr[i];
+
+  const radBuf = r.rad_buf_final ?? new Float32Array(0);
+  const radE = r.rad_e_final ?? new Float32Array(0);
+  const radDep = r.rad_dep_final ?? new Float32Array(0);
+  const radESorted = Array.from(radE).sort((a, b) => a - b);
+
+  return {
+    E: r.E,
+    np,
+    boxNm,
+    ceEV,
+    counters,
+    n_therm: r.n_therm,
+    n_esc: r.n_esc,
+    mean_total: r.mean_total,
+    mean_ions: r.mean_ions,
+    cons_ratio: r.cons_ratio,
+    total_deposited_eV: r.total_deposited_eV,
+    rad_n_raw: r.rad_n_raw,
+    rad_n_stored: r.rad_n_stored,
+    rad_dropped: r.rad_dropped,
+    sec_n: r.sec_n,
+    sec_tertiary_ions: r.sec_tertiary_ions,
+    sec_steps: r.sec_steps,
+    doseSum,
+    doseHash: fnv1aU32(doseArr),
+    radHash: sortedRowHash(radBuf, 4),
+    radEHash: fnv1aStr(radESorted.join(',')),
+    radDepHash: sortedRowHash(radDep, 4),
+    adapter: {
+      vendor: adapterInfo.vendor ?? '',
+      architecture: adapterInfo.architecture ?? '',
+      device: adapterInfo.device ?? '',
+      description: adapterInfo.description ?? '',
+    },
+    wallMs: performance.now() - t0,
+  };
+}
+
 if (typeof window !== 'undefined') {
   try {
     window.runPhaseABench = runPhaseABench;
+    window.runParitySnapshot = runParitySnapshot;
     window.__benchReady = true;
     console.log('[bench] runPhaseABench ready');
   } catch (e) {
