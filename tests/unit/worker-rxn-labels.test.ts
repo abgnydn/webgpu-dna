@@ -45,9 +45,9 @@ function runMinimal(): IRTResult {
 describe('IRT worker rxn_info labels', () => {
   const res = runMinimal();
 
-  it('emits an rxn_info entry per reaction row', () => {
+  it('emits an rxn_info entry per reaction row (9 Karamitros + 38 oxygen = 47)', () => {
     expect(Array.isArray(res.rxn_info)).toBe(true);
-    expect(res.rxn_info.length).toBeGreaterThan(9);
+    expect(res.rxn_info.length).toBe(47);
   });
 
   it('every entry has a non-empty string label (oxygen rows included)', () => {
