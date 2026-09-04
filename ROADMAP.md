@@ -67,7 +67,7 @@ validation oracle. (First read from 11.3.0 by mistake, then re-confirmed in 11.4
 option2's models are stable across the two — only cosmetic + opt6/opt8 branch changes
 that don't touch opt2. **Always read the oracle's exact version.**) Ordered by impact.
 
-1. **Chemistry: option1 → option3 (the oxygen network). ~~⚠ BIGGEST — TODO~~ DONE (worker carries 38 option3 oxygen reactions, 47 rows total).** chem6 — the
+1. **Chemistry: option1 → option3 (the oxygen network). ~~⚠ BIGGEST — TODO~~ DONE (worker carries 38 of option3's 43 oxygen-network reactions — 47 of 52 rows total per `CHEMISTRY_OPTION3.md:9`).** chem6 — the
    chemistry oracle — uses `G4EmDNAChemistry_option3` (~188 reaction-data entries),
    and the project implemented `option1` (~9 reactions) first. option3 has the entire
    **oxygen/peroxyl chemistry — HO2•, O2, O2⁻ (superoxide), HO2⁻** — that the project
