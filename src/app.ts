@@ -159,6 +159,10 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
 
   let lastDose: Uint32Array | null = null;
   let lastDoseBox = boxNm;
+  // Which energy produced lastDose — a mid-sweep failure skips that energy's
+  // row, so the post-loop paint must say which energy it shows (it is NOT
+  // necessarily the last energy in the sweep).
+  let lastDoseE: number | null = null;
 
   // Optional rad_buf dump: when the page URL has ?dump=1, POST each
   // energy's rad_buf to /dump/rad_E<E>_N<np>.bin. Used by experiments
@@ -184,6 +188,7 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
     if (r.dose_arr) {
       lastDose = r.dose_arr;
       lastDoseBox = boxNm;
+      lastDoseE = r.E;
     }
 
     if (wantDump && r.rad_buf_final) {
@@ -274,6 +279,7 @@ export async function runValidation(cfg: ValidationConfig): Promise<void> {
   log('Validation run complete.', 'ok');
 
   if (lastDose) {
+    log(`Dose projection below is E=${lastDoseE} eV (last successful energy with a dose grid).`, 'data');
     paintDoseProjection('dose_xy', lastDose, 'z', lastDoseBox);
     paintDoseProjection('dose_yz', lastDose, 'x', lastDoseBox);
   }
