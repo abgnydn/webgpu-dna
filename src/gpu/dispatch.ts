@@ -226,6 +226,14 @@ export async function runAtEnergy(
   const G_OH = per100 > 0 ? rad_OH / per100 : 0;
   const G_eaq = per100 > 0 ? rad_eaq / per100 : 0;
   const G_H = per100 > 0 ? rad_H / per100 : 0;
+  // Stored-basis siblings: species counters increment before the rad_buf
+  // bounds check, so when rad_dropped > 0 the G_* above (raw-counter basis)
+  // are upper bounds. Scale by the stored fraction for the conservative
+  // (buffer-backed) estimate. Identical to G_* when nothing was dropped.
+  const storedFrac = rad_n_raw > 0 ? rad_n_stored / rad_n_raw : 1;
+  const G_OH_stored = G_OH * storedFrac;
+  const G_eaq_stored = G_eaq * storedFrac;
+  const G_H_stored = G_H * storedFrac;
 
   // Per-primary aggregation: only count thermalized particles.
   let total_sum = 0;
@@ -333,6 +341,9 @@ export async function runAtEnergy(
     G_OH,
     G_eaq,
     G_H,
+    G_OH_stored,
+    G_eaq_stored,
+    G_H_stored,
     rad_n_raw,
     rad_n_stored,
     rad_dropped,
