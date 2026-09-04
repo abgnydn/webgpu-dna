@@ -40,6 +40,14 @@ cffVersions.forEach((v, i) => {
   }
 });
 
+// --- package-lock.json root version fields must match too (drifted to 0.3.0
+// --- while package.json moved on — invisible because nothing checked it).
+const lock = JSON.parse(read('package-lock.json'));
+for (const [where, v] of [['package-lock.json top-level version', lock.version], ['package-lock.json packages[""].version', lock.packages?.['']?.version]]) {
+  if (v !== expected) {
+    errors.push(`${where} is "${v}", expected "${expected}" (from package.json)`);
+  }
+}
 // --- README "current release is `vX.Y.Z`" must match ---
 const readme = read('README.md');
 const relMatch = readme.match(/current release is\s*`?v?(\d+\.\d+\.\d+)`?/i);

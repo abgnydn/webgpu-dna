@@ -128,6 +128,11 @@ export interface EnergyResult {
   G_OH: number;
   G_eaq: number;
   G_H: number;
+  /** Stored-basis siblings of G_OH/G_eaq/G_H (scaled by rad_n_stored/rad_n_raw).
+   *  Equal to G_* when nothing was dropped; conservative when rad_dropped > 0. */
+  G_OH_stored: number;
+  G_eaq_stored: number;
+  G_H_stored: number;
   rad_n_raw: number;
   rad_n_stored: number;
   rad_dropped: number;

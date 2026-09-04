@@ -47,7 +47,8 @@ const shim = {
       if (data.rxn_info) {
         console.error('  reactions fired:');
         for (const rx of data.rxn_info) {
-          console.error(`    ${rx.label.padEnd(28)} count=${String(rx.count).padStart(7)}  σ=${rx.sigma}nm  rc=${rx.rc}nm`);
+          const lbl = String(rx.label ?? `rxn_?`);
+          console.error(`    ${lbl.padEnd(28)} count=${String(rx.count).padStart(7)}  σ=${rx.sigma}nm  rc=${rx.rc}nm`);
         }
       }
     }
