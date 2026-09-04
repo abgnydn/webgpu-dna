@@ -10,8 +10,8 @@
  *   3. OH- (code 6) is mapped to species index 5 and reacts with H3O+
  */
 'use strict';
-const fs = require('fs');
 const path = require('path');
+const { runWorkerSync } = require('./worker-shim.cjs');
 
 // Build a synthetic rad_buf with 4 primaries.
 // Layout per primary (pid * 8 + species_code):
@@ -50,11 +50,12 @@ const rad_n = radEntries.length / 4;
 
 console.error(`[test] ${rad_n} entries (${N_THERM} primaries) — exercising codes 6, 7`);
 
-// Shim webworker self
-let workerOnMessage = null;
-const shim = {
-  onmessage: null,
-  postMessage(data) {
+const workerPath = path.resolve(__dirname, '../public/irt-worker.js');
+
+runWorkerSync(
+  workerPath,
+  { rad_buf, rad_n, n_therm: N_THERM, E_eV },
+  (data) => {
     if (data.type === 'progress') {
       console.error(`[worker] ${data.msg}`);
     } else if (data.type === 'result') {
@@ -92,23 +93,5 @@ const shim = {
         console.error(`  ⚠ OH- + H3O+ rxn 8 didn't fire (small sample, may be normal)`);
       }
     }
-  },
-};
-Object.defineProperty(shim, 'onmessage', {
-  set(fn) { workerOnMessage = fn; },
-  get() { return workerOnMessage; },
-});
-
-global.self = shim;
-
-const workerPath = path.resolve(__dirname, '../public/irt-worker.js');
-const src = fs.readFileSync(workerPath, 'utf8');
-// eslint-disable-next-line no-eval
-eval(src);
-
-if (typeof workerOnMessage !== 'function') {
-  console.error('[test] worker did not register onmessage');
-  process.exit(2);
-}
-
-workerOnMessage({ data: { rad_buf, rad_n, n_therm: N_THERM, E_eV } });
+  }
+);

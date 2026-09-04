@@ -21,6 +21,8 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { performance } = require('perf_hooks');
+const { runWorkerSync } = require('./worker-shim.cjs');
 
 const dumpFile = process.argv[2];
 const K = parseInt(process.argv[3] || '128', 10);   // number of primaries to use
@@ -41,19 +43,25 @@ const radSub = new Float32Array(sub);
 const radN = radSub.length / 4;
 console.error(`[xprimary] ${dumpFile}: ${radN} radicals from first ${K} primaries (of ${fullN} total)`);
 
-const workerSrc = fs.readFileSync(path.resolve(__dirname, '../public/irt-worker.js'), 'utf8');
+const workerPath = path.resolve(__dirname, '../public/irt-worker.js');
+const workerSrc = fs.readFileSync(workerPath, 'utf8');
 
 function runWorker(src, label) {
-  let onmsg = null, result = null;
-  const shim = { onmessage: null, postMessage(d) { if (d.type === 'result') result = d; else if (d.type === 'progress') process.stderr.write(`\r[${label}] ${d.msg}        `); } };
-  Object.defineProperty(shim, 'onmessage', { set(fn){onmsg=fn;}, get(){return onmsg;} });
-  global.self = shim;
-  // eslint-disable-next-line no-eval
-  eval(src);
-  const t0 = require('perf_hooks').performance.now();
-  onmsg({ data: { rad_buf: radSub.slice(), rad_n: radN, n_therm: K, E_eV } });
-  process.stderr.write(`\n[${label}] done in ${((require('perf_hooks').performance.now()-t0)/1000).toFixed(1)}s\n`);
-  return result;
+  let progress = '';
+  const t0 = performance.now();
+  const { getResult } = runWorkerSync(
+    workerPath,
+    { rad_buf: radSub.slice(), rad_n: radN, n_therm: K, E_eV },
+    (data) => {
+      if (data.type === 'progress') {
+        progress = `\r[${label}] ${data.msg}        `;
+        process.stderr.write(progress);
+      }
+    },
+    src
+  );
+  process.stderr.write(`\n[${label}] done in ${((performance.now() - t0) / 1000).toFixed(1)}s\n`);
+  return getResult();
 }
 
 // per-primary (unmodified) and cross-primary (pid forced to 0)
