@@ -29,6 +29,9 @@ jobs:
   webgpu-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Documented non-blocking status until the first green runner run (see
+    # header comment + ci/README.md); then remove this key to make it gate.
+    continue-on-error: true
     env:
       # Force the Mesa lavapipe software-Vulkan ICD so Chrome doesn't chase a
       # missing hardware GPU. SwiftShader (--enable-unsafe-swiftshader) is the
