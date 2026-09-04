@@ -9,6 +9,11 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 export function writeArtifact(outPath, { meta, env, rows, status, diagnosis = null, summary = null }) {
+  if (!meta?.protocol || !env?.gitSha || !status || !Array.isArray(rows)) {
+    throw new Error(
+      `writeArtifact: missing required fields (meta.protocol=${meta?.protocol}, env.gitSha=${env?.gitSha}, status=${status}, rows is array=${Array.isArray(rows)})`,
+    );
+  }
   const artifact = {
     meta,
     env,
