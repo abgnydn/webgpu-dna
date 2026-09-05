@@ -230,51 +230,9 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
           // Distance from H2O+ (mother-displaced site) to thermalized eaq
           let rdx=epx-mpx;let rdy=epy-mpy;let rdz=epz-mpz;
           let r_sep=max(sqrt(rdx*rdx+rdy*rdy+rdz*rdz),1e-6);
-          let r_onsager:f32=0.711;  // q1*q2 * e^2/(4πε₀ε_r kT) at 298 K, ε=78
-          let p_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-r_onsager/r_sep)));
-          let r_recomb=rf(&s);
-          if(r_recomb<p_recomb){
-            // Electron-hole recombination: H2O+ + eaq → H2Ovib → dissociation
-            let r_vd=rf(&s);
-            if(r_vd<0.1365){
-              // 13.65% → 2OH + H2
-              atomicAdd(&counters[0],2u);
-              atomicAdd(&counters[5],1u); // H2 counter
-              let ri=atomicAdd(&counters[7],3u);
-              if(ri+2u<p.max_rad){
-                rad_buf[ri]   =vec4<f32>(mpx,mpy,mpz,0.0+pid);
-                rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,0.0+pid);
-                rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+2u]=vec4<f32>(mpx,mpy,mpz,7.0+pid);
-                rad_e[ri+2u]=e_dep_ion;rad_dep[ri+2u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }else if(r_vd<0.494){
-              // 35.75% → OH + H
-              atomicAdd(&counters[0],1u);
-              atomicAdd(&counters[2],1u);
-              let ri=atomicAdd(&counters[7],2u);
-              if(ri+1u<p.max_rad){
-                rad_buf[ri]   =vec4<f32>(mpx,mpy,mpz,0.0+pid);
-                rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,2.0+pid);
-                rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }else if(r_vd<0.650){
-              // 15.6% → 2H + O (O = code 4 — the oxygen-network seed, option3 chemistry)
-              atomicAdd(&counters[2],2u);
-              let ri=atomicAdd(&counters[7],3u);
-              if(ri+2u<p.max_rad){
-                rad_buf[ri]   =vec4<f32>(mpx,mpy,mpz,2.0+pid);
-                rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,2.0+pid);
-                rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+2u]=vec4<f32>(mpx,mpy,mpz,4.0+pid);
-                rad_e[ri+2u]=e_dep_ion;rad_dep[ri+2u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }
-            // else: 35% relaxation — no products
-          }else{
+          // Electron-hole recombination via the shared helper (helpers.wgsl):
+          // identical draws + products; false → site-specific no-recomb path.
+          if(!emit_recomb(r_sep,mpx,mpy,mpz,pid,e_dep_ion,px,py,pz,p.max_rad,true,&s)){
             // No recombination: normal pre-chem OH + H3O+ + eaq
             atomicAdd(&counters[0],1u);  // OH
             atomicAdd(&counters[1],1u);  // eaq
@@ -309,50 +267,9 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
           let r_track=0.04*pow(W_sec,1.3);
           let r_tail=meesungnoen_sigma(min(W_sec,7.4));
           let r_sep_est=max(r_track+r_tail,1e-3);
-          let r_onsager_t:f32=0.711;
-          let p_recomb_t=min(1.0,RECOMB_BOOST*(1.0-exp(-r_onsager_t/r_sep_est)));
-          let r_recomb_t=rf(&s);
-          if(r_recomb_t<p_recomb_t){
-            let r_vd=rf(&s);
-            if(r_vd<0.1365){
-              // 13.65% → 2OH + H2
-              atomicAdd(&counters[0],2u);
-              atomicAdd(&counters[5],1u);
-              let ri=atomicAdd(&counters[7],3u);
-              if(ri+2u<p.max_rad){
-                rad_buf[ri]   =vec4<f32>(mpx,mpy,mpz,0.0+pid);
-                rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,0.0+pid);
-                rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+2u]=vec4<f32>(mpx,mpy,mpz,7.0+pid);
-                rad_e[ri+2u]=e_dep_ion;rad_dep[ri+2u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }else if(r_vd<0.494){
-              // 35.75% → OH + H
-              atomicAdd(&counters[0],1u);
-              atomicAdd(&counters[2],1u);
-              let ri=atomicAdd(&counters[7],2u);
-              if(ri+1u<p.max_rad){
-                rad_buf[ri]   =vec4<f32>(mpx,mpy,mpz,0.0+pid);
-                rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,2.0+pid);
-                rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }else if(r_vd<0.650){
-              // 15.6% → 2H + O (O = code 4 — the oxygen-network seed, option3 chemistry)
-              atomicAdd(&counters[2],2u);
-              let ri=atomicAdd(&counters[7],3u);
-              if(ri+2u<p.max_rad){
-                rad_buf[ri]   =vec4<f32>(mpx,mpy,mpz,2.0+pid);
-                rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+1u]=vec4<f32>(mpx,mpy,mpz,2.0+pid);
-                rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ri+2u]=vec4<f32>(mpx,mpy,mpz,4.0+pid);
-                rad_e[ri+2u]=e_dep_ion;rad_dep[ri+2u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }
-            // else: 35% relax — no products
-          }else{
+          // Electron-hole recombination via the shared helper (helpers.wgsl):
+          // identical draws + products; false → site-specific no-recomb path.
+          if(!emit_recomb(r_sep_est,mpx,mpy,mpz,pid,e_dep_ion,px,py,pz,p.max_rad,true,&s)){
             // No recomb: emit OH + H3O+ (eaq created later by sec shader)
             atomicAdd(&counters[0],1u);  // OH
             atomicAdd(&counters[3],1u);  // H3O+
@@ -520,48 +437,10 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
           }
           let abdx=aex-bpx;let abdy=aey-bpy;let abdz=aez-bpz;
           let abr_sep=max(sqrt(abdx*abdx+abdy*abdy+abdz*abdz),1e-6);
-          let ab_onsager:f32=0.711;
-          let abp_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-ab_onsager/abr_sep)));
-          let abrr=rf(&s);
-          if(abrr<abp_recomb){
-            let abvd=rf(&s);
-            if(abvd<0.1365){
-              // 13.65% → 2OH + H2
-              atomicAdd(&counters[0],2u);
-              atomicAdd(&counters[5],1u);
-              let abri=atomicAdd(&counters[7],3u);
-              if(abri+2u<p.max_rad){
-                rad_buf[abri]   =vec4<f32>(bpx,bpy,bpz,0.0+pid);
-                rad_e[abri]=dep;rad_dep[abri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[abri+1u]=vec4<f32>(bpx,bpy,bpz,0.0+pid);
-                rad_e[abri+1u]=dep;rad_dep[abri+1u]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[abri+2u]=vec4<f32>(bpx,bpy,bpz,7.0+pid);
-                rad_e[abri+2u]=dep;rad_dep[abri+2u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }else if(abvd<0.494){
-              // 35.75% → OH + H
-              atomicAdd(&counters[0],1u);
-              atomicAdd(&counters[2],1u);
-              let abri=atomicAdd(&counters[7],2u);
-              if(abri+1u<p.max_rad){
-                rad_buf[abri]   =vec4<f32>(bpx,bpy,bpz,0.0+pid);
-                rad_e[abri]=dep;rad_dep[abri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[abri+1u]=vec4<f32>(bpx,bpy,bpz,2.0+pid);
-                rad_e[abri+1u]=dep;rad_dep[abri+1u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }else if(abvd<0.650){
-              // 15.6% → 2H + O (O not tracked)
-              atomicAdd(&counters[2],2u);
-              let abri=atomicAdd(&counters[7],2u);
-              if(abri+1u<p.max_rad){
-                rad_buf[abri]   =vec4<f32>(bpx,bpy,bpz,2.0+pid);
-                rad_e[abri]=dep;rad_dep[abri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[abri+1u]=vec4<f32>(bpx,bpy,bpz,2.0+pid);
-                rad_e[abri+1u]=dep;rad_dep[abri+1u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }
-            // else 35% relax — no products
-          }else{
+          // Electron-hole recombination via the shared helper (helpers.wgsl):
+          // identical draws + products; false → site-specific no-recomb path.
+          // emit_o=false: primary excitation emits 2 H only (O not tracked).
+          if(!emit_recomb(abr_sep,bpx,bpy,bpz,pid,dep,px,py,pz,p.max_rad,false,&s)){
             // No recomb: emit normal B1A1 autoionization products
             atomicAdd(&counters[0],1u);  // OH
             atomicAdd(&counters[1],1u);  // eaq
@@ -621,45 +500,10 @@ fn main(@builtin(global_invocation_id) gid:vec3u){
           }
           let ahdx=hex-hpx;let ahdy=hey-hpy;let ahdz=hez-hpz;
           let ahr_sep=max(sqrt(ahdx*ahdx+ahdy*ahdy+ahdz*ahdz),1e-6);
-          let ah_onsager:f32=0.711;
-          let ahp_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-ah_onsager/ahr_sep)));
-          let ahrr=rf(&s);
-          if(ahrr<ahp_recomb){
-            let ahvd=rf(&s);
-            if(ahvd<0.1365){
-              atomicAdd(&counters[0],2u);
-              atomicAdd(&counters[5],1u);
-              let ahri=atomicAdd(&counters[7],3u);
-              if(ahri+2u<p.max_rad){
-                rad_buf[ahri]   =vec4<f32>(hpx,hpy,hpz,0.0+pid);
-                rad_e[ahri]=dep;rad_dep[ahri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ahri+1u]=vec4<f32>(hpx,hpy,hpz,0.0+pid);
-                rad_e[ahri+1u]=dep;rad_dep[ahri+1u]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ahri+2u]=vec4<f32>(hpx,hpy,hpz,7.0+pid);
-                rad_e[ahri+2u]=dep;rad_dep[ahri+2u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }else if(ahvd<0.494){
-              atomicAdd(&counters[0],1u);
-              atomicAdd(&counters[2],1u);
-              let ahri=atomicAdd(&counters[7],2u);
-              if(ahri+1u<p.max_rad){
-                rad_buf[ahri]   =vec4<f32>(hpx,hpy,hpz,0.0+pid);
-                rad_e[ahri]=dep;rad_dep[ahri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ahri+1u]=vec4<f32>(hpx,hpy,hpz,2.0+pid);
-                rad_e[ahri+1u]=dep;rad_dep[ahri+1u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }else if(ahvd<0.650){
-              atomicAdd(&counters[2],2u);
-              let ahri=atomicAdd(&counters[7],2u);
-              if(ahri+1u<p.max_rad){
-                rad_buf[ahri]   =vec4<f32>(hpx,hpy,hpz,2.0+pid);
-                rad_e[ahri]=dep;rad_dep[ahri]=vec4<f32>(px,py,pz,0.0);
-                rad_buf[ahri+1u]=vec4<f32>(hpx,hpy,hpz,2.0+pid);
-                rad_e[ahri+1u]=dep;rad_dep[ahri+1u]=vec4<f32>(px,py,pz,0.0);
-              }
-            }
-            // else 35% relax
-          }else{
+          // Electron-hole recombination via the shared helper (helpers.wgsl):
+          // identical draws + products; false → site-specific no-recomb path.
+          // emit_o=false: primary excitation emits 2 H only (O not tracked).
+          if(!emit_recomb(ahr_sep,hpx,hpy,hpz,pid,dep,px,py,pz,p.max_rad,false,&s)){
             atomicAdd(&counters[0],1u);
             atomicAdd(&counters[1],1u);
             atomicAdd(&counters[3],1u);
