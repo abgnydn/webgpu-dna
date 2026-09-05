@@ -246,47 +246,9 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         }
         let rdx_t=epx_t-spx;let rdy_t=epy_t-spy;let rdz_t=epz_t-spz;
         let r_sep_t=max(sqrt(rdx_t*rdx_t+rdy_t*rdy_t+rdz_t*rdz_t),1e-6);
-        let r_onsager_t:f32=0.711;
-        let p_recomb_t=min(1.0,RECOMB_BOOST*(1.0-exp(-r_onsager_t/r_sep_t)));
-        let r_recomb_t=rf(&s);
-        if(r_recomb_t<p_recomb_t){
-          let r_vd=rf(&s);
-          if(r_vd<0.1365){
-            atomicAdd(&counters[0],2u);
-            atomicAdd(&counters[5],1u);
-            let ri=atomicAdd(&counters[7],3u);
-            if(ri+2u<sp.max_rad){
-              rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
-              rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,0.0+parent_pid);
-              rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,7.0+parent_pid);
-              rad_e[ri+2u]=e_dep_ion;rad_dep[ri+2u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }else if(r_vd<0.494){
-            atomicAdd(&counters[0],1u);
-            atomicAdd(&counters[2],1u);
-            let ri=atomicAdd(&counters[7],2u);
-            if(ri+1u<sp.max_rad){
-              rad_buf[ri]   =vec4<f32>(spx,spy,spz,0.0+parent_pid);
-              rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
-              rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }else if(r_vd<0.650){
-            atomicAdd(&counters[2],2u);
-            let ri=atomicAdd(&counters[7],3u);
-            if(ri+2u<sp.max_rad){
-              rad_buf[ri]   =vec4<f32>(spx,spy,spz,2.0+parent_pid);
-              rad_e[ri]=e_dep_ion;rad_dep[ri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[ri+1u]=vec4<f32>(spx,spy,spz,2.0+parent_pid);
-              rad_e[ri+1u]=e_dep_ion;rad_dep[ri+1u]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[ri+2u]=vec4<f32>(spx,spy,spz,4.0+parent_pid);
-              rad_e[ri+2u]=e_dep_ion;rad_dep[ri+2u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }
-          // else: 35% relaxation, no products
-        }else{
+        // Electron-hole recombination via the shared helper (helpers.wgsl):
+        // identical draws + products; false → site-specific no-recomb path.
+        if(!emit_recomb(r_sep_t,spx,spy,spz,parent_pid,e_dep_ion,px,py,pz,sp.max_rad,true,&s)){
           atomicAdd(&counters[0],1u);
           atomicAdd(&counters[1],1u);
           atomicAdd(&counters[3],1u);
@@ -363,47 +325,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         }
         let sabdx=sbex-sbpx;let sabdy=sbey-sbpy;let sabdz=sbez-sbpz;
         let sabr_sep=max(sqrt(sabdx*sabdx+sabdy*sabdy+sabdz*sabdz),1e-6);
-        let sab_onsager:f32=0.711;
-        let sabp_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-sab_onsager/sabr_sep)));
-        let sabrr=rf(&s);
-        if(sabrr<sabp_recomb){
-          let sabvd=rf(&s);
-          if(sabvd<0.1365){
-            atomicAdd(&counters[0],2u);
-            atomicAdd(&counters[5],1u);
-            let sabri=atomicAdd(&counters[7],3u);
-            if(sabri+2u<sp.max_rad){
-              rad_buf[sabri]   =vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);
-              rad_e[sabri]=dep;rad_dep[sabri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sabri+1u]=vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);
-              rad_e[sabri+1u]=dep;rad_dep[sabri+1u]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sabri+2u]=vec4<f32>(sbpx,sbpy,sbpz,7.0+parent_pid);
-              rad_e[sabri+2u]=dep;rad_dep[sabri+2u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }else if(sabvd<0.494){
-            atomicAdd(&counters[0],1u);
-            atomicAdd(&counters[2],1u);
-            let sabri=atomicAdd(&counters[7],2u);
-            if(sabri+1u<sp.max_rad){
-              rad_buf[sabri]   =vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);
-              rad_e[sabri]=dep;rad_dep[sabri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sabri+1u]=vec4<f32>(sbpx,sbpy,sbpz,2.0+parent_pid);
-              rad_e[sabri+1u]=dep;rad_dep[sabri+1u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }else if(sabvd<0.650){
-            atomicAdd(&counters[2],2u);
-            let sabri=atomicAdd(&counters[7],3u);
-            if(sabri+2u<sp.max_rad){
-              rad_buf[sabri]   =vec4<f32>(sbpx,sbpy,sbpz,2.0+parent_pid);
-              rad_e[sabri]=dep;rad_dep[sabri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sabri+1u]=vec4<f32>(sbpx,sbpy,sbpz,2.0+parent_pid);
-              rad_e[sabri+1u]=dep;rad_dep[sabri+1u]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sabri+2u]=vec4<f32>(sbpx,sbpy,sbpz,4.0+parent_pid);
-              rad_e[sabri+2u]=dep;rad_dep[sabri+2u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }
-          // else 35% relax
-        }else{
+        // Electron-hole recombination via the shared helper (helpers.wgsl):
+        // identical draws + products; false → site-specific no-recomb path.
+        // emit_o=true: secondary excitation keeps the O marker (unlike the
+        // primary B1A1 twin, which emits 2 H only) — preserved, not unified.
+        if(!emit_recomb(sabr_sep,sbpx,sbpy,sbpz,parent_pid,dep,px,py,pz,sp.max_rad,true,&s)){
           atomicAdd(&counters[0],1u);atomicAdd(&counters[1],1u);atomicAdd(&counters[3],1u);
           let re=atomicAdd(&counters[7],3u);
           if(re+2u<sp.max_rad){rad_buf[re]=vec4<f32>(sbpx,sbpy,sbpz,0.0+parent_pid);rad_e[re]=dep;rad_dep[re]=vec4<f32>(px,py,pz,0.0);rad_buf[re+1u]=vec4<f32>(sbex,sbey,sbez,1.0+parent_pid);rad_e[re+1u]=dep;rad_dep[re+1u]=vec4<f32>(px,py,pz,0.0);rad_buf[re+2u]=vec4<f32>(sbpx,sbpy,sbpz,3.0+parent_pid);rad_e[re+2u]=dep;rad_dep[re+2u]=vec4<f32>(px,py,pz,0.0);}
@@ -439,47 +365,11 @@ fn step(@builtin(global_invocation_id) gid:vec3u){
         }
         let sahdx=shex-shpx;let sahdy=shey-shpy;let sahdz=shez-shpz;
         let sahr_sep=max(sqrt(sahdx*sahdx+sahdy*sahdy+sahdz*sahdz),1e-6);
-        let sah_onsager:f32=0.711;
-        let sahp_recomb=min(1.0,RECOMB_BOOST*(1.0-exp(-sah_onsager/sahr_sep)));
-        let sahrr=rf(&s);
-        if(sahrr<sahp_recomb){
-          let sahvd=rf(&s);
-          if(sahvd<0.1365){
-            atomicAdd(&counters[0],2u);
-            atomicAdd(&counters[5],1u);
-            let sahri=atomicAdd(&counters[7],3u);
-            if(sahri+2u<sp.max_rad){
-              rad_buf[sahri]   =vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);
-              rad_e[sahri]=dep;rad_dep[sahri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sahri+1u]=vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);
-              rad_e[sahri+1u]=dep;rad_dep[sahri+1u]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sahri+2u]=vec4<f32>(shpx,shpy,shpz,7.0+parent_pid);
-              rad_e[sahri+2u]=dep;rad_dep[sahri+2u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }else if(sahvd<0.494){
-            atomicAdd(&counters[0],1u);
-            atomicAdd(&counters[2],1u);
-            let sahri=atomicAdd(&counters[7],2u);
-            if(sahri+1u<sp.max_rad){
-              rad_buf[sahri]   =vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);
-              rad_e[sahri]=dep;rad_dep[sahri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sahri+1u]=vec4<f32>(shpx,shpy,shpz,2.0+parent_pid);
-              rad_e[sahri+1u]=dep;rad_dep[sahri+1u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }else if(sahvd<0.650){
-            atomicAdd(&counters[2],2u);
-            let sahri=atomicAdd(&counters[7],3u);
-            if(sahri+2u<sp.max_rad){
-              rad_buf[sahri]   =vec4<f32>(shpx,shpy,shpz,2.0+parent_pid);
-              rad_e[sahri]=dep;rad_dep[sahri]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sahri+1u]=vec4<f32>(shpx,shpy,shpz,2.0+parent_pid);
-              rad_e[sahri+1u]=dep;rad_dep[sahri+1u]=vec4<f32>(px,py,pz,0.0);
-              rad_buf[sahri+2u]=vec4<f32>(shpx,shpy,shpz,4.0+parent_pid);
-              rad_e[sahri+2u]=dep;rad_dep[sahri+2u]=vec4<f32>(px,py,pz,0.0);
-            }
-          }
-          // else 35% relax
-        }else{
+        // Electron-hole recombination via the shared helper (helpers.wgsl):
+        // identical draws + products; false → site-specific no-recomb path.
+        // emit_o=true: secondary excitation keeps the O marker (unlike the
+        // primary L2-4 twin, which emits 2 H only) — preserved, not unified.
+        if(!emit_recomb(sahr_sep,shpx,shpy,shpz,parent_pid,dep,px,py,pz,sp.max_rad,true,&s)){
           atomicAdd(&counters[0],1u);atomicAdd(&counters[1],1u);atomicAdd(&counters[3],1u);
           let re=atomicAdd(&counters[7],3u);
           if(re+2u<sp.max_rad){rad_buf[re]=vec4<f32>(shpx,shpy,shpz,0.0+parent_pid);rad_e[re]=dep;rad_dep[re]=vec4<f32>(px,py,pz,0.0);rad_buf[re+1u]=vec4<f32>(shex,shey,shez,1.0+parent_pid);rad_e[re+1u]=dep;rad_dep[re+1u]=vec4<f32>(px,py,pz,0.0);rad_buf[re+2u]=vec4<f32>(shpx,shpy,shpz,3.0+parent_pid);rad_e[re+2u]=dep;rad_dep[re+2u]=vec4<f32>(px,py,pz,0.0);}

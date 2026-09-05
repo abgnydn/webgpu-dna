@@ -254,3 +254,83 @@ fn deposit(px:f32,py:f32,pz:f32,dep_eV:f32,box:f32,vc:u32){
   let vi=u32((iz*n+iy)*n+ix);
   atomicAdd(&dose[vi],u32(dep_eV*100.0));
 }
+
+// Electron-hole recombination → H2Ovib dissociation (R2 dedup,
+// WGSL_REFACTOR_PARITY_PROTOCOL.md). Shared verbatim by all 7 call sites
+// across the primary + secondary shaders: primary ionization (sub-cutoff +
+// tracked-secondary estimate), primary B1A1 + L2-4 autoionization, and the
+// three mirror sites in the secondary shader.
+//
+// Draws r_recomb, then (only if fired) r_vd from s — the same order as
+// every inlined copy this replaces. Returns true when recombination fired
+// (the caller runs its site-specific no-recomb path otherwise).
+//
+// Params: r_sep = H2O+→eaq separation in nm (callers clamp to > 0);
+// (mx,my,mz) = mother-displaced emission site; pid = primary lineage tag
+// (pid or parent_pid); dep_val = per-event deposited energy (e_dep_ion for
+// ionization sites, dep for excitation sites); (dx,dy,dz) = true deposit
+// site written to rad_dep (always the interaction point); max_rad = the
+// caller buffer bound (p.max_rad vs sp.max_rad); emit_o selects the
+// oxygen-marker variant — ionization sites (and secondary excitation)
+// emit the O atom (code 4, 3 entries) while primary excitation emits 2 H
+// only (2 entries). Behavior preserved exactly per site, NOT unified.
+fn emit_recomb(r_sep: f32, mx: f32, my: f32, mz: f32, pid: f32,
+               dep_val: f32, dx: f32, dy: f32, dz: f32,
+               max_rad: u32, emit_o: bool,
+               s: ptr<function,vec4u>) -> bool {
+  let p_recomb = min(1.0, RECOMB_BOOST * (1.0 - exp(-0.711 / max(r_sep, 1e-6))));
+  let r_recomb = rf(s);
+  if (r_recomb >= p_recomb) { return false; }
+  // Electron-hole recombination: H2O+ + eaq → H2Ovib → dissociation
+  let r_vd = rf(s);
+  if (r_vd < 0.1365) {
+    // 13.65% → 2OH + H2
+    atomicAdd(&counters[0], 2u);
+    atomicAdd(&counters[5], 1u); // H2 counter
+    let ri = atomicAdd(&counters[7], 3u);
+    if (ri + 2u < max_rad) {
+      rad_buf[ri]       = vec4<f32>(mx, my, mz, 0.0 + pid);
+      rad_e[ri] = dep_val; rad_dep[ri] = vec4<f32>(dx, dy, dz, 0.0);
+      rad_buf[ri + 1u] = vec4<f32>(mx, my, mz, 0.0 + pid);
+      rad_e[ri + 1u] = dep_val; rad_dep[ri + 1u] = vec4<f32>(dx, dy, dz, 0.0);
+      rad_buf[ri + 2u] = vec4<f32>(mx, my, mz, 7.0 + pid);
+      rad_e[ri + 2u] = dep_val; rad_dep[ri + 2u] = vec4<f32>(dx, dy, dz, 0.0);
+    }
+  } else if (r_vd < 0.494) {
+    // 35.75% → OH + H
+    atomicAdd(&counters[0], 1u);
+    atomicAdd(&counters[2], 1u);
+    let ri = atomicAdd(&counters[7], 2u);
+    if (ri + 1u < max_rad) {
+      rad_buf[ri]       = vec4<f32>(mx, my, mz, 0.0 + pid);
+      rad_e[ri] = dep_val; rad_dep[ri] = vec4<f32>(dx, dy, dz, 0.0);
+      rad_buf[ri + 1u] = vec4<f32>(mx, my, mz, 2.0 + pid);
+      rad_e[ri + 1u] = dep_val; rad_dep[ri + 1u] = vec4<f32>(dx, dy, dz, 0.0);
+    }
+  } else if (r_vd < 0.650) {
+    // 15.6% → 2H + O (O = code 4 — the oxygen-network seed, option3 chemistry)
+    atomicAdd(&counters[2], 2u);
+    if (emit_o) {
+      let ri = atomicAdd(&counters[7], 3u);
+      if (ri + 2u < max_rad) {
+        rad_buf[ri]       = vec4<f32>(mx, my, mz, 2.0 + pid);
+        rad_e[ri] = dep_val; rad_dep[ri] = vec4<f32>(dx, dy, dz, 0.0);
+        rad_buf[ri + 1u] = vec4<f32>(mx, my, mz, 2.0 + pid);
+        rad_e[ri + 1u] = dep_val; rad_dep[ri + 1u] = vec4<f32>(dx, dy, dz, 0.0);
+        rad_buf[ri + 2u] = vec4<f32>(mx, my, mz, 4.0 + pid);
+        rad_e[ri + 2u] = dep_val; rad_dep[ri + 2u] = vec4<f32>(dx, dy, dz, 0.0);
+      }
+    } else {
+      // Primary excitation emits 2 H only (O not tracked there)
+      let ri = atomicAdd(&counters[7], 2u);
+      if (ri + 1u < max_rad) {
+        rad_buf[ri]       = vec4<f32>(mx, my, mz, 2.0 + pid);
+        rad_e[ri] = dep_val; rad_dep[ri] = vec4<f32>(dx, dy, dz, 0.0);
+        rad_buf[ri + 1u] = vec4<f32>(mx, my, mz, 2.0 + pid);
+        rad_e[ri + 1u] = dep_val; rad_dep[ri + 1u] = vec4<f32>(dx, dy, dz, 0.0);
+      }
+    }
+  }
+  // else: 35% relaxation — no products
+  return true;
+}

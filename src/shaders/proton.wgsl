@@ -25,6 +25,11 @@ struct Particle{pos_E:vec4<f32>,dir_alive:vec4<f32>,rng:vec4<u32>};
 @group(0)@binding(5) var<storage,read_write> sec_buf:array<Particle>;
 @group(0)@binding(6) var<storage,read_write> dose:array<atomic<u32>>;
 @group(0)@binding(7) var<storage,read_write> counters:array<atomic<u32>>;
+// Bindings 8/9 mirror primary.wgsl (per-event energy + true deposit site).
+// Declared so the shared helpers.wgsl emit_recomb() resolves; proton emits
+// neither itself yet (pre-dates per-event scoring — R2 dedup note).
+@group(0)@binding(8) var<storage,read_write> rad_e:array<f32>;
+@group(0)@binding(9) var<storage,read_write> rad_dep:array<vec4<f32>>;
 
 // --- proton physics constants ---
 const PROTON_BORN_E:f32 = 500000.0;       // eV — Rudd below, Born above (option2)
