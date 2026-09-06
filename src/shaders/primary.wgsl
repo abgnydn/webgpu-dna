@@ -45,51 +45,9 @@ struct Particle{pos_E:vec4<f32>,dir_alive:vec4<f32>,rng:vec4<u32>};
 // backbone atom on the fiber grid. Returns 1u if within reach of either
 // strand, else 0u. Grid layout matches JS buildDNATarget: NxN parallel
 // fibers along X, uniform (y,z) spacing, straight B-DNA helix per fiber.
+// Thin wrapper over the shared helpers.wgsl impl (R2 dedup).
 fn dna_near(px:f32,py:f32,pz:f32)->u32{
-  if(p.dna_enable==0u){return 0u;}
-  let r_damage:f32=0.29;
-  let N=p.dna_grid_n;
-  let spacing=p.dna_spacing;
-  let grid_off = -(f32(N-1u)*spacing)*0.5;
-  let inv_s = 1.0/spacing;
-  // Snap (py,pz) to nearest fiber. Round to nearest integer index.
-  let fi_raw = (py - grid_off) * inv_s;
-  let fj_raw = (pz - grid_off) * inv_s;
-  let fi = i32(round(fi_raw));
-  let fj = i32(round(fj_raw));
-  if(fi<0 || fi>=i32(N) || fj<0 || fj>=i32(N)){return 0u;}
-  let fy = grid_off + f32(fi)*spacing;
-  let fz = grid_off + f32(fj)*spacing;
-  let y_rel = py - fy;
-  let z_rel = pz - fz;
-  let r2 = y_rel*y_rel + z_rel*z_rel;
-  let R_reach = p.dna_r_bb + r_damage;
-  if(r2 > R_reach*R_reach){return 0u;}
-  // Snap to nearest bp along X
-  let bp_est = i32(round((px - p.dna_x0)/p.dna_rise));
-  // Check ±1 bp for helical offset tolerance
-  let b0 = max(0,bp_est-1);
-  let b1 = bp_est+1;
-  let d_phase = 2.0*PI/10.5;
-  let r_bb = p.dna_r_bb;
-  for(var b:i32=b0;b<=b1;b=b+1){
-    let bx = p.dna_x0 + f32(b)*p.dna_rise;
-    let phi = f32(b)*d_phase;
-    // Strand 0
-    let s0y = r_bb*cos(phi);
-    let s0z = r_bb*sin(phi);
-    let dx = px - bx;
-    let dy0 = y_rel - s0y;
-    let dz0 = z_rel - s0z;
-    if(dx*dx + dy0*dy0 + dz0*dz0 < r_damage*r_damage){return 1u;}
-    // Strand 1
-    let s1y = r_bb*cos(phi+PI);
-    let s1z = r_bb*sin(phi+PI);
-    let dy1 = y_rel - s1y;
-    let dz1 = z_rel - s1z;
-    if(dx*dx + dy1*dy1 + dz1*dz1 < r_damage*r_damage){return 1u;}
-  }
-  return 0u;
+  return dna_near_impl(px,py,pz,p.dna_enable,p.dna_grid_n,p.dna_spacing,p.dna_r_bb,p.dna_x0,p.dna_rise);
 }
 
 // meesungnoen_sigma() and deposit() live in helpers.wgsl (shared with the

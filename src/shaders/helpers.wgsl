@@ -334,3 +334,57 @@ fn emit_recomb(r_sep: f32, mx: f32, my: f32, mz: f32, pid: f32,
   // else: 35% relaxation — no products
   return true;
 }
+
+// DNA backbone proximity check (R2 dedup, WGSL_REFACTOR_PARITY_PROTOCOL.md).
+// Shared verbatim by primary dna_near() and secondary dna_near_sec(), which
+// differ only in uniform namespace (p.* vs sp.*) — so geometry arrives as
+// explicit params. Returns 1u if within r_damage of either strand, else 0u.
+// Grid layout matches JS buildDNATarget: NxN parallel fibers along X,
+// uniform (y,z) spacing, straight B-DNA helix per fiber. Pure: no RNG,
+// no atomics (callers do their own counters[4] bump).
+fn dna_near_impl(px: f32, py: f32, pz: f32, dna_enable: u32, grid_n: u32,
+                 spacing: f32, r_bb_in: f32, x0: f32, rise: f32) -> u32 {
+  if (dna_enable == 0u) { return 0u; }
+  let r_damage: f32 = 0.29;
+  let N = grid_n;
+  let grid_off = -(f32(N - 1u) * spacing) * 0.5;
+  let inv_s = 1.0 / spacing;
+  // Snap (py,pz) to nearest fiber. Round to nearest integer index.
+  let fi_raw = (py - grid_off) * inv_s;
+  let fj_raw = (pz - grid_off) * inv_s;
+  let fi = i32(round(fi_raw));
+  let fj = i32(round(fj_raw));
+  if (fi < 0 || fi >= i32(N) || fj < 0 || fj >= i32(N)) { return 0u; }
+  let fy = grid_off + f32(fi) * spacing;
+  let fz = grid_off + f32(fj) * spacing;
+  let y_rel = py - fy;
+  let z_rel = pz - fz;
+  let r2 = y_rel * y_rel + z_rel * z_rel;
+  let R_reach = r_bb_in + r_damage;
+  if (r2 > R_reach * R_reach) { return 0u; }
+  // Snap to nearest bp along X
+  let bp_est = i32(round((px - x0) / rise));
+  // Check ±1 bp for helical offset tolerance
+  let b0 = max(0, bp_est - 1);
+  let b1 = bp_est + 1;
+  let d_phase = 2.0 * PI / 10.5;
+  let r_bb = r_bb_in;
+  for (var b: i32 = b0; b <= b1; b = b + 1) {
+    let bx = x0 + f32(b) * rise;
+    let phi = f32(b) * d_phase;
+    // Strand 0
+    let s0y = r_bb * cos(phi);
+    let s0z = r_bb * sin(phi);
+    let dx = px - bx;
+    let dy0 = y_rel - s0y;
+    let dz0 = z_rel - s0z;
+    if (dx * dx + dy0 * dy0 + dz0 * dz0 < r_damage * r_damage) { return 1u; }
+    // Strand 1
+    let s1y = r_bb * cos(phi + PI);
+    let s1z = r_bb * sin(phi + PI);
+    let dy1 = y_rel - s1y;
+    let dz1 = z_rel - s1z;
+    if (dx * dx + dy1 * dy1 + dz1 * dz1 < r_damage * r_damage) { return 1u; }
+  }
+  return 0u;
+}
