@@ -25,7 +25,8 @@ import { initGPU } from './gpu/device';
 import { allocateBuffers, seedPrimaryRNG } from './gpu/buffers';
 import { createPipelines } from './gpu/pipelines';
 import { runAtEnergy } from './gpu/dispatch';
-import { MAX_SEC, MAX_RAD, VC } from './physics/constants';
+import { MAX_SEC, MAX_RAD, VC, DNA_LENGTH_NM, DNA_GRID_N, DNA_SPACING_NM } from './physics/constants';
+import { buildDNATarget } from './physics/dna-geometry';
 import type { GPUBuffers } from './gpu/buffers';
 import type { Pipelines } from './gpu/pipelines';
 
@@ -325,7 +326,9 @@ async function runPhaseABench(opts: BenchOpts): Promise<BenchResult> {
  *
  * E is fixed at 10000 eV (not a physics choice): the dose grid is only
  * returned at 10 keV, and chemistry is skipped without a callback — so the
- * digest covers Phase A+B exactly, nothing else.
+ * digest covers Phase A+B exactly, nothing else. A DNA target IS passed
+ * (dna_enable=1) so the kernel dna_near checks execute; their hits are
+ * digested via kernel_dna_hits.
  *
  * Comparison rules (see protocol doc): counters/scalars/dose exact;
  * rad_buf/rad_e/rad_dep as multisets (sorted rows, then hashed) because
@@ -356,6 +359,7 @@ export interface ParityDigest {
   sec_n: number;
   sec_tertiary_ions: number;
   sec_steps: number;
+  kernel_dna_hits: number;
   doseSum: number;
   doseHash: string;
   radHash: string;
@@ -427,7 +431,11 @@ async function runParitySnapshot(opts: ParityOpts): Promise<ParityDigest> {
 
   const t0 = performance.now();
   plog('runAtEnergy (full Phase A+B)…');
-  const r = await runAtEnergy(device, buffers, pipelines, energyEv, np, boxNm, ceEV, null, undefined);
+  // DNA target enabled (same defaults as validation) so the kernel-level
+  // dna_near checks execute instead of early-returning — required coverage
+  // for WGSL refactors touching the DNA path. Deterministic: static geometry.
+  const dna = buildDNATarget(DNA_LENGTH_NM, DNA_GRID_N, DNA_SPACING_NM);
+  const r = await runAtEnergy(device, buffers, pipelines, energyEv, np, boxNm, ceEV, dna, undefined);
   plog(`runAtEnergy done n_therm=${r.n_therm} rad_n=${r.rad_n_stored} sec_n=${r.sec_n}, re-reading counters…`);
 
   // Re-read the full counters[0..7] (runAtEnergy returns only named fields).
@@ -473,6 +481,7 @@ async function runParitySnapshot(opts: ParityOpts): Promise<ParityDigest> {
     sec_n: r.sec_n,
     sec_tertiary_ions: r.sec_tertiary_ions,
     sec_steps: r.sec_steps,
+    kernel_dna_hits: r.kernel_dna_hits,
     doseSum,
     doseHash: fnv1aU32(doseArr),
     radHash: sortedRowHash(radBuf, 4),

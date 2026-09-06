@@ -65,7 +65,7 @@ function parseArgs(argv) {
 const COMPARE_FIELDS = [
   'E', 'np', 'boxNm', 'ceEV', 'n_therm', 'n_esc', 'mean_total', 'mean_ions',
   'cons_ratio', 'total_deposited_eV', 'rad_n_raw', 'rad_n_stored', 'rad_dropped',
-  'sec_n', 'sec_tertiary_ions', 'sec_steps', 'doseSum', 'doseHash',
+  'sec_n', 'sec_tertiary_ions', 'sec_steps', 'kernel_dna_hits', 'doseSum', 'doseHash',
   'radHash', 'radEHash', 'radDepHash',
 ];
 
