@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "protocol": "R2-dna-near-dedup",
+    "hypothesis": "Replacing the primary dna_near() and secondary dna_near_sec() bodies with thin wrappers over one helpers.wgsl dna_near_impl() (explicit geometry params) produces bit-identical GPU outputs at fixed seed with DNA enabled.",
+    "passBar": "wgsl-parity.mjs --hardware exit 0 post-change AND all recorded DNA-baseline fields equal pre-change values.",
+    "seed": "runAtEnergy seedPrimaryRNG(np=16, floor(E)=10000); boxNm=15000, ceEV=7.4, dna=buildDNATarget(3000,21,150) (dna_enable=1), no chemistry",
+    "warmup": 0,
+    "trials": 2,
+    "sources": {
+      "harness": "src/bench.ts runParitySnapshot + experiments/tools/wgsl-parity.mjs --hardware",
+      "design": "WGSL_REFACTOR_PARITY_PROTOCOL.md Phase 2 (dna_near follow-up)"
+    },
+    "coverageNote": "dna_enable=1 so both dna_near bodies execute fully on in-bounds events; kernel_dna_hits=0 at N=16 so the two return-1u lines execute but never fire — covered by inspection (byte-identical copies), stated here, not hidden.",
+    "note": "Measured on the working tree byte-identical to commit 8f5fe78 (harness commit c05c0f5 below it); env.gitSha cites the shader commit. Sole untracked file experiments/tools/regen-run.mjs pre-exists and is untouched."
+  },
+  "env": {
+    "gitSha": "8f5fe7800b7bbd057397ad2f717c605b19c875f5",
+    "gitDirty": true,
+    "gitDirtyNote": "only pre-existing untracked experiments/tools/regen-run.mjs",
+    "shaderHashes": {
+      "helpers_wgsl": "81ee0cd3e292d1e383bfa099a87fa82ee94c6ff1",
+      "primary_wgsl": "96d87d7205fd3636ceeb73e73966034e39d35084",
+      "secondary_wgsl": "2419e83ebd6840719e12844e0330b81790d5f9e3",
+      "chemistry_wgsl": "0238014dc07cc0c99cad863bbf1e0cf0af6baf27",
+      "irt_worker_js": "0b79d09caeb10aa350c41c3670b604c856f56a94"
+    },
+    "timestamp": "2026-09-06T00:00:00Z",
+    "runner": "node",
+    "adapter": { "vendor": "apple", "architecture": "metal-3", "device": "", "description": "" }
+  },
+  "status": "pass",
+  "diagnosis": null,
+  "summary": {
+    "n_therm": 16,
+    "rad_n_stored": 25758,
+    "sec_n": 2235,
+    "kernel_dna_hits": 0,
+    "counters": [8759, 7810, 888, 7700, 0, 306, 4170, 25758],
+    "doseHash": "25256e84",
+    "radHash": "81c43d00",
+    "wallMs": [1570, 113],
+    "netLines": "+71/-85 (shaders only)",
+    "headline": "post-change run1==run2 on all 22 compared fields AND equal to DNA-baseline on all 14 recorded fields, separate browser launches"
+  },
+  "rows": [
+    { "field": "counters[0]", "baseline": 8759, "run1": 8759, "run2": 8759, "status": "pass" },
+    { "field": "counters[1]", "baseline": 7810, "run1": 7810, "run2": 7810, "status": "pass" },
+    { "field": "counters[2]", "baseline": 888, "run1": 888, "run2": 888, "status": "pass" },
+    { "field": "counters[3]", "baseline": 7700, "run1": 7700, "run2": 7700, "status": "pass" },
+    { "field": "counters[4]", "baseline": 0, "run1": 0, "run2": 0, "status": "pass" },
+    { "field": "counters[5]", "baseline": 306, "run1": 306, "run2": 306, "status": "pass" },
+    { "field": "counters[6]", "baseline": 4170, "run1": 4170, "run2": 4170, "status": "pass" },
+    { "field": "counters[7]", "baseline": 25758, "run1": 25758, "run2": 25758, "status": "pass" },
+    { "field": "doseHash", "baseline": "25256e84", "run1": "25256e84", "run2": "25256e84", "status": "pass" },
+    { "field": "radHash", "baseline": "81c43d00", "run1": "81c43d00", "run2": "81c43d00", "status": "pass" },
+    { "field": "n_therm", "baseline": 16, "run1": 16, "run2": 16, "status": "pass" },
+    { "field": "rad_n_stored", "baseline": 25758, "run1": 25758, "run2": 25758, "status": "pass" },
+    { "field": "sec_n", "baseline": 2235, "run1": 2235, "run2": 2235, "status": "pass" },
+    { "field": "kernel_dna_hits", "baseline": 0, "run1": 0, "run2": 0, "status": "pass" }
+  ]
+}
